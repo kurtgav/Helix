@@ -17,6 +17,15 @@ updated: 2026-07-12
 
 <!-- New iterations append below. Newest last. -->
 
+## 2026-07-12 · Iteration 3 — Unified design system + LIVE on Vercel
+- **Unified the design system**: remapped the product's `--c-*` tokens to the landing palette (one system across marketing + product). Shared inline icon sprite (`Sprite`/`Icon`).
+- **Production landing at `/`**: ported + upgraded the static landing into a Next route — editorial hero with the live product card, payer strip, metrics, how-it-works, agents, security, FAQ, CTA, footer. Desktop-first, fully responsive; scroll-reveal + reduced-motion safe.
+- **Restructured routes**: `/` = landing, product moved under an `(app)` group → `/dashboard` + `/verify` with a unified appbar. Minimal root layout + metadata/OG/SEO + SVG favicon.
+- **Deployed LIVE** to Vercel team `kurtgavs-projects` (project `helix`, Root Directory `apps/web`, pnpm monorepo build): **https://helix-eight-silk.vercel.app**. All routes 200, public (no auth wall). Live `/api/verify` returns eligible + LOA-required + gaps + encounterId — full agent pipeline on serverless in mock mode.
+- Web production build green (9 routes, `/` 96.6 kB first load). Backend packages still green from v0.
+- **Notes / open:** the parallel persistence agent was killed (touched nothing); I'll build DB persistence inline. User's Supabase project `bxttjculfzukbpepunoo` is in a different org than the connected PAVI one → MCP can't reach it; needs its connection string to migrate/seed/wire. My stray `helix-mvp` project never provisioned (no charge).
+- Next: DB persistence (inline) + wire Supabase, security headers + `/api/health`, product re-theme polish, responsive QA, redeploy.
+
 ## 2026-07-12 · Iteration 2 — Swarm landed + v0 integrated GREEN
 - **10-agent swarm `wf_320d57bf-41e` completed** (10/10 done, 0 errors, ~1.28M tokens, ~46 min). Built db, payers, llm, core, ci-meta, services/agents, apps/web, scripts, then integration-verifier + security auditor.
 - Swarm self-corrected two real **security defects**: (1) agent-core caught Evidence snippets leaking patient names into the audit trail → `citationsOnly()`; (2) security auditor caught `memberId` being sent to the 3rd-party LLM prompt → dropped + regression test. Both align with [[security-and-compliance]].
