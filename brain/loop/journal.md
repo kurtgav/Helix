@@ -17,6 +17,14 @@ updated: 2026-07-12
 
 <!-- New iterations append below. Newest last. -->
 
+## 2026-07-12 · Iteration 5 — Live persistence (Supabase) end-to-end
+- User provided the Supabase connection string for `bxttjculfzukbpepunoo` (transaction pooler). Treated as a secret — written to a gitignored `.env`, set as an encrypted Vercel env, never committed.
+- **Built Postgres persistence** behind the seam (no schema change): `@helix/db` repositories (patient/coverage/encounter/eligibility_check/loa/audit), deterministic payer→uuid mapping, `BufferedAuditLog` (sync `record` → async `flush`), `hasDatabase()`. `client` uses `prepare:false` for the pooler. Seam picks DB vs in-memory by `DATABASE_URL`; human-approval + immutable audit preserved in both. Added `@helix/db` (+ `@helix/core`) deps.
+- **Pushed the schema** to Supabase (11 tables + append-only trigger). Verified the DB path locally, then live: the deployed app reports `mode:"persistent"` and writes real rows (2 encounters + 5 audit entries confirmed via SQL).
+- Typecheck 8/8, tests green, Vercel build green. Live: **https://helix-eight-silk.vercel.app**.
+- **Known follow-ups:** dashboard ROI still shows the seeded demo baseline (real encounters persist but don't yet feed the ROI panel — needs a roi_events feed or a live aggregate query); Playwright/axe automation; auth substrate (still a single demo `staff` actor); CSP nonce hardening.
+- Production MVP tasks #11–#18 complete.
+
 ## 2026-07-12 · Iteration 4 — Production hardening live; DB blocked on credentials
 - **Security headers** (next.config): CSP, HSTS (2y+preload), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy; `poweredByHeader` off. **`/api/health`** liveness probe (reports mock vs persistent, no secrets). Product polish: dashboard hero tile → unified accent gradient + tabular figures. Set `NEXT_PUBLIC_SITE_URL` env.
 - Redeployed: https://helix-eight-silk.vercel.app — verified live: health OK, all security headers present, `x-powered-by` absent.
