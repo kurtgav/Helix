@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
+import { Icon } from "@/components/Icon";
 import { demoRoiSnapshot } from "@/lib/demo";
 import { formatPesos, formatHours, formatDuration } from "@/lib/format";
 
@@ -19,7 +20,8 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link href="/verify" className="btn btn--primary btn--lg">
-          New verification →
+          New verification
+          <Icon name="arrow" size={17} />
         </Link>
       </div>
 
@@ -78,8 +80,8 @@ export default function DashboardPage() {
         <Card>
           <CardBody>
             <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-              Synthetic demo data. Real payer integration is behind a flag and out
-              of scope for v0. Nothing reaches a payer without a human approving it.
+              Synthetic demo data. Real payer integration is behind a flag. Nothing
+              reaches a payer without a human approving it.
             </p>
           </CardBody>
         </Card>

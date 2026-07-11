@@ -16,7 +16,7 @@ export default function VerifyPage() {
             checks eligibility, applies payer rules, and drafts the LOA.
           </p>
         </div>
-        <Link href="/" className="muted" style={{ fontSize: "var(--fs-sm)" }}>
+        <Link href="/dashboard" className="link-quiet">
           ← Back to dashboard
         </Link>
       </div>
