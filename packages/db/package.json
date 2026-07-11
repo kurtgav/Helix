@@ -16,6 +16,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@helix/core": "workspace:*",
     "@helix/shared": "workspace:*",
     "drizzle-orm": "^0.36.4",
     "postgres": "^3.4.5"
