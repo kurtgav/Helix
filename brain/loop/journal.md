@@ -16,3 +16,10 @@ updated: 2026-07-12
 - Next: scaffold monorepo + data model + payer interface via parallel subagents.
 
 <!-- New iterations append below. Newest last. -->
+
+## 2026-07-12 · Iteration 1 — Landing page (marketing surface)
+- Built the Helix landing page at `apps/site/index.html` — static, self-contained (inline CSS/SVG, no webfonts, vanilla-JS progressive enhancement). Kept out of the pnpm/turbo graph (no package.json) so it doesn't collide with the live swarm building `apps/web`.
+- Design: light-locked, 1000x-minimal, editorial. Monochrome ink brand on cool off-white; color only as semantic signal (teal-green pass/live, brick red blocking gap). System-sans display + technical mono for records/IDs/audit hashes. No emojis; custom line-icon sprite.
+- **Hero = the product thesis:** a live Eligibility & Pre-Auth "proposed action" card (coverage active, LOA drafted, referral missing/blocking) — sells the validated wedge visually. Informative sections: payer strip, 1-click/100%/0-logins metrics, 3-step how-it-works, 6-agent roster, security/trust, CTA.
+- Published preview artifact: https://claude.ai/code/artifact/eb1aa453-2668-4253-ad9a-03b636b39ae8
+- Swarm `wf_320d57bf-41e` still building the product app in parallel; landing page is disjoint. Awaiting swarm completion to integrate + verify build.

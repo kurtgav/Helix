@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Helix - the AI operating layer for healthcare operations.">
+<title>Helix - The AI operating layer for healthcare operations</title>
+</head>
+<body>
+<title>Helix — The AI operating layer for healthcare operations</title>
+
+<!-- ============ ICON SPRITE (high-end line iconography, 24-grid, 1.5 stroke) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-helix" viewBox="0 0 24 24">
+      <path d="M7 3c0 4.5 10 6 10 9s-10 4.5-10 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M17 3c0 4.5-10 6-10 9s10 4.5 10 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M8.5 6.2h7M8.5 17.8h7M6.6 12h10.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24">
+      <path d="M12 3 21 8l-9 5-9-5 9-5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M3 13.5 12 18.5l9-5M3 17 12 22l9-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+      <path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="m9 12 2 2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24">
+      <path d="M3 12h4l2-5 4 10 2-5h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <path d="M6 3h7l5 5v13H6V3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M13 3v5h5M9 13h6M9 16.5h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24">
+      <path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24">
+      <path d="M9 4h6v3H9V4Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M9 5.5H6v15h12v-15h-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="m9 13 1.8 1.8L14 11.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 4v16h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M8 15l3.2-4 3 2.4L20 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <path d="M6 10.5h12V21H6V10.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M8.5 10.5V8a3.5 3.5 0 1 1 7 0v2.5M12 15v2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m5 12.5 4 4L19 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+      <path d="M12 4 3 20h18L12 4Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24">
+      <path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 16v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24">
+      <path d="M4 15a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M12 15l4-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="12" cy="15" r="1.4" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-fingerprint" viewBox="0 0 24 24">
+      <path d="M12 11v3.5M8.5 8.8a5 5 0 0 1 7 .2M6.5 12a7.5 7.5 0 0 1 .8-3.4M9 14.5c.3 2 .1 3.4-.6 4.8M12 10a2.4 2.4 0 0 1 2.4 2.4c0 2.6.3 4.6 1.2 6.4M15.5 16.5c.2 1 .5 1.8.9 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M3.5 20a5.5 5.5 0 0 1 11 0M16 5.2a3 3 0 0 1 0 5.6M17 14.4A5.5 5.5 0 0 1 20.5 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<style>
+  /* ============ TOKENS — light-locked by request; deliberate single visual world ============ */
+  :root {
+    color-scheme: light;
+
+    --ground: #FBFCFB;
+    --surface: #FFFFFF;
+    --surface-sink: #F4F6F4;
+    --hairline: #E7EAE7;
+    --hairline-2: #DCE0DC;
+
+    --ink: #0F1312;
+    --ink-2: #363C39;
+    --muted: #5C625E;
+    --faint: #8A908B;
+
+    --accent: #0C6B55;
+    --accent-strong: #095844;
+    --accent-tint: #E8F1ED;
+    --accent-line: #BFDCD1;
+
+    --critical: #A32A28;
+    --critical-tint: #F8EAE8;
+
+    --shadow-sm: 0 1px 2px rgba(15,19,18,.05);
+    --shadow-card:
+      0 1px 1px rgba(15,19,18,.04),
+      0 10px 20px -10px rgba(15,19,18,.14),
+      0 30px 60px -24px rgba(15,19,18,.14);
+    --shadow-btn: 0 1px 2px rgba(15,19,18,.24), 0 2px 6px -2px rgba(15,19,18,.24);
+
+    --r-xs: 7px;
+    --r-sm: 9px;
+    --r-md: 13px;
+    --r-lg: 20px;
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Consolas, monospace;
+
+    --wrap: 1140px;
+    --gutter: clamp(20px, 5vw, 48px);
+  }
+  /* Respect the light-mode request even if the viewer toggles the artifact theme. */
+  :root[data-theme="dark"] { color-scheme: light; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.6;
+    letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  a { color: inherit; text-decoration: none; }
+  svg { display: block; }
+  .ico { width: 20px; height: 20px; }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    font-weight: 500;
+  }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ============ NAV ============ */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--ground) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s ease, background .3s ease;
+  }
+  .nav.scrolled { border-bottom-color: var(--hairline); }
+  .nav__in { display: flex; align-items: center; gap: 28px; height: 66px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.02em; font-size: 18px; }
+  .brand__mark {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    color: var(--ink);
+    border: 1px solid var(--hairline-2); border-radius: 8px;
+    background: linear-gradient(180deg, #fff, var(--surface-sink));
+  }
+  .brand__mark .ico { width: 19px; height: 19px; }
+  .nav__links { display: flex; gap: 28px; margin-left: 14px; }
+  .nav__links a { color: var(--muted); font-size: 14.5px; font-weight: 450; transition: color .18s ease; }
+  .nav__links a:hover { color: var(--ink); }
+  .nav__spacer { flex: 1; }
+  .nav__cta { display: flex; align-items: center; gap: 8px; }
+
+  .btn {
+    --_bg: var(--ink); --_fg: #fff; --_bd: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; font-size: 14.5px; font-weight: 500; letter-spacing: -0.01em;
+    padding: 10px 16px; border-radius: var(--r-sm);
+    background: var(--_bg); color: var(--_fg); border: 1px solid var(--_bd);
+    cursor: pointer; white-space: nowrap;
+    transition: transform .16s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .btn .ico { width: 17px; height: 17px; }
+  .btn--primary { box-shadow: var(--shadow-btn); }
+  .btn--primary:hover { background: #000; transform: translateY(-1px); }
+  .btn--primary:active { transform: translateY(0); }
+  .btn--ghost { --_bg: transparent; --_fg: var(--ink); --_bd: var(--hairline-2); }
+  .btn--ghost:hover { --_bd: var(--ink); background: var(--surface); }
+  .btn--sm { padding: 8px 13px; font-size: 13.5px; }
+  .btn--lg { padding: 13px 22px; font-size: 15.5px; }
+  .btn .arrow { transition: transform .2s ease; }
+  .btn:hover .arrow { transform: translateX(3px); }
+  .link-quiet { color: var(--muted); font-size: 14.5px; font-weight: 450; transition: color .18s ease; }
+  .link-quiet:hover { color: var(--ink); }
+
+  /* ============ HERO ============ */
+  .hero { position: relative; overflow: hidden; padding-top: clamp(48px, 8vw, 92px); padding-bottom: clamp(40px, 7vw, 84px); }
+  .hero__bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .hero__bg::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(12,107,85,.05), transparent 32%),
+      radial-gradient(120% 60% at 82% -8%, rgba(12,107,85,.07), transparent 60%);
+  }
+  .hero__bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 100% 128px, 128px 100%;
+    opacity: .5;
+    -webkit-mask-image: radial-gradient(120% 90% at 70% 0%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(120% 90% at 70% 0%, #000 30%, transparent 78%);
+  }
+  .hero__grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+    gap: clamp(32px, 5vw, 68px); align-items: center;
+  }
+  .hero__copy { max-width: 37rem; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 8px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-sm);
+    font-size: 13px; color: var(--ink-2); font-weight: 450; margin-bottom: 26px;
+  }
+  .pill__tag {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent-strong); background: var(--accent-tint); border-radius: 999px; padding: 3px 8px;
+  }
+  h1.hero__title {
+    margin: 0 0 22px; font-weight: 600;
+    font-size: clamp(2.55rem, 5.6vw, 4.55rem);
+    line-height: 1.02; letter-spacing: -0.038em; text-wrap: balance; color: var(--ink);
+  }
+  .hero__sub { margin: 0 0 32px; font-size: clamp(1.05rem, 1.4vw, 1.24rem); line-height: 1.55; color: var(--muted); max-width: 33rem; }
+  .hero__sub strong { color: var(--ink-2); font-weight: 550; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .hero__trust { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13.5px; color: var(--faint); }
+  .hero__trust span { display: inline-flex; align-items: center; gap: 7px; }
+  .dot-good { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+
+  /* ---- Hero product card (the thesis: the real product moment) ---- */
+  .card-stage { position: relative; }
+  .card {
+    position: relative; z-index: 2;
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: var(--r-lg); box-shadow: var(--shadow-card); overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; border-bottom: 1px solid var(--hairline);
+    background: linear-gradient(180deg, var(--surface), #fcfdfc);
+  }
+  .card__head .ico { width: 16px; height: 16px; color: var(--accent-strong); }
+  .card__label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .live { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; color: var(--accent-strong); }
+  .live__dot { position: relative; width: 7px; height: 7px; border-radius: 999px; background: var(--accent); }
+  .live__dot::after { content: ""; position: absolute; inset: -4px; border-radius: 999px; border: 1px solid var(--accent); opacity: .5; animation: ring 2.4s ease-out infinite; }
+  @keyframes ring { 0% { transform: scale(.6); opacity: .6; } 100% { transform: scale(1.6); opacity: 0; } }
+
+  .card__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .subject { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .subject__name { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+  .subject__id { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    font-size: 12.5px; color: var(--ink-2); background: var(--surface-sink);
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 11px;
+  }
+  .chip--service { background: #fff; }
+  .verdict {
+    display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+    background: var(--accent-tint); color: var(--accent-strong);
+    border: 1px solid var(--accent-line); border-radius: var(--r-xs);
+    padding: 7px 12px; font-size: 13px; font-weight: 550; letter-spacing: -0.01em;
+  }
+  .verdict .ico { width: 15px; height: 15px; }
+
+  .checks { display: flex; flex-direction: column; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--r-sm); overflow: hidden; }
+  .check { display: flex; align-items: flex-start; gap: 11px; padding: 11px 13px; background: var(--surface); }
+  .check__ic { flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; margin-top: 1px; }
+  .check__ic .ico { width: 14px; height: 14px; }
+  .check--ok .check__ic { background: var(--accent-tint); color: var(--accent-strong); }
+  .check--bad .check__ic { background: var(--critical-tint); color: var(--critical); }
+  .check__t { font-size: 14px; font-weight: 550; letter-spacing: -0.01em; line-height: 1.3; }
+  .check__d { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .check__d .mono { color: var(--ink-2); }
+  .check__flag { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; align-self: center; }
+  .check--bad .check__flag { color: var(--critical); background: var(--critical-tint); }
+  .check--ok .check__flag { color: var(--accent-strong); background: var(--accent-tint); }
+
+  .draft {
+    border: 1px dashed var(--hairline-2); border-radius: var(--r-sm); padding: 11px 13px;
+    background: repeating-linear-gradient(180deg, #fff, #fff 22px, #fcfdfc 22px, #fcfdfc 23px);
+  }
+  .draft__cap { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+  .draft__body { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.7; color: var(--ink-2); }
+  .draft__body .hl { color: var(--accent-strong); }
+
+  .card__foot { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--hairline); background: var(--surface-sink); }
+  .card__attrib { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+  .card__attrib b { color: var(--ink); font-weight: 600; }
+  .card__foot .spacer { flex: 1; }
+  .card__meta { position: relative; z-index: 2; margin-top: 12px; display: flex; gap: 14px; justify-content: flex-end; font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+  .card__meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .card-echo { position: absolute; inset: 0; z-index: 1; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--hairline); box-shadow: var(--shadow-sm); transform: translate(16px, 20px) scale(.97); opacity: .6; }
+
+  /* ============ MARQUEE / PAYER STRIP ============ */
+  .payers { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--surface); }
+  .payers__in { display: flex; align-items: center; gap: clamp(18px, 4vw, 44px); flex-wrap: wrap; padding-block: 20px; }
+  .payers__cap { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); white-space: nowrap; }
+  .payers__list { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+  .payers__list b { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink-2); }
+
+  /* ============ SECTION SCAFFOLD ============ */
+  .section { padding-block: clamp(64px, 9vw, 118px); }
+  .section-head { max-width: 40rem; margin-bottom: clamp(36px, 5vw, 60px); }
+  .section-head h2 { margin: 14px 0 0; font-weight: 600; font-size: clamp(1.9rem, 3.3vw, 2.85rem); line-height: 1.06; letter-spacing: -0.03em; text-wrap: balance; }
+  .section-head p { margin: 16px 0 0; font-size: 1.12rem; color: var(--muted); max-width: 34rem; }
+
+  /* ---- metric tiles ---- */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+  .metric { background: var(--surface); padding: clamp(22px, 3vw, 34px); }
+  .metric__n { font-weight: 600; font-size: clamp(2.4rem, 4.4vw, 3.4rem); letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .metric__n .u { font-size: .42em; color: var(--faint); font-weight: 500; letter-spacing: 0; margin-left: 2px; }
+  .metric__l { margin-top: 14px; font-size: 14.5px; color: var(--muted); line-height: 1.5; max-width: 22rem; }
+  .metric__k { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-strong); margin-bottom: 12px; }
+
+  /* ---- steps ---- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 34px); counter-reset: s; }
+  .step { position: relative; padding-top: 26px; border-top: 2px solid var(--ink); }
+  .step__n { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+  .step h3 { margin: 12px 0 8px; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.02em; }
+  .step p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+  /* ---- agents ---- */
+  .agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+  .agent { background: var(--surface); padding: clamp(22px, 2.6vw, 30px); display: flex; flex-direction: column; gap: 12px; min-height: 190px; transition: background .2s ease; }
+  .agent:hover { background: #fcfdfc; }
+  .agent__top { display: flex; align-items: center; justify-content: space-between; }
+  .agent__ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--ink); background: linear-gradient(180deg,#fff,var(--surface-sink)); border: 1px solid var(--hairline); }
+  .agent__ic .ico { width: 21px; height: 21px; }
+  .agent__status { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--hairline-2); color: var(--faint); }
+  .agent__status--live { color: var(--accent-strong); background: var(--accent-tint); border-color: var(--accent-line); }
+  .agent h3 { margin: 4px 0 0; font-size: 1.08rem; font-weight: 600; letter-spacing: -0.02em; }
+  .agent p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+  /* ---- security ---- */
+  .secure { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(32px, 5vw, 64px); align-items: start; }
+  .secure__list { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+  .secure__item { background: var(--surface); padding: 22px; }
+  .secure__item .ico { width: 20px; height: 20px; color: var(--accent-strong); }
+  .secure__item h3 { margin: 12px 0 6px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .secure__item p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+  /* ---- CTA ---- */
+  .cta { position: relative; border-radius: var(--r-lg); overflow: hidden; background: var(--ink); color: #fff; padding: clamp(40px, 6vw, 76px); }
+  .cta::before { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 120% at 88% 8%, rgba(12,107,85,.42), transparent 55%); }
+  .cta__in { position: relative; max-width: 34rem; }
+  .cta h2 { margin: 0 0 14px; font-size: clamp(1.8rem, 3.2vw, 2.7rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
+  .cta p { margin: 0 0 28px; color: rgba(255,255,255,.72); font-size: 1.08rem; line-height: 1.55; }
+  .cta .btn--primary { --_bg: #fff; --_fg: var(--ink); --_bd: #fff; }
+  .cta .btn--primary:hover { --_bg: #f2f4f2; }
+  .cta .btn--ghost { --_fg: #fff; --_bd: rgba(255,255,255,.28); }
+  .cta .btn--ghost:hover { --_bd: #fff; background: rgba(255,255,255,.06); }
+  .cta__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--hairline); padding-block: 54px 40px; }
+  .foot { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 32px; }
+  .foot__brand { max-width: 22rem; }
+  .foot__brand p { margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .foot__col h4 { margin: 0 0 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
+  .foot__col a { display: block; color: var(--muted); font-size: 14px; padding: 5px 0; transition: color .18s ease; }
+  .foot__col a:hover { color: var(--ink); }
+  .foot__base { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--hairline); display: flex; flex-wrap: wrap; gap: 12px 20px; justify-content: space-between; align-items: center; }
+  .foot__base p { margin: 0; font-size: 13px; color: var(--faint); }
+  .foot__base .mono { font-size: 12px; }
+
+  /* ============ MOTION ============ */
+  .js .reveal { opacity: 0; transform: translateY(16px); }
+  .js .reveal.in { opacity: 1; transform: none; transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+  .js .reveal.d1 { transition-delay: .06s; }
+  .js .reveal.d2 { transition-delay: .12s; }
+  .js .reveal.d3 { transition-delay: .18s; }
+  .js .reveal.d4 { transition-delay: .24s; }
+  @media (prefers-reduced-motion: reduce) {
+    .js .reveal, .js .reveal.in { opacity: 1; transform: none; transition: none; }
+    .live__dot::after { animation: none; }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 940px) {
+    .hero__grid { grid-template-columns: 1fr; gap: 44px; }
+    .card-stage { max-width: 460px; }
+    .metrics, .agents { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .secure { grid-template-columns: 1fr; }
+    .secure__list { grid-template-columns: 1fr 1fr; }
+    .foot { grid-template-columns: 1fr 1fr; }
+    .foot__brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 620px) {
+    .nav__links { display: none; }
+    .agent__status { display: none; }
+    .secure__list { grid-template-columns: 1fr; }
+    .foot { grid-template-columns: 1fr 1fr; }
+    .card__meta { justify-content: flex-start; }
+    .hero__actions .btn { flex: 1; justify-content: center; }
+  }
+  @media (max-width: 420px) { .foot { grid-template-columns: 1fr; } }
+</style>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="#top" aria-label="Helix home">
+      <span class="brand__mark"><svg class="ico" aria-hidden="true"><use href="#i-helix"/></svg></span>
+      Helix
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#product">Product</a>
+      <a href="#agents">Agents</a>
+      <a href="#how">How it works</a>
+      <a href="#security">Security</a>
+    </nav>
+    <span class="nav__spacer"></span>
+    <div class="nav__cta">
+      <a class="link-quiet" href="#" style="padding:8px 6px">Sign in</a>
+      <a class="btn btn--primary btn--sm" href="#demo">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="product">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <span class="pill reveal">
+          <span class="pill__tag">Helix</span>
+          The AI operating layer for healthcare operations
+        </span>
+        <h1 class="hero__title reveal d1">An autonomous teammate for every healthcare workflow.</h1>
+        <p class="hero__sub reveal d2">
+          Helix runs on top of the systems your clinic already uses — <strong>verifying insurance eligibility, clearing pre-authorizations, and catching denials before they cost you.</strong> Your staff approves every action; Helix does the work. Purpose-built for PhilHealth and Philippine HMOs.
+        </p>
+        <div class="hero__actions reveal d3">
+          <a class="btn btn--primary btn--lg" href="#demo">Book a demo <svg class="ico arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--ghost btn--lg" href="#how">See how it works</a>
+        </div>
+        <div class="hero__trust reveal d4">
+          <span><span class="dot-good"></span> For diagnostic centers, laboratories &amp; clinics</span>
+          <span><span class="dot-good"></span> PH Data Privacy Act-compliant by design</span>
+        </div>
+      </div>
+
+      <!-- Hero thesis: the real product moment -->
+      <div class="card-stage reveal d2">
+        <div class="card-echo" aria-hidden="true"></div>
+        <article class="card" aria-label="Helix eligibility and pre-authorization result">
+          <div class="card__head">
+            <svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>
+            <span class="card__label">Eligibility · Pre-Auth</span>
+            <span class="live"><span class="live__dot"></span> Live</span>
+          </div>
+          <div class="card__body">
+            <div class="subject">
+              <span class="subject__name">Juan D. &middot; 34</span>
+              <span class="subject__id mono">PT-4821</span>
+            </div>
+            <div class="chips">
+              <span class="chip">Maxicare &middot; Prima</span>
+              <span class="chip chip--service">MRI — Brain</span>
+              <span class="chip">Walk-in</span>
+            </div>
+            <span class="verdict"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg> Authorization required</span>
+
+            <div class="checks">
+              <div class="check check--ok">
+                <span class="check__ic"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span>
+                <span>
+                  <span class="check__t">Coverage active</span>
+                  <span class="check__d">Maxicare Prima &middot; valid to <span class="mono">12/2026</span></span>
+                </span>
+                <span class="check__flag">Verified</span>
+              </div>
+              <div class="check check--ok">
+                <span class="check__ic"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg></span>
+                <span>
+                  <span class="check__t">Pre-authorization drafted</span>
+                  <span class="check__d">Letter of Authorization ready for review</span>
+                </span>
+                <span class="check__flag">Drafted</span>
+              </div>
+              <div class="check check--bad">
+                <span class="check__ic"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg></span>
+                <span>
+                  <span class="check__t">Referral missing</span>
+                  <span class="check__d">Required for imaging &middot; request sent to referring physician</span>
+                </span>
+                <span class="check__flag">Blocking</span>
+              </div>
+            </div>
+
+            <div class="draft">
+              <div class="draft__cap">Drafted — Letter of Authorization</div>
+              <div class="draft__body"><span class="hl">LOA-2026-0731</span> · To: Maxicare · Requesting authorization for <span class="hl">MRI (Brain)</span> · Member Juan D. · Provider: Helix Diagnostics, Makati…</div>
+            </div>
+          </div>
+          <div class="card__foot">
+            <span class="card__attrib"><b>Helix</b> proposed this. <br>You approve.</span>
+            <span class="spacer"></span>
+            <a class="btn btn--ghost btn--sm" href="#demo">Edit</a>
+            <a class="btn btn--primary btn--sm" href="#demo">Approve</a>
+          </div>
+        </article>
+        <div class="card__meta" aria-hidden="true">
+          <span><svg class="ico" style="width:13px;height:13px" aria-hidden="true"><use href="#i-pulse"/></svg> verified in 2.3s</span>
+          <span><svg class="ico" style="width:13px;height:13px" aria-hidden="true"><use href="#i-fingerprint"/></svg> audit&nbsp;#A2F9C</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAYER STRIP ============ -->
+  <div class="payers">
+    <div class="wrap payers__in">
+      <span class="payers__cap">Designed for</span>
+      <div class="payers__list">
+        <b>PhilHealth</b><b>Maxicare</b><b>Intellicare</b><b>Medicard</b><b>PhilCare</b><b>ValuCare</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ METRICS ============ -->
+  <section class="section" style="padding-bottom:0">
+    <div class="wrap">
+      <div class="metrics reveal">
+        <div class="metric">
+          <span class="metric__k">One action</span>
+          <div class="metric__n">1<span class="u">click</span></div>
+          <p class="metric__l">Eligibility and pre-authorization in a single step — layered on the systems you already run.</p>
+        </div>
+        <div class="metric">
+          <span class="metric__k">Accountable</span>
+          <div class="metric__n">100<span class="u">%</span></div>
+          <p class="metric__l">Every action Helix takes is cited, logged, attributed, and reversible.</p>
+        </div>
+        <div class="metric">
+          <span class="metric__k">Off your desk</span>
+          <div class="metric__n">0<span class="u">logins</span></div>
+          <p class="metric__l">No payer portals for your front desk. Helix speaks to the payers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Integrate, don't replace. Then let the work run itself.</h2>
+        <p>Helix is an operating layer, not another system to migrate to. It starts producing value on day one.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <span class="step__n">01 — Connect</span>
+          <h3>Sits on what you have</h3>
+          <p>Helix layers on top of your HIS, billing software, or spreadsheets. No migration, no rip-and-replace.</p>
+        </div>
+        <div class="step reveal d1">
+          <span class="step__n">02 — Verify &amp; draft</span>
+          <h3>Does the work at intake</h3>
+          <p>It checks coverage, flags what's missing, and drafts the authorization — every claim sourced and cited, never guessed.</p>
+        </div>
+        <div class="step reveal d2">
+          <span class="step__n">03 — Approve &amp; audit</span>
+          <h3>You stay in control</h3>
+          <p>Your staff approves in one tap. Every decision writes to an immutable, reversible audit trail.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AGENTS ============ -->
+  <section class="section" id="agents" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">The workforce</span>
+        <h2>One agent per repetitive workflow. A department that never sleeps.</h2>
+        <p>Start with eligibility and pre-authorization. Add teammates as you grow — each one shares the same approval, audit, and security foundation.</p>
+      </div>
+      <div class="agents">
+        <div class="agent reveal">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg></span>
+            <span class="agent__status agent__status--live">Available</span>
+          </div>
+          <h3>Eligibility &amp; Pre-Auth</h3>
+          <p>Verifies coverage and clears authorizations before service is rendered.</p>
+        </div>
+        <div class="agent reveal d1">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-pulse"/></svg></span>
+            <span class="agent__status">Roadmap</span>
+          </div>
+          <h3>Revenue Cycle</h3>
+          <p>Monitors denials, reimbursements, and revenue leakage — and proposes the fix.</p>
+        </div>
+        <div class="agent reveal d2">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg></span>
+            <span class="agent__status">Roadmap</span>
+          </div>
+          <h3>Documentation</h3>
+          <p>Reads referrals, IDs, and physician notes into clean, structured data.</p>
+        </div>
+        <div class="agent reveal">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-hash"/></svg></span>
+            <span class="agent__status">Roadmap</span>
+          </div>
+          <h3>Coding</h3>
+          <p>Suggests ICD and case-rate codes, then validates the claim before it goes out.</p>
+        </div>
+        <div class="agent reveal d1">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-clipboard"/></svg></span>
+            <span class="agent__status">Roadmap</span>
+          </div>
+          <h3>Compliance</h3>
+          <p>Answers instantly from your SOPs, accreditation manuals, and internal policy.</p>
+        </div>
+        <div class="agent reveal d2">
+          <div class="agent__top">
+            <span class="agent__ic"><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg></span>
+            <span class="agent__status">Roadmap</span>
+          </div>
+          <h3>Executive</h3>
+          <p>A daily brief on risk, bottlenecks, and revenue — recommendations, not another dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECURITY ============ -->
+  <section class="section" id="security" style="padding-top:0">
+    <div class="wrap secure">
+      <div class="section-head reveal" style="margin-bottom:0">
+        <span class="eyebrow">Trust</span>
+        <h2>Built for the most regulated work there is.</h2>
+        <p>Autonomy without oversight is a liability. Helix is engineered so a human is always in the loop and every action can be traced.</p>
+      </div>
+      <div class="secure__list reveal d1">
+        <div class="secure__item">
+          <svg class="ico" aria-hidden="true"><use href="#i-users"/></svg>
+          <h3>Human approval</h3>
+          <p>Agents propose; your team decides. Nothing reaches a payer or patient unapproved.</p>
+        </div>
+        <div class="secure__item">
+          <svg class="ico" aria-hidden="true"><use href="#i-fingerprint"/></svg>
+          <h3>Immutable audit</h3>
+          <p>Every action attributed and time-stamped, with its sources. Reversible by design.</p>
+        </div>
+        <div class="secure__item">
+          <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>
+          <h3>Least privilege</h3>
+          <p>Role-based access, isolation per organization, encryption in transit and at rest.</p>
+        </div>
+        <div class="secure__item">
+          <svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>
+          <h3>Privacy by design</h3>
+          <p>Architected for RA 10173 (PH Data Privacy Act) and HIPAA-grade controls.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="section" id="demo" style="padding-top:0">
+    <div class="wrap">
+      <div class="cta reveal">
+        <div class="cta__in">
+          <h2>See Helix on your own workflows.</h2>
+          <p>A 30-minute walkthrough using your actual eligibility and authorization flow. No migration required to start.</p>
+          <div class="cta__actions">
+            <a class="btn btn--primary btn--lg" href="#">Book a demo <svg class="ico arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--ghost btn--lg" href="#product">Explore the product</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot__brand">
+        <a class="brand" href="#top" aria-label="Helix home">
+          <span class="brand__mark"><svg class="ico" aria-hidden="true"><use href="#i-helix"/></svg></span>
+          Helix
+        </a>
+        <p>The AI operating layer for healthcare operations. Remove administrative friction with autonomous systems — while humans keep final control.</p>
+      </div>
+      <div class="foot__col">
+        <h4>Product</h4>
+        <a href="#product">Overview</a>
+        <a href="#agents">Agents</a>
+        <a href="#how">How it works</a>
+        <a href="#security">Security</a>
+      </div>
+      <div class="foot__col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="foot__col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Data processing</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+    <div class="foot__base">
+      <p>© 2026 Helix. Manila, Philippines.</p>
+      <p class="mono">Interface shown with synthetic data.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    root.classList.add("js");
+
+    // Subtle nav hairline after scroll
+    var nav = document.getElementById("nav");
+    var onScroll = function () { nav.classList.toggle("scrolled", window.scrollY > 8); };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // Scroll reveals — progressive enhancement, reduced-motion safe
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var items = document.querySelectorAll(".reveal");
+    if (reduce || !("IntersectionObserver" in window)) {
+      items.forEach(function (el) { el.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+</body>
+</html>
