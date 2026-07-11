@@ -3,6 +3,13 @@
 
 export * from "./schema";
 export { getDb, closeDb, type HelixDb } from "./client";
+export * from "./repositories";
+export { BufferedAuditLog, createBufferedAuditLog } from "./audit";
+
+/** True when a database is configured; the app persists only when this holds. */
+export function hasDatabase(): boolean {
+  return Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.trim());
+}
 
 import type {
   orgs,

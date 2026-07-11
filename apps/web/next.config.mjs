@@ -44,6 +44,7 @@ const nextConfig = {
     "@helix/payers",
     "@helix/llm",
     "@helix/agents",
+    "@helix/db",
   ],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

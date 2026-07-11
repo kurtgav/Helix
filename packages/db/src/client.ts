@@ -29,7 +29,9 @@ export function getDb(): HelixDb {
   if (dbInstance) {
     return dbInstance;
   }
-  sqlClient = postgres(requireDatabaseUrl(), { prepare: true });
+  // prepare:false is required for Supabase's transaction pooler (PgBouncer,
+  // port 6543), which does not support prepared statements.
+  sqlClient = postgres(requireDatabaseUrl(), { prepare: false });
   dbInstance = drizzle(sqlClient, { schema });
   return dbInstance;
 }

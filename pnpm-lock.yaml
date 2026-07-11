@@ -44,6 +44,9 @@ importers:
       '@helix/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@helix/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@helix/llm':
         specifier: workspace:*
         version: link:../../packages/llm
