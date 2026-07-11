@@ -23,7 +23,8 @@
       "@helix/db": ["./packages/db/src/index.ts"],
       "@helix/payers": ["./packages/payers/src/index.ts"],
       "@helix/llm": ["./packages/llm/src/index.ts"],
-      "@helix/core": ["./packages/core/src/index.ts"]
+      "@helix/core": ["./packages/core/src/index.ts"],
+      "@helix/agents": ["./services/agents/src/index.ts"]
     }
   }
 }

@@ -1,0 +1,4 @@
+
+> @helix/llm@0.0.0 typecheck D:\Helix\packages\llm
+> tsc --noEmit
+

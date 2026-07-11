@@ -1,0 +1,207 @@
+/* Component styles for the Helix UI primitives. Paired with the tokens in
+   app/globals.css. Every interactive element has hover / focus / active. */
+
+/* --- Button --- */
+.btn {
+  --_bg: var(--c-surface);
+  --_fg: var(--c-ink);
+  --_bd: var(--c-border-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 0 var(--sp-4);
+  height: 40px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+.btn:hover {
+  box-shadow: var(--sh-1);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.btn--primary {
+  --_bg: var(--c-accent);
+  --_fg: var(--c-accent-ink);
+  --_bd: var(--c-accent-strong);
+}
+.btn--primary:hover {
+  --_bg: var(--c-accent-strong);
+  box-shadow: var(--sh-2);
+}
+.btn--danger {
+  --_bg: var(--c-surface);
+  --_fg: var(--c-danger);
+  --_bd: var(--c-danger);
+}
+.btn--danger:hover {
+  --_bg: var(--c-danger-soft);
+}
+.btn--ghost {
+  --_bg: transparent;
+  --_bd: transparent;
+  --_fg: var(--c-ink-2);
+}
+.btn--ghost:hover {
+  --_bg: var(--c-surface-sunken);
+}
+.btn--lg {
+  height: 48px;
+  font-size: var(--fs-body);
+  padding: 0 var(--sp-5);
+}
+.btn--block {
+  width: 100%;
+}
+
+/* --- Card --- */
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+}
+.card--elevated {
+  box-shadow: var(--sh-2);
+}
+.card__body {
+  padding: var(--sp-5);
+}
+.card__header {
+  padding: var(--sp-5) var(--sp-5) 0;
+}
+.card__title {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+
+/* --- Badge --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  background: var(--c-surface-sunken);
+  color: var(--c-ink-2);
+}
+.badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.badge--ok {
+  background: var(--c-ok-soft);
+  color: var(--c-ok);
+}
+.badge--warn {
+  background: var(--c-warn-soft);
+  color: var(--c-warn);
+}
+.badge--danger {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+.badge--info {
+  background: var(--c-info-soft);
+  color: var(--c-info);
+}
+.badge--neutral {
+  background: var(--c-surface-sunken);
+  color: var(--c-ink-3);
+}
+
+/* --- Field --- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-2);
+}
+.field__req {
+  color: var(--c-accent-strong);
+  margin-left: 2px;
+}
+.field__control {
+  font: inherit;
+  font-size: var(--fs-body);
+  color: var(--c-ink);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  padding: 0 var(--sp-3);
+  height: 42px;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+select.field__control {
+  cursor: pointer;
+}
+textarea.field__control {
+  height: auto;
+  min-height: 120px;
+  padding: var(--sp-3);
+  line-height: var(--lh-normal);
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.field__control::placeholder {
+  color: var(--c-ink-3);
+}
+.field__control:hover {
+  border-color: var(--c-ink-3);
+}
+.field__control:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: var(--focus-ring);
+}
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+}
+.field__error {
+  font-size: var(--fs-xs);
+  color: var(--c-danger);
+  font-weight: var(--fw-medium);
+}
+.field--invalid .field__control {
+  border-color: var(--c-danger);
+}

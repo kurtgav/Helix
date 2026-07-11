@@ -1,0 +1,4 @@
+
+> @helix/shared@0.0.0 typecheck D:\Helix\packages\shared
+> tsc --noEmit
+

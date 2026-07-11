@@ -1,0 +1,194 @@
+/* ============================================================================
+   Helix design tokens — clinical, calm, decisive. One accent (teal), a warm
+   neutral surface stack, strong type hierarchy, and DESIGNED interaction states.
+   Not a template: spacing has rhythm, surfaces have depth, focus is visible.
+   ========================================================================== */
+
+:root {
+  /* Neutrals — warm slate, not flat gray */
+  --c-bg: #f4f6f8;
+  --c-surface: #ffffff;
+  --c-surface-2: #fbfcfd;
+  --c-surface-sunken: #eef1f4;
+  --c-border: #dbe1e8;
+  --c-border-strong: #c2cbd6;
+
+  /* Ink */
+  --c-ink: #10202e;
+  --c-ink-2: #3d4d5c;
+  --c-ink-3: #6b7a89;
+
+  /* Accent — teal */
+  --c-accent: #0e8a7d;
+  --c-accent-strong: #0a6d63;
+  --c-accent-soft: #e2f4f1;
+  --c-accent-ink: #ffffff;
+
+  /* Semantic status */
+  --c-ok: #1f9254;
+  --c-ok-soft: #e4f5ec;
+  --c-warn: #b7791f;
+  --c-warn-soft: #fbf1dd;
+  --c-danger: #c33a3a;
+  --c-danger-soft: #fbe6e6;
+  --c-info: #2f6bd0;
+  --c-info-soft: #e6eefb;
+
+  /* Type scale (major-third-ish, fluid where it matters) */
+  --fs-display: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  --fs-h2: 1.375rem;
+  --fs-h3: 1.0625rem;
+  --fs-body: 0.9375rem;
+  --fs-sm: 0.8125rem;
+  --fs-xs: 0.6875rem;
+
+  --lh-tight: 1.15;
+  --lh-normal: 1.5;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Spacing scale */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* Elevation */
+  --sh-1: 0 1px 2px rgba(16, 32, 46, 0.06), 0 1px 1px rgba(16, 32, 46, 0.04);
+  --sh-2: 0 4px 12px rgba(16, 32, 46, 0.08), 0 1px 3px rgba(16, 32, 46, 0.05);
+  --sh-3: 0 12px 32px rgba(16, 32, 46, 0.12), 0 2px 8px rgba(16, 32, 46, 0.06);
+
+  /* Motion */
+  --dur-fast: 130ms;
+  --dur-normal: 220ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --focus-ring: 0 0 0 3px var(--c-accent-soft), 0 0 0 4px var(--c-accent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+
+a {
+  color: var(--c-accent-strong);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-sm);
+}
+
+/* Layout shell */
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-5) var(--sp-8);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  font-size: var(--fs-h3);
+  color: var(--c-ink);
+}
+.brand__mark {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent-strong));
+  color: var(--c-accent-ink);
+  font-weight: var(--fw-bold);
+  box-shadow: var(--sh-1);
+}
+.org-chip {
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+}
+
+/* Utility */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-3);
+}
+.muted {
+  color: var(--c-ink-3);
+}
+.mono {
+  font-family: var(--font-mono);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

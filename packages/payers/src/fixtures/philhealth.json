@@ -1,0 +1,53 @@
+{
+  "payerId": "philhealth",
+  "payerName": "Philippine Health Insurance Corporation",
+  "members": [
+    {
+      "memberId": "PH-12-345678901-2",
+      "fullName": "Jose Rizal",
+      "planName": "PhilHealth Konsulta",
+      "status": "active",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-12-31"
+    },
+    {
+      "memberId": "PH-99-000000000-0",
+      "fullName": "Andres Bonifacio",
+      "planName": "PhilHealth Formal Economy",
+      "status": "inactive"
+    }
+  ],
+  "rules": [
+    {
+      "category": "laboratory",
+      "requiresLOA": false,
+      "benefit": "Basic laboratory tests covered under the Konsulta primary-care package for accredited providers.",
+      "requiredDocs": [
+        { "type": "member_id", "label": "PhilHealth Identification Number (PIN)" },
+        { "type": "doctor_request", "label": "Doctor's laboratory request" }
+      ],
+      "section": "#laboratory"
+    },
+    {
+      "category": "imaging",
+      "requiresLOA": false,
+      "benefit": "Covered per applicable case rate; reimbursed via eClaims (no LOA). Requires member data record + claim form.",
+      "requiredDocs": [
+        { "type": "member_id", "label": "PhilHealth Identification Number (PIN)" },
+        { "type": "doctor_request", "label": "Doctor's diagnostic request" }
+      ],
+      "section": "#imaging"
+    },
+    {
+      "category": "dialysis",
+      "requiresLOA": false,
+      "benefit": "Hemodialysis covered under the applicable case-rate / Z-benefit package via eClaims.",
+      "requiredDocs": [
+        { "type": "member_id", "label": "PhilHealth Identification Number (PIN)" },
+        { "type": "doctor_request", "label": "Nephrologist request" },
+        { "type": "valid_id", "label": "Government-issued valid ID" }
+      ],
+      "section": "#dialysis"
+    }
+  ]
+}

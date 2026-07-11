@@ -1,0 +1,67 @@
+{
+  "payerId": "maxicare",
+  "payerName": "Maxicare Healthcare Corporation",
+  "members": [
+    {
+      "memberId": "MX-0098-2231",
+      "fullName": "Juan Dela Cruz",
+      "planName": "Maxicare Prima",
+      "status": "active",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-12-31"
+    },
+    {
+      "memberId": "MX-0044-7781",
+      "fullName": "Maria Santos",
+      "planName": "Maxicare Prima",
+      "status": "inactive",
+      "validFrom": "2025-01-01",
+      "validTo": "2025-12-31"
+    }
+  ],
+  "rules": [
+    {
+      "category": "imaging",
+      "requiresLOA": true,
+      "benefit": "Diagnostic imaging (MRI, CT, ultrasound) covered up to plan limit after LOA approval.",
+      "requiredDocs": [
+        { "type": "loa", "label": "Letter of Authorization (LOA)" },
+        { "type": "referral", "label": "Referral / doctor's request" },
+        { "type": "member_id", "label": "Maxicare member ID card" },
+        { "type": "valid_id", "label": "Government-issued valid ID" }
+      ],
+      "section": "#imaging"
+    },
+    {
+      "category": "laboratory",
+      "requiresLOA": false,
+      "benefit": "Routine laboratory tests (CBC, chemistry, urinalysis) covered at accredited providers; no LOA required.",
+      "requiredDocs": [
+        { "type": "member_id", "label": "Maxicare member ID card" },
+        { "type": "doctor_request", "label": "Doctor's laboratory request" }
+      ],
+      "section": "#laboratory"
+    },
+    {
+      "category": "dialysis",
+      "requiresLOA": true,
+      "benefit": "Hemodialysis covered per session up to annual cap after LOA approval.",
+      "requiredDocs": [
+        { "type": "loa", "label": "Letter of Authorization (LOA)" },
+        { "type": "referral", "label": "Nephrologist referral" },
+        { "type": "member_id", "label": "Maxicare member ID card" }
+      ],
+      "section": "#dialysis"
+    },
+    {
+      "category": "consult",
+      "requiresLOA": false,
+      "benefit": "Outpatient consultation covered at accredited clinics with valid membership.",
+      "requiredDocs": [
+        { "type": "member_id", "label": "Maxicare member ID card" },
+        { "type": "valid_id", "label": "Government-issued valid ID" }
+      ],
+      "section": "#consult"
+    }
+  ]
+}

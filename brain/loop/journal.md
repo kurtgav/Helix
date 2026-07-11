@@ -17,6 +17,17 @@ updated: 2026-07-12
 
 <!-- New iterations append below. Newest last. -->
 
+## 2026-07-12 · Iteration 2 — Swarm landed + v0 integrated GREEN
+- **10-agent swarm `wf_320d57bf-41e` completed** (10/10 done, 0 errors, ~1.28M tokens, ~46 min). Built db, payers, llm, core, ci-meta, services/agents, apps/web, scripts, then integration-verifier + security auditor.
+- Swarm self-corrected two real **security defects**: (1) agent-core caught Evidence snippets leaking patient names into the audit trail → `citationsOnly()`; (2) security auditor caught `memberId` being sent to the 3rd-party LLM prompt → dropped + regression test. Both align with [[security-and-compliance]].
+- **My finalization pass (config the agents couldn't touch + the real seam):**
+  - Added `scripts` to `pnpm-workspace.yaml`, `@helix/agents` to base tsconfig paths, eslint deps to root; removed a stray `rootDir` in `scripts/tsconfig.json` (same TS6059 the verifier fixed elsewhere).
+  - **Rewired the web↔agent seam** — it was a fictional `as unknown as AgentsApi` cast that compiled but would throw at runtime (no actor, wrong shapes, no Result). Now: a server-side encounter store (verify parks the proposal, approve retrieves by `encounterId`), real `EligibilityContext`/`ApprovalContext`, a demo `staff` actor + shared audit log, and a mock LLM that echoes the adapter status so mock-mode demos read `eligible`/`ineligible` at 0.9 confidence instead of always `needs_review`.
+  - Switched web lint to the flat config; generated Drizzle migrations + added an **append-only trigger** on `audit_log`.
+- **Verified for real (not just tests):** `pnpm typecheck` 8/8 · `pnpm test` **162 pass** · `pnpm lint` 8/8 · `next build` ✓ · end-to-end seam smoke ✓ (Juan Dela Cruz / MX-0098-2231 / MRI → eligible, LOA required, 3 doc gaps, approve → LOA **submitted**; inactive member → ineligible; double-approve → blocked).
+- **[[vertical-slice-v0]] DoD MET.** Loop stop condition reached for v0.
+- Next (new iteration, needs human calls): real user validation of [[open-questions]] before payer integration; auth substrate (task #8); Playwright + axe automation; Revenue Cycle agent (#2 in [[agent-catalog]]).
+
 ## 2026-07-12 · Iteration 1 — Landing page (marketing surface)
 - Built the Helix landing page at `apps/site/index.html` — static, self-contained (inline CSS/SVG, no webfonts, vanilla-JS progressive enhancement). Kept out of the pnpm/turbo graph (no package.json) so it doesn't collide with the live swarm building `apps/web`.
 - Design: light-locked, 1000x-minimal, editorial. Monochrome ink brand on cool off-white; color only as semantic signal (teal-green pass/live, brick red blocking gap). System-sans display + technical mono for records/IDs/audit hashes. No emojis; custom line-icon sprite.

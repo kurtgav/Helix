@@ -1,0 +1,4 @@
+
+> @helix/payers@0.0.0 typecheck D:\Helix\packages\payers
+> tsc --noEmit
+
