@@ -17,6 +17,13 @@ updated: 2026-07-12
 
 <!-- New iterations append below. Newest last. -->
 
+## 2026-07-12 · Iteration 4 — Production hardening live; DB blocked on credentials
+- **Security headers** (next.config): CSP, HSTS (2y+preload), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy; `poweredByHeader` off. **`/api/health`** liveness probe (reports mock vs persistent, no secrets). Product polish: dashboard hero tile → unified accent gradient + tabular figures. Set `NEXT_PUBLIC_SITE_URL` env.
+- Redeployed: https://helix-eight-silk.vercel.app — verified live: health OK, all security headers present, `x-powered-by` absent.
+- **DB push BLOCKED on a credential.** User's Supabase `bxttjculfzukbpepunoo` is in a different org than the MCP-connected PAVI one → MCP denied. No Supabase CLI / access token on this machine. The project URL alone can't authenticate a DB connection. To push + wire I need EITHER the pooled connection URI (with DB password) OR a Supabase account access token. The v0 migration SQL (`packages/db/drizzle/0000_cynical_lyja.sql`, 11 tables + append-only trigger) is ready to apply.
+- **Persistence wiring plan (no schema change needed):** persist patient/coverage/encounter/eligibility_check/loa_request/audit_log; map domain payer keys → deterministic v5 UUIDs (avoids a payers-PK change); reconstruct the ProposedAction on approve from eligibility_checks+loa_requests (confidence/rationale not needed); keep mock as the bulletproof default (app stays up when DATABASE_URL is unset). Build + push + activate + test to run as one verified pass once the credential arrives.
+- Tasks #11–#14, #17, #18 done. #15 (persistence) + #16 (push) credential-gated.
+
 ## 2026-07-12 · Iteration 3 — Unified design system + LIVE on Vercel
 - **Unified the design system**: remapped the product's `--c-*` tokens to the landing palette (one system across marketing + product). Shared inline icon sprite (`Sprite`/`Icon`).
 - **Production landing at `/`**: ported + upgraded the static landing into a Next route — editorial hero with the live product card, payer strip, metrics, how-it-works, agents, security, FAQ, CTA, footer. Desktop-first, fully responsive; scroll-reveal + reduced-motion safe.
