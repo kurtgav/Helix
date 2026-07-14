@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/Icon";
 import { formatPesos } from "@/lib/format";
+import { DICTS, type Locale } from "@/lib/i18n";
 import type { RevenueDecision, ResolveResult } from "@/lib/revenue";
 
 // The human-in-the-loop control. `resolveAction` is a Server Action handed down
@@ -18,6 +19,8 @@ interface Props {
   recoverableCount: number;
   totalRecoverable: number;
   resolveAction: (decision: RevenueDecision) => Promise<ResolveResult>;
+  /** Request locale (serializable — template functions stay client-side). */
+  locale: Locale;
 }
 
 export function ResolveBar({
@@ -25,7 +28,9 @@ export function ResolveBar({
   recoverableCount,
   totalRecoverable,
   resolveAction,
+  locale,
 }: Props) {
+  const t = DICTS[locale].revenue;
   const [pending, setPending] = useState<RevenueDecision | null>(null);
   const [result, setResult] = useState<ResolveResult | null>(null);
 
@@ -37,10 +42,7 @@ export function ResolveBar({
       const res = await resolveAction(decision);
       setResult(res);
     } catch {
-      setResult({
-        ok: false,
-        message: "Something went wrong recording the decision. Please retry.",
-      });
+      setResult({ ok: false, message: t.resolveError });
     } finally {
       setPending(null);
     }
@@ -58,7 +60,7 @@ export function ResolveBar({
           aria-describedby={canResolve ? undefined : "resolve-perm-note"}
           aria-busy={pending === "approved"}
         >
-          {pending === "approved" ? "Recording…" : "Approve recovery"}
+          {pending === "approved" ? t.recording : t.approveRecovery}
           {pending === "approved" ? null : <Icon name="check" size={16} />}
         </Button>
         <Button
@@ -68,21 +70,16 @@ export function ResolveBar({
           aria-describedby={canResolve ? undefined : "resolve-perm-note"}
           aria-busy={pending === "rejected"}
         >
-          {pending === "rejected" ? "Recording…" : "Won't pursue"}
+          {pending === "rejected" ? t.recording : t.wontPursue}
         </Button>
       </div>
 
       {canResolve ? (
-        <p className="resolve__stakes">
-          Approving marks {formatPesos(totalRecoverable)} across {recoverableCount}{" "}
-          claim(s) for recovery — logged to the audit trail. Nothing reaches a payer
-          without this step.
-        </p>
+        <p className="resolve__stakes">{t.stakes(formatPesos(totalRecoverable), recoverableCount)}</p>
       ) : (
         <p className="resolve__hint" role="note" id="resolve-perm-note">
           <Icon name="lock" size={14} />
-          Read-only role — resolving a claim requires the staff, admin, or owner
-          role. The server enforces this too.
+          {t.permHint}
         </p>
       )}
 

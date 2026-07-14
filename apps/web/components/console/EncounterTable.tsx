@@ -1,4 +1,5 @@
 import { formatRelativeTime, type EncounterCardRow } from "@/lib/console";
+import type { Dict } from "@/lib/i18n";
 import { StatusPill } from "./StatusPill";
 
 // Recent activity — the latest encounters. Service (with a category cue), payer,
@@ -8,12 +9,14 @@ import { StatusPill } from "./StatusPill";
 export function EncounterTable({
   rows,
   now,
+  t,
 }: {
   rows: EncounterCardRow[];
   now?: number;
+  t: Dict["console"];
 }) {
   if (rows.length === 0) {
-    return <p className="panel-empty">No recent encounters yet.</p>;
+    return <p className="panel-empty">{t.activityEmpty}</p>;
   }
 
   return (
@@ -21,11 +24,11 @@ export function EncounterTable({
       <table className="enc-table">
         <thead>
           <tr>
-            <th scope="col">Service</th>
-            <th scope="col">Payer</th>
-            <th scope="col">Status</th>
+            <th scope="col">{t.colService}</th>
+            <th scope="col">{t.colPayer}</th>
+            <th scope="col">{t.colStatus}</th>
             <th scope="col" className="enc-table__right">
-              Logged
+              {t.colLogged}
             </th>
           </tr>
         </thead>
@@ -44,7 +47,7 @@ export function EncounterTable({
               </td>
               <td className="enc-payer">{row.payer}</td>
               <td>
-                <StatusPill status={row.status} />
+                <StatusPill status={row.status} t={t} />
               </td>
               <td className="enc-table__right">
                 <time
@@ -52,7 +55,7 @@ export function EncounterTable({
                   dateTime={row.at}
                   title={new Date(row.at).toLocaleString("en-PH")}
                 >
-                  {formatRelativeTime(row.at, now)}
+                  {formatRelativeTime(row.at, now, t)}
                 </time>
               </td>
             </tr>

@@ -3,6 +3,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
 import { formatPesos } from "@/lib/format";
 import { actorCan } from "@/lib/auth";
+import { getDict, getLocale } from "@/lib/i18n/server";
 import { DEMO_DENIAL_CASES } from "@/lib/demo";
 import {
   getRevenueTriage,
@@ -26,102 +27,95 @@ export default async function RevenuePage() {
   const rows = buildTriageRows(findings, toDenialCases(DEMO_DENIAL_CASES));
   const canResolve = actorCan("revenue.resolve");
   const notPursued = caseCount - recoverableCount;
+  const t = getDict().revenue;
 
   return (
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Revenue Cycle Agent · Teammate #2</p>
-          <h1 className="page-title">Denied claims, worked back to cash.</h1>
-          <p className="page-sub">
-            Helix triages denied and at-risk claims, classifies each denial into a
-            fixed taxonomy, decides what is administratively recoverable, lists the
-            fixes, and drafts the resubmission — every call cited, nothing sent until
-            a human approves.
-          </p>
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h1 className="page-title">{t.title}</h1>
+          <p className="page-sub">{t.sub}</p>
           <p className="data-badge">
             <span className="data-badge__dot" aria-hidden="true" />
-            Synthetic cases · administrative reasoning · no PHI
+            {t.badge}
           </p>
         </div>
         <Link href="/agents" className="link-quiet">
-          Meet the team →
+          {t.meetTeam}
         </Link>
       </div>
 
-      <section className="rev-hero" aria-label="Recoverable summary">
+      <section className="rev-hero" aria-label={t.heroAria}>
         <div className="rev-hero__lead">
-          <p className="rev-hero__label">Recoverable this batch</p>
+          <p className="rev-hero__label">{t.heroLabel}</p>
           <p className="rev-hero__value">{formatPesos(totalRecoverable)}</p>
-          <p className="rev-hero__foot">
-            across <strong>{recoverableCount}</strong> of {caseCount} triaged claims
-            — pending human approval before any payer contact
-          </p>
+          <p className="rev-hero__foot">{t.heroFoot(recoverableCount, caseCount)}</p>
         </div>
         <dl className="rev-hero__stats">
           <div className="rev-hero__stat">
-            <dt>Claims triaged</dt>
+            <dt>{t.statTriaged}</dt>
             <dd>{caseCount}</dd>
           </div>
           <div className="rev-hero__stat">
-            <dt>Recoverable</dt>
+            <dt>{t.statRecoverable}</dt>
             <dd>{recoverableCount}</dd>
           </div>
           <div className="rev-hero__stat">
-            <dt>Write-off / dupe</dt>
+            <dt>{t.statWriteOff}</dt>
             <dd>{notPursued}</dd>
           </div>
           <div className="rev-hero__stat">
-            <dt>Confidence</dt>
+            <dt>{t.statConfidence}</dt>
             <dd>{action.confidence.toFixed(2)}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="rev-section" aria-label="Per-claim triage">
+      <section className="rev-section" aria-label={t.triageAria}>
         <div className="rev-section__head">
-          <h2 className="section-title">Per-claim triage</h2>
+          <h2 className="section-title">{t.triageTitle}</h2>
           <p className="rev-section__note">
             <Icon name="shield" size={14} />
-            Classified into a fixed taxonomy — no invented payer rules.
+            {t.triageNote}
           </p>
         </div>
-        <RevenueTriageTable rows={rows} />
+        <RevenueTriageTable rows={rows} t={t} />
       </section>
 
       <div className="rev-grid">
-        <section className="rev-draft" aria-label="Drafted resubmission">
+        <section className="rev-draft" aria-label={t.draftAria}>
           <div className="rev-draft__head">
             <div>
-              <p className="eyebrow">Drafted appeal</p>
-              <h2 className="rev-draft__title">Resubmission cover note</h2>
+              <p className="eyebrow">{t.draftEyebrow}</p>
+              <h2 className="rev-draft__title">{t.draftTitle}</h2>
             </div>
             <span className="rev-tag">
               <Icon name="doc" size={12} />
-              cited · human-approval required
+              {t.draftTag}
             </span>
           </div>
           <pre className="rev-draft__body">{draftMessage}</pre>
         </section>
 
-        <aside className="rev-resolve" aria-label="Review and resolve">
-          <p className="eyebrow">Agent proposes · you dispose</p>
-          <h2 className="rev-resolve__title">Review &amp; resolve</h2>
+        <aside className="rev-resolve" aria-label={t.resolveAria}>
+          <p className="eyebrow">{t.resolveEyebrow}</p>
+          <h2 className="rev-resolve__title">{t.resolveTitle}</h2>
           <p className="rev-resolve__rationale">{action.rationale}</p>
 
           <div className="rev-meta">
             <span className="rev-meta__pill">
               <Icon name="gauge" size={13} />
-              confidence {action.confidence.toFixed(2)}
+              {t.confidencePill(action.confidence.toFixed(2))}
             </span>
             <span className="rev-meta__pill">
               <Icon name="lock" size={13} />
-              approval required
+              {t.approvalRequired}
             </span>
           </div>
 
           <div className="rev-cites">
-            <h3 className="section-title">Cited sources</h3>
+            <h3 className="section-title">{t.citedSources}</h3>
             <ul className="evidence">
               {action.evidence.map((ev) => (
                 <li key={`${ev.source}${ev.ref}`}>
@@ -140,6 +134,7 @@ export default async function RevenuePage() {
             recoverableCount={recoverableCount}
             totalRecoverable={totalRecoverable}
             resolveAction={resolveRevenueTriageAction}
+            locale={getLocale()}
           />
         </aside>
       </div>
@@ -147,9 +142,7 @@ export default async function RevenuePage() {
       <Card>
         <CardBody>
           <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-            Synthetic denial cases. The agent performs administrative denial triage
-            only — no clinical judgment, no invented payer rules — and nothing is
-            transmitted to a payer without an authorized human approving it.
+            {t.disclaimer}
           </p>
         </CardBody>
       </Card>

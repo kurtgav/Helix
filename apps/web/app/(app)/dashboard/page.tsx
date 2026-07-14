@@ -2,84 +2,80 @@ import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
 import { getDashboardRoi } from "@/lib/agents";
+import { getDict } from "@/lib/i18n/server";
 import { formatPesos, formatHours, formatDuration } from "@/lib/format";
 
-// Server component. ROI is now LIVE: computed from persisted encounters when a
+// Server component. ROI is LIVE: computed from persisted encounters when a
 // database is configured, and from the seeded demo baseline otherwise. No client
 // JS. The badge tells the operator which they're looking at — honesty over vanity.
+// All copy comes from the request-locale dictionary (EN default, FIL switchable).
 export default async function DashboardPage() {
   const { roi, live } = await getDashboardRoi();
+  const t = getDict().dashboard;
 
   return (
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Eligibility &amp; Pre-Auth Agent</p>
-          <h1 className="page-title">This month, Helix earned its keep.</h1>
-          <p className="page-sub">
-            Every walk-in verified, every likely denial caught before submission,
-            every LOA drafted for you — logged and reversible.
-          </p>
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h1 className="page-title">{t.title}</h1>
+          <p className="page-sub">{t.sub}</p>
           <p className={`data-badge${live ? " data-badge--live" : ""}`}>
             <span className="data-badge__dot" aria-hidden="true" />
-            {live
-              ? "Live — computed from persisted encounters"
-              : "Demo baseline — synthetic activity"}
+            {live ? t.badgeLive : t.badgeDemo}
           </p>
         </div>
         <Link href="/verify" className="btn btn--primary btn--lg">
-          New verification
+          {t.newVerification}
           <Icon name="arrow" size={17} />
         </Link>
       </div>
 
-      <section className="roi" aria-label="Return on investment this month">
+      <section className="roi" aria-label={t.roiAria}>
         <Card elevated className="tile tile--hero">
-          <p className="tile__label">Denials likely prevented</p>
+          <p className="tile__label">{t.tilePesos}</p>
           <p className="tile__value">{formatPesos(roi.pesosRecovered)}</p>
-          <p className="tile__foot">
-            {roi.denialsPrevented} would-be denials caught before submission
-          </p>
+          <p className="tile__foot">{t.tilePesosFoot(roi.denialsPrevented)}</p>
         </Card>
         <Card className="tile">
-          <p className="tile__label">Checks run</p>
+          <p className="tile__label">{t.tileChecks}</p>
           <p className="tile__value">{roi.checksRun}</p>
-          <p className="tile__foot">walk-ins verified</p>
+          <p className="tile__foot">{t.tileChecksFoot}</p>
         </Card>
         <Card className="tile">
-          <p className="tile__label">Hours saved</p>
+          <p className="tile__label">{t.tileHours}</p>
           <p className="tile__value">{formatHours(roi.hoursSaved)}</p>
-          <p className="tile__foot">vs. manual portal / phone checks</p>
+          <p className="tile__foot">{t.tileHoursFoot}</p>
         </Card>
         <Card className="tile">
-          <p className="tile__label">Avg time to verify</p>
+          <p className="tile__label">{t.tileAvg}</p>
           <p className="tile__value">{formatDuration(roi.avgTimeToVerifyMs)}</p>
-          <p className="tile__foot">agent turnaround per check</p>
+          <p className="tile__foot">{t.tileAvgFoot}</p>
         </Card>
         <Card className="tile">
-          <p className="tile__label">Denials prevented</p>
+          <p className="tile__label">{t.tileDenials}</p>
           <p className="tile__value">{roi.denialsPrevented}</p>
-          <p className="tile__foot">claims kept clean</p>
+          <p className="tile__foot">{t.tileDenialsFoot}</p>
         </Card>
       </section>
 
-      <section aria-label="How a verification works">
+      <section aria-label={t.flowAria}>
         <div className="flow">
           <div className="flow__step">
-            <h3>Intake</h3>
-            <p>Patient, coverage, and requested service — a few fields.</p>
+            <h3>{t.flow1Title}</h3>
+            <p>{t.flow1Desc}</p>
           </div>
           <div className="flow__step">
-            <h3>Verify</h3>
-            <p>Helix checks eligibility and applies payer requirement rules.</p>
+            <h3>{t.flow2Title}</h3>
+            <p>{t.flow2Desc}</p>
           </div>
           <div className="flow__step">
-            <h3>Review</h3>
-            <p>Status, benefit, missing docs, and a drafted LOA — all cited.</p>
+            <h3>{t.flow3Title}</h3>
+            <p>{t.flow3Desc}</p>
           </div>
           <div className="flow__step">
-            <h3>Approve</h3>
-            <p>You approve or edit. Helix records it to the audit trail.</p>
+            <h3>{t.flow4Title}</h3>
+            <p>{t.flow4Desc}</p>
           </div>
         </div>
       </section>
@@ -88,8 +84,7 @@ export default async function DashboardPage() {
         <Card>
           <CardBody>
             <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-              Synthetic demo data. Real payer integration is behind a flag. Nothing
-              reaches a payer without a human approving it.
+              {t.disclaimer}
             </p>
           </CardBody>
         </Card>

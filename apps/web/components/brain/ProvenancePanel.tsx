@@ -1,5 +1,6 @@
 import { Icon } from "@/components/Icon";
 import type { BrainNoteMeta } from "@/lib/brain/types";
+import type { Dict } from "@/lib/i18n";
 
 // The trust header of every note: where the claim came from, which model/run
 // produced it, and how much to trust it. Absent fields render as an em dash —
@@ -25,25 +26,25 @@ function plainFrontmatter(value: string): string {
   );
 }
 
-export function ProvenancePanel({ note }: { note: BrainNoteMeta }) {
+export function ProvenancePanel({ note, t }: { note: BrainNoteMeta; t: Dict["brain"] }) {
   const { provenance } = note;
   return (
-    <section className="prov" aria-label="Provenance">
+    <section className="prov" aria-label={t.provAria}>
       <h2 className="prov__title">
         <Icon name="fingerprint" size={14} />
-        Provenance
+        {t.provTitle}
       </h2>
       <dl className="prov__grid">
         <div className="prov__row">
-          <dt>Model</dt>
+          <dt>{t.provModel}</dt>
           <dd className="prov__mono">{provenance.model ?? "—"}</dd>
         </div>
         <div className="prov__row">
-          <dt>Run</dt>
+          <dt>{t.provRun}</dt>
           <dd className="prov__mono">{provenance.run ?? "—"}</dd>
         </div>
         <div className="prov__row">
-          <dt>Confidence</dt>
+          <dt>{t.provConfidence}</dt>
           <dd>
             {provenance.confidence ? (
               <span className={`prov-chip ${confidenceClass(provenance.confidence)}`}>
@@ -55,23 +56,23 @@ export function ProvenancePanel({ note }: { note: BrainNoteMeta }) {
           </dd>
         </div>
         <div className="prov__row">
-          <dt>Updated</dt>
+          <dt>{t.provUpdated}</dt>
           <dd className="prov__mono">{note.updated ?? "—"}</dd>
         </div>
         <div className="prov__row prov__row--wide">
-          <dt>Source</dt>
+          <dt>{t.provSource}</dt>
           <dd>{provenance.source ? plainFrontmatter(provenance.source) : "—"}</dd>
         </div>
         {note.status ? (
           <div className="prov__row prov__row--wide">
-            <dt>Status</dt>
+            <dt>{t.provStatus}</dt>
             <dd>{note.status}</dd>
           </div>
         ) : null}
       </dl>
       <p className="prov__foot">
         <Icon name="lock" size={12} />
-        Version-controlled — every revision of this note is in git history.
+        {t.provFoot}
       </p>
     </section>
   );

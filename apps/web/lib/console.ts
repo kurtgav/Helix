@@ -229,18 +229,40 @@ export function summarizeDemo(rows: readonly DemoEncounterRow[]): {
   };
 }
 
-/** "3m ago" / "5h ago" / "2d ago" — short, mono-friendly. `nowMs` for determinism. */
-export function formatRelativeTime(iso: string, nowMs: number = Date.now()): string {
+/** The locale-facing strings formatRelativeTime needs — a structural subset of
+ *  Dict["console"], so components can pass their dict slice straight through. */
+export interface RelativeTimeLabels {
+  justNow: string;
+  minutesAgo: (n: number) => string;
+  hoursAgo: (n: number) => string;
+  daysAgo: (n: number) => string;
+}
+
+const EN_RELATIVE_TIME: RelativeTimeLabels = {
+  justNow: "just now",
+  minutesAgo: (n) => `${n}m ago`,
+  hoursAgo: (n) => `${n}h ago`,
+  daysAgo: (n) => `${n}d ago`,
+};
+
+/** "3m ago" / "5h ago" / "2d ago" — short, mono-friendly. `nowMs` for
+ *  determinism; `labels` for locale (defaults to EN so existing callers/tests
+ *  keep their behavior). */
+export function formatRelativeTime(
+  iso: string,
+  nowMs: number = Date.now(),
+  labels: RelativeTimeLabels = EN_RELATIVE_TIME,
+): string {
   const then = new Date(iso).getTime();
   if (!Number.isFinite(then)) return "—";
   const seconds = Math.round(Math.max(0, nowMs - then) / 1000);
-  if (seconds < 45) return "just now";
+  if (seconds < 45) return labels.justNow;
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return labels.minutesAgo(minutes);
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return labels.hoursAgo(hours);
   const days = Math.round(hours / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return labels.daysAgo(days);
   return new Date(then).toLocaleDateString("en-PH", {
     month: "short",
     day: "numeric",

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { intakeInputSchema, type IntakeInput } from "@helix/shared";
 import type { PayerOption, ServiceOption } from "@/lib/demo";
 import type { VerifyProposalView, ApiResponse } from "@/lib/api-types";
+import { DICTS, type Locale } from "@/lib/i18n";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TextField, SelectField } from "@/components/ui/Field";
@@ -29,6 +30,10 @@ function Sig({ id, size = 16 }: { id: string; size?: number }) {
 interface Props {
   payers: readonly PayerOption[];
   services: readonly ServiceOption[];
+  /** Request locale from the server page. Dictionaries contain template
+   *  FUNCTIONS, which cannot cross the server→client prop boundary — so the
+   *  serializable locale crosses instead and the dict is picked client-side. */
+  locale: Locale;
 }
 
 type FieldErrors = Partial<Record<string, string>>;
@@ -60,7 +65,8 @@ function keyForPath(path: (string | number)[]): string {
   return typeof last === "string" ? last : "form";
 }
 
-export function VerifyExperience({ payers, services }: Props) {
+export function VerifyExperience({ payers, services, locale }: Props) {
+  const t = DICTS[locale].verify;
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -138,7 +144,7 @@ export function VerifyExperience({ payers, services }: Props) {
       }
       setProposal(json.data);
     } catch {
-      setSubmitError("Network error. Please retry.");
+      setSubmitError(t.networkError);
     } finally {
       setLoading(false);
     }
@@ -155,20 +161,20 @@ export function VerifyExperience({ payers, services }: Props) {
                   <Icon name="shield" />
                 </span>
                 <div className="vx-form__heading">
-                  <h2 className="vx-form__title">Walk-in intake</h2>
-                  <p className="vx-form__sub">Synthetic demo — no real patient data</p>
+                  <h2 className="vx-form__title">{t.formTitle}</h2>
+                  <p className="vx-form__sub">{t.formSub}</p>
                 </div>
                 <button type="button" className="vx-sample" onClick={loadSample}>
-                  <Sig id="spark" size={14} /> Sample
+                  <Sig id="spark" size={14} /> {t.sample}
                 </button>
               </div>
 
               <fieldset className="vx-sec">
                 <legend className="vx-sec__legend">
-                  <span className="vx-sec__n">01</span> Patient
+                  <span className="vx-sec__n">01</span> {t.secPatient}
                 </legend>
                 <TextField
-                  label="Full name"
+                  label={t.fullName}
                   required
                   autoComplete="off"
                   placeholder="Juan Dela Cruz"
@@ -178,7 +184,7 @@ export function VerifyExperience({ payers, services }: Props) {
                 />
                 <div className="form-row">
                   <TextField
-                    label="Birth date"
+                    label={t.birthDate}
                     required
                     type="date"
                     value={form.birthDate}
@@ -186,35 +192,35 @@ export function VerifyExperience({ payers, services }: Props) {
                     onChange={(e) => set("birthDate", e.target.value)}
                   />
                   <SelectField
-                    label="Sex"
+                    label={t.sex}
                     required
                     value={form.sex}
                     error={errors.sex}
                     onChange={(e) => set("sex", e.target.value)}
                   >
                     <option value="" disabled>
-                      Select…
+                      {t.sexSelect}
                     </option>
-                    <option value="F">Female</option>
-                    <option value="M">Male</option>
-                    <option value="X">Other</option>
+                    <option value="F">{t.sexF}</option>
+                    <option value="M">{t.sexM}</option>
+                    <option value="X">{t.sexX}</option>
                   </SelectField>
                 </div>
               </fieldset>
 
               <fieldset className="vx-sec">
                 <legend className="vx-sec__legend">
-                  <span className="vx-sec__n">02</span> Coverage
+                  <span className="vx-sec__n">02</span> {t.secCoverage}
                 </legend>
                 <SelectField
-                  label="Payer"
+                  label={t.payer}
                   required
                   value={form.payerId}
                   error={errors.payerId}
                   onChange={(e) => set("payerId", e.target.value)}
                 >
                   <option value="" disabled>
-                    Select payer…
+                    {t.payerSelect}
                   </option>
                   {payers.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -224,7 +230,7 @@ export function VerifyExperience({ payers, services }: Props) {
                 </SelectField>
                 <div className="form-row">
                   <TextField
-                    label="Member ID"
+                    label={t.memberId}
                     required
                     placeholder="MX-000123456"
                     value={form.memberId}
@@ -232,7 +238,7 @@ export function VerifyExperience({ payers, services }: Props) {
                     onChange={(e) => set("memberId", e.target.value)}
                   />
                   <TextField
-                    label="Plan"
+                    label={t.plan}
                     required
                     placeholder="Prime Gold"
                     value={form.planName}
@@ -244,17 +250,17 @@ export function VerifyExperience({ payers, services }: Props) {
 
               <fieldset className="vx-sec">
                 <legend className="vx-sec__legend">
-                  <span className="vx-sec__n">03</span> Service
+                  <span className="vx-sec__n">03</span> {t.secService}
                 </legend>
                 <SelectField
-                  label="Requested service"
+                  label={t.service}
                   required
                   value={form.serviceCode}
                   error={errors.serviceCode}
                   onChange={(e) => set("serviceCode", e.target.value)}
                 >
                   <option value="" disabled>
-                    Select service…
+                    {t.serviceSelect}
                   </option>
                   {services.map((s) => (
                     <option key={s.code} value={s.code}>
@@ -275,18 +281,18 @@ export function VerifyExperience({ payers, services }: Props) {
                 <Button type="submit" variant="primary" size="lg" block disabled={loading}>
                   {loading ? (
                     <>
-                      <span className="vx-spin" aria-hidden="true" /> Verifying…
+                      <span className="vx-spin" aria-hidden="true" /> {t.verifying}
                     </>
                   ) : (
                     <>
-                      Verify eligibility
+                      {t.submit}
                       <Icon name="arrow" size={16} />
                     </>
                   )}
                 </Button>
                 <p className="vx-submit__note">
                   <Icon name="lock" size={12} />
-                  Nothing is sent to a payer — Helix drafts, your team approves.
+                  {t.submitNote}
                 </p>
               </div>
             </form>
@@ -296,29 +302,30 @@ export function VerifyExperience({ payers, services }: Props) {
 
       <div className="vx-resultcol" aria-live="polite">
         {proposal ? (
-          <EligibilityResultCard key={proposal.encounterId} proposal={proposal} />
+          <EligibilityResultCard
+            key={proposal.encounterId}
+            proposal={proposal}
+            locale={locale}
+          />
         ) : (
           <div className="vx-empty">
             <span className="vx-empty__ic" aria-hidden="true">
               <Icon name="shield" />
             </span>
-            <p className="vx-empty__t">Your decision appears here</p>
-            <p className="vx-empty__d">
-              Fill the intake and Helix returns eligibility, requirements, blocking
-              gaps, a drafted LOA, and cited evidence — for your approval.
-            </p>
+            <p className="vx-empty__t">{t.emptyTitle}</p>
+            <p className="vx-empty__d">{t.emptyDesc}</p>
             <ul className="vx-empty__list">
               <li>
-                <Icon name="check" size={14} /> Eligibility status &amp; benefit
+                <Icon name="check" size={14} /> {t.emptyItem1}
               </li>
               <li>
-                <Icon name="check" size={14} /> Requirements &amp; blocking gaps
+                <Icon name="check" size={14} /> {t.emptyItem2}
               </li>
               <li>
-                <Icon name="check" size={14} /> Drafted Letter of Authorization
+                <Icon name="check" size={14} /> {t.emptyItem3}
               </li>
               <li>
-                <Icon name="check" size={14} /> Cited evidence &amp; confidence
+                <Icon name="check" size={14} /> {t.emptyItem4}
               </li>
             </ul>
           </div>

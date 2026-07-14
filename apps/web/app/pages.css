@@ -363,6 +363,8 @@
   letter-spacing: 0.1em;
   color: var(--c-faint);
   padding-inline: 7px 2px;
+  /* "Kumikilos bilang" (FIL) stays one line like "Acting as". */
+  white-space: nowrap;
 }
 .role-chip {
   appearance: none;

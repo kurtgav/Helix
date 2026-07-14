@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { BrainGraphData } from "@/lib/brain/types";
+import { DICTS, type Locale } from "@/lib/i18n";
 
 // Interactive link-graph of the vault. Positions are computed SERVER-side by
 // the deterministic force layout (lib/brain/graph.ts), so this component only
@@ -20,6 +21,8 @@ interface Props {
   /** Hide text labels (the compact sidebar variant) — titles stay available
    *  via each node's tooltip + aria-label. */
   showLabels?: boolean;
+  /** Request locale (serializable — template functions stay client-side). */
+  locale: Locale;
 }
 
 function nodeRadius(degree: number): number {
@@ -32,7 +35,8 @@ function truncateTitle(title: string): string {
   return title.length > LABEL_MAX ? `${title.slice(0, LABEL_MAX - 1).trimEnd()}…` : title;
 }
 
-export function BrainGraph({ graph, activeSlug, label, showLabels = true }: Props) {
+export function BrainGraph({ graph, activeSlug, label, showLabels = true, locale }: Props) {
+  const t = DICTS[locale].brain;
   const router = useRouter();
   const [hovered, setHovered] = useState<string | undefined>(undefined);
 
@@ -105,7 +109,7 @@ export function BrainGraph({ graph, activeSlug, label, showLabels = true }: Prop
                 onMouseLeave={() => setHovered(undefined)}
                 onFocus={() => setHovered(node.slug)}
                 onBlur={() => setHovered(undefined)}
-                aria-label={`${node.title} — ${node.degree} link${node.degree === 1 ? "" : "s"}`}
+                aria-label={t.graphNodeAria(node.title, node.degree)}
                 className={`graph__node${dim ? " graph__node--dim" : ""}${active ? " graph__node--active" : ""}`}
                 data-section={node.section}
               >
@@ -140,11 +144,11 @@ export function BrainGraph({ graph, activeSlug, label, showLabels = true }: Prop
         </g>
       </svg>
       <figcaption className="graph__legend">
-        <span className="graph__key" data-section="strategy">Strategy</span>
-        <span className="graph__key" data-section="architecture">Architecture</span>
-        <span className="graph__key" data-section="loop">Loop</span>
-        <span className="graph__key" data-section="delivery">Delivery</span>
-        <span className="graph__key" data-section="root">Index</span>
+        <span className="graph__key" data-section="strategy">{t.legendStrategy}</span>
+        <span className="graph__key" data-section="architecture">{t.legendArchitecture}</span>
+        <span className="graph__key" data-section="loop">{t.legendLoop}</span>
+        <span className="graph__key" data-section="delivery">{t.legendDelivery}</span>
+        <span className="graph__key" data-section="root">{t.legendIndex}</span>
       </figcaption>
     </figure>
   );

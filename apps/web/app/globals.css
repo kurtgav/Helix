@@ -299,6 +299,8 @@ svg {
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   transition: color var(--dur-fast) var(--ease);
+  /* Localized labels ("Mag-verify", "Mga Agent") must never wrap mid-item. */
+  white-space: nowrap;
 }
 .navlinks a:hover {
   color: var(--c-ink);

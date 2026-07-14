@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/Icon";
 import type { AgentTeammate } from "@/lib/roster";
+import type { Dict } from "@/lib/i18n";
 
 // One teammate in the roster bento. Three visual variants, one component:
 //   • live       → richer, elevated, whole-card <Link>, pulsing "Live" dot
@@ -8,6 +9,11 @@ import type { AgentTeammate } from "@/lib/roster";
 //   • supervisor → full-width orchestration banner (planned, but distinct)
 // Icons map by catalog index; the Supervisor uses the "pulse" (coordination)
 // mark. Only existing sprite names are used.
+//
+// Copy: teammate NAMES and phase tags are product/release identifiers and stay
+// as data; the job descriptions localize through the dict (jobFor).
+
+type AgentsDict = Dict["agents"];
 
 const ICON_BY_N: Readonly<Record<number, IconName>> = {
   1: "shield",
@@ -20,19 +26,45 @@ const ICON_BY_N: Readonly<Record<number, IconName>> = {
   8: "gauge",
 };
 
-const OPEN_LABEL: Readonly<Record<string, string>> = {
-  "/verify": "Verify",
-  "/revenue": "Revenue",
-};
-
 function iconFor(agent: AgentTeammate): IconName {
   return agent.n === null ? "pulse" : (ICON_BY_N[agent.n] ?? "layers");
 }
 
-export function AgentCard({ agent }: { agent: AgentTeammate }) {
+function jobFor(t: AgentsDict, agent: AgentTeammate): string {
+  switch (agent.n) {
+    case 1:
+      return t.job1;
+    case 2:
+      return t.job2;
+    case 3:
+      return t.job3;
+    case 4:
+      return t.job4;
+    case 5:
+      return t.job5;
+    case 6:
+      return t.job6;
+    case 7:
+      return t.job7;
+    case 8:
+      return t.job8;
+    default:
+      return t.jobSupervisor;
+  }
+}
+
+/** Localized label for the surface a live teammate opens. */
+function openSurface(t: AgentsDict, href: string | undefined): string {
+  if (href === "/verify") return t.openIn("Verify");
+  if (href === "/revenue") return t.openIn("Revenue");
+  return t.openIn("workspace");
+}
+
+export function AgentCard({ agent, t }: { agent: AgentTeammate; t: AgentsDict }) {
   const isSupervisor = agent.n === null;
   const isLive = agent.status === "live";
   const icon = iconFor(agent);
+  const job = jobFor(t, agent);
 
   // The orchestration layer: a wide banner, visually apart from the grid cells.
   if (isSupervisor) {
@@ -45,9 +77,9 @@ export function AgentCard({ agent }: { agent: AgentTeammate }) {
           <div className="sup__text">
             <div className="agent__namerow">
               <h3 className="agent__name">{agent.name}</h3>
-              <span className="tag mono">Planned · {agent.phase}</span>
+              <span className="tag mono">{t.plannedTag(agent.phase)}</span>
             </div>
-            <p className="agent__job">{agent.job}</p>
+            <p className="agent__job">{job}</p>
           </div>
           <span className="sup__viz" aria-hidden="true">
             <i />
@@ -76,23 +108,23 @@ export function AgentCard({ agent }: { agent: AgentTeammate }) {
           {isLive && (
             <span className="agent__live">
               <i className="live-dot" aria-hidden="true" />
-              Live
+              {t.legendLive}
             </span>
           )}
         </div>
-        <p className="agent__job">{agent.job}</p>
+        <p className="agent__job">{job}</p>
       </div>
       <div className="agent__foot">
         {isLive ? (
           <>
             <span className="agent__open">
-              Open {agent.href ? (OPEN_LABEL[agent.href] ?? "workspace") : "workspace"}
+              {openSurface(t, agent.href)}
               <Icon name="arrow" size={15} />
             </span>
             <span className="tag tag--live mono">{agent.phase}</span>
           </>
         ) : (
-          <span className="tag mono">Planned · {agent.phase}</span>
+          <span className="tag mono">{t.plannedTag(agent.phase)}</span>
         )}
       </div>
     </>

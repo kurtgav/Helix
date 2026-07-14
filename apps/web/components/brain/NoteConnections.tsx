@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { BrainNote } from "@/lib/brain/types";
+import type { Dict } from "@/lib/i18n";
 
 // Bidirectional context for a note: which notes cite this one (backlinks —
 // the inverted index Obsidian users live in) and which notes are topically
@@ -9,6 +10,7 @@ import type { BrainNote } from "@/lib/brain/types";
 interface Props {
   note: BrainNote;
   titleOf: (slug: string) => string;
+  t: Dict["brain"];
 }
 
 function ConnectionList({
@@ -37,43 +39,39 @@ function ConnectionList({
   );
 }
 
-export function NoteConnections({ note, titleOf }: Props) {
+export function NoteConnections({ note, titleOf, t }: Props) {
   return (
-    <section className="conn" aria-label="Connections">
+    <section className="conn" aria-label={t.connAria}>
       <div className="conn__group">
         <h2 className="conn__title">
           <Icon name="link" size={13} />
-          Linked from
+          {t.connLinkedFrom}
           <span className="conn__count">{note.backlinks.length}</span>
         </h2>
         <ConnectionList
           slugs={note.backlinks}
           titleOf={titleOf}
-          emptyText="No notes link here yet."
+          emptyText={t.connEmptyBacklinks}
         />
       </div>
       <div className="conn__group">
         <h2 className="conn__title">
           <Icon name="arrow" size={13} />
-          Links to
+          {t.connLinksTo}
           <span className="conn__count">{note.outbound.length}</span>
         </h2>
         <ConnectionList
           slugs={note.outbound}
           titleOf={titleOf}
-          emptyText="This note links nowhere."
+          emptyText={t.connEmptyOutbound}
         />
       </div>
       <div className="conn__group">
         <h2 className="conn__title">
           <Icon name="spark" size={13} />
-          Related by content
+          {t.connRelated}
         </h2>
-        <ConnectionList
-          slugs={note.related}
-          titleOf={titleOf}
-          emptyText="No topically similar notes."
-        />
+        <ConnectionList slugs={note.related} titleOf={titleOf} emptyText={t.connEmptyRelated} />
       </div>
     </section>
   );

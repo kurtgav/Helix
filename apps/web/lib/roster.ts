@@ -92,51 +92,71 @@ export const ROSTER: readonly AgentTeammate[] = [
   },
 ];
 
-function plural(n: number, one: string, many: string): string {
-  return n === 1 ? one : many;
+/** The locale strings the brief writer needs — a structural subset of
+ *  Dict["agents"], so the server seam passes its dict slice straight in.
+ *  Pluralization lives inside each locale's templates. */
+export interface BriefLabels {
+  briefSourceLive: string;
+  briefSourceDemo: string;
+  briefQuiet1: string;
+  briefQuiet2: string;
+  briefVerified: (checks: number, pace: string) => string;
+  briefPace: (duration: string) => string;
+  briefCaught: (denials: number, pesos: string) => string;
+  briefProtected: (pesos: string) => string;
+  briefHours: (hours: string) => string;
 }
+
+const EN_BRIEF_LABELS: BriefLabels = {
+  briefSourceLive: "Every figure here is computed from your approved, audited encounters.",
+  briefSourceDemo:
+    "These figures come from a synthetic demo baseline — connect a database to see your own.",
+  briefQuiet1: "No verifications have run in this window yet.",
+  briefQuiet2:
+    "As your front desk verifies walk-ins, this brief fills in with coverage confirmed, denials caught before submission, and hours handed back.",
+  briefVerified: (checks, pace) =>
+    `This month, Helix verified ${checks} ${checks === 1 ? "walk-in" : "walk-ins"}${pace}`,
+  briefPace: (duration) => `, clearing each in about ${duration}.`,
+  briefCaught: (denials, pesos) =>
+    `It caught ${denials} likely ${denials === 1 ? "denial" : "denials"} before submission — ${pesos} in claims kept clean.`,
+  briefProtected: (pesos) => `It protected ${pesos} in claims from likely denial.`,
+  briefHours: (hours) => `That handed your team back ${hours} of portal and phone work.`,
+};
 
 // PURE. Turns an ROI snapshot into a natural-language executive brief — the
 // Executive Agent (catalog #8) teaser. Returns 2–4 sentences. Derives strictly
 // from aggregate ROI (checks, denials prevented, pesos, hours) — never patient
 // specifics. The final sentence states the data source honestly (live vs demo).
-export function buildExecutiveBrief(roi: RoiSnapshot, live: boolean): string[] {
+// `labels` selects the locale; defaults to EN so existing callers/tests hold.
+export function buildExecutiveBrief(
+  roi: RoiSnapshot,
+  live: boolean,
+  labels: BriefLabels = EN_BRIEF_LABELS,
+): string[] {
   const checks = Math.max(0, Math.trunc(roi.checksRun));
   const denials = Math.max(0, Math.trunc(roi.denialsPrevented));
   const pesos = Math.max(0, roi.pesosRecovered);
   const hours = Math.max(0, roi.hoursSaved);
 
-  const source = live
-    ? "Every figure here is computed from your approved, audited encounters."
-    : "These figures come from a synthetic demo baseline — connect a database to see your own.";
+  const source = live ? labels.briefSourceLive : labels.briefSourceDemo;
 
   // Quiet window: nothing has run yet. Two honest sentences + the source note.
   if (checks === 0) {
-    return [
-      "No verifications have run in this window yet.",
-      "As your front desk verifies walk-ins, this brief fills in with coverage confirmed, denials caught before submission, and hours handed back.",
-      source,
-    ];
+    return [labels.briefQuiet1, labels.briefQuiet2, source];
   }
 
   const pace =
-    roi.avgTimeToVerifyMs > 0
-      ? `, clearing each in about ${formatDuration(roi.avgTimeToVerifyMs)}.`
-      : ".";
-  const lines: string[] = [
-    `This month, Helix verified ${checks} ${plural(checks, "walk-in", "walk-ins")}${pace}`,
-  ];
+    roi.avgTimeToVerifyMs > 0 ? labels.briefPace(formatDuration(roi.avgTimeToVerifyMs)) : ".";
+  const lines: string[] = [labels.briefVerified(checks, pace)];
 
   if (denials > 0) {
-    lines.push(
-      `It caught ${denials} likely ${plural(denials, "denial", "denials")} before submission — ${formatPesos(pesos)} in claims kept clean.`,
-    );
+    lines.push(labels.briefCaught(denials, formatPesos(pesos)));
   } else if (pesos > 0) {
-    lines.push(`It protected ${formatPesos(pesos)} in claims from likely denial.`);
+    lines.push(labels.briefProtected(formatPesos(pesos)));
   }
 
   if (hours > 0) {
-    lines.push(`That handed your team back ${formatHours(hours)} of portal and phone work.`);
+    lines.push(labels.briefHours(formatHours(hours)));
   }
 
   lines.push(source);

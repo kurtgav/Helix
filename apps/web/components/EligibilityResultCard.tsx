@@ -7,6 +7,7 @@ import type {
   ApiResponse,
   ApproveResultView,
 } from "@/lib/api-types";
+import { DICTS, type Dict, type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/Icon";
 
@@ -25,11 +26,7 @@ function Sig({ id, size = 15 }: { id: string; size?: number }) {
   );
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  eligible: "Eligible",
-  needs_review: "Needs review",
-  ineligible: "Not eligible",
-};
+type ResultDict = Dict["result"];
 
 const STATUS_ICON: Record<string, IconName> = {
   eligible: "check",
@@ -37,17 +34,28 @@ const STATUS_ICON: Record<string, IconName> = {
   ineligible: "alert",
 };
 
-const STATUS_LEDE: Record<string, string> = {
-  eligible: "Coverage confirmed — clear to proceed on approval.",
-  needs_review: "Insufficient information — a human should review before proceeding.",
-  ineligible: "Coverage does not apply — do not submit as-is.",
-};
+function statusLabel(t: ResultDict, status: string): string {
+  if (status === "eligible") return t.statusEligible;
+  if (status === "needs_review") return t.statusNeedsReview;
+  if (status === "ineligible") return t.statusIneligible;
+  return status;
+}
+
+function statusLede(t: ResultDict, status: string): string {
+  if (status === "eligible") return t.ledeEligible;
+  if (status === "needs_review") return t.ledeNeedsReview;
+  if (status === "ineligible") return t.ledeIneligible;
+  return "";
+}
 
 interface Props {
   proposal: VerifyProposalView;
+  /** Request locale (serializable — template functions stay client-side). */
+  locale: Locale;
 }
 
-export function EligibilityResultCard({ proposal }: Props) {
+export function EligibilityResultCard({ proposal, locale }: Props) {
+  const t = DICTS[locale].result;
   const { eligibility } = proposal;
   const [loaBody, setLoaBody] = useState(proposal.loaDraft?.body ?? "");
   const [pending, setPending] = useState(false);
@@ -83,7 +91,7 @@ export function EligibilityResultCard({ proposal }: Props) {
       }
       setOutcome(json.data);
     } catch {
-      setError("Network error. Please retry.");
+      setError(t.networkError);
     } finally {
       setPending(false);
     }
@@ -93,23 +101,21 @@ export function EligibilityResultCard({ proposal }: Props) {
     proposal.loaDraft != null && loaBody !== proposal.loaDraft.body;
 
   return (
-    <article className={`erc erc--${status}`} aria-label="Eligibility decision">
+    <article className={`erc erc--${status}`} aria-label={t.ariaLabel}>
       {/* Semantic status banner — the decision headline */}
       <header className="erc__banner">
         <span className="erc__banner-ic" aria-hidden="true">
           <Icon name={STATUS_ICON[status] ?? "shield"} />
         </span>
         <div className="erc__banner-main">
-          <span className="erc__banner-eyebrow">Eligibility decision</span>
-          <h2 className="erc__banner-status">
-            {STATUS_LABEL[status] ?? status}
-          </h2>
-          <span className="erc__banner-lede">{STATUS_LEDE[status] ?? ""}</span>
+          <span className="erc__banner-eyebrow">{t.eyebrow}</span>
+          <h2 className="erc__banner-status">{statusLabel(t, status)}</h2>
+          <span className="erc__banner-lede">{statusLede(t, status)}</span>
         </div>
         <div className="erc__banner-benefit">
-          <span className="erc__banner-benefit-k">Benefit</span>
+          <span className="erc__banner-benefit-k">{t.benefit}</span>
           <span className="erc__banner-benefit-v">
-            {eligibility.benefit ?? "No benefit detail returned"}
+            {eligibility.benefit ?? t.noBenefit}
           </span>
         </div>
       </header>
@@ -120,8 +126,7 @@ export function EligibilityResultCard({ proposal }: Props) {
           <section className="erc__block">
             <div className="erc__block-head">
               <Icon name="alert" size={16} />
-              {blockingGaps.length} blocking{" "}
-              {blockingGaps.length === 1 ? "gap" : "gaps"} — resolve before approval
+              {t.blockingGaps(blockingGaps.length)}
             </div>
             <ul className="erc__block-list">
               {blockingGaps.map((gap, i) => (
@@ -131,11 +136,11 @@ export function EligibilityResultCard({ proposal }: Props) {
           </section>
         ) : null}
 
-        <RequirementsSection requirements={eligibility.requirements} />
+        <RequirementsSection requirements={eligibility.requirements} t={t} />
 
         {noteGaps.length > 0 ? (
           <section className="erc__sec">
-            <h3 className="erc__sec-title">Notes</h3>
+            <h3 className="erc__sec-title">{t.notes}</h3>
             <ul className="erc__notes">
               {noteGaps.map((gap, i) => (
                 <li key={i} className="erc__note">
@@ -150,15 +155,13 @@ export function EligibilityResultCard({ proposal }: Props) {
         {proposal.loaDraft ? (
           <section className="erc__sec">
             <div className="erc__doc-bar">
-              <h3 className="erc__sec-title erc__sec-title--flush">
-                Drafted Letter of Authorization
-              </h3>
+              <h3 className="erc__sec-title erc__sec-title--flush">{t.loaTitle}</h3>
               {proposal.loaRequired ? (
-                <span className="erc__req-tag">Required</span>
+                <span className="erc__req-tag">{t.loaRequired}</span>
               ) : null}
               <span className="erc__doc-edit">
                 <Sig id="pencil" size={12} />
-                {loaEdited ? "Edited" : "Editable"}
+                {loaEdited ? t.loaEdited : t.loaEditable}
               </span>
             </div>
             <div className={`erc__doc${decided ? " erc__doc--locked" : ""}`}>
@@ -166,7 +169,7 @@ export function EligibilityResultCard({ proposal }: Props) {
                 <span className="erc__doc-dot" />
                 <span className="erc__doc-dot" />
                 <span className="erc__doc-dot" />
-                <span className="erc__doc-name">LOA · draft</span>
+                <span className="erc__doc-name">{t.loaDocName}</span>
               </div>
               <textarea
                 id="loa-body"
@@ -174,13 +177,14 @@ export function EligibilityResultCard({ proposal }: Props) {
                 value={loaBody}
                 disabled={decided}
                 onChange={(e) => setLoaBody(e.target.value)}
-                aria-label="Editable LOA draft"
+                aria-label={t.loaAria}
                 spellCheck={false}
               />
             </div>
             <DocLists
               required={proposal.loaDraft.requiredDocs}
               missing={proposal.loaDraft.missingDocs}
+              t={t}
             />
           </section>
         ) : null}
@@ -188,13 +192,14 @@ export function EligibilityResultCard({ proposal }: Props) {
         <EvidenceSection
           evidence={eligibility.evidence}
           rationale={proposal.rationale}
+          t={t}
         />
 
         {/* Confidence — data as design */}
         <section className="erc__sec erc__conf">
           <div className="erc__conf-row">
             <span className="erc__conf-k">
-              <Icon name="gauge" size={14} /> Model confidence
+              <Icon name="gauge" size={14} /> {t.confidence}
             </span>
             <span className="erc__conf-v mono">{confidencePct}%</span>
           </div>
@@ -204,13 +209,11 @@ export function EligibilityResultCard({ proposal }: Props) {
             aria-valuenow={confidencePct}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Model confidence"
+            aria-label={t.confidence}
           >
             <span className="erc__meter-fill" style={{ width: `${confidencePct}%` }} />
           </div>
-          <p className="erc__conf-note">
-            A proposal, not a decision — human approval is always required.
-          </p>
+          <p className="erc__conf-note">{t.confidenceNote}</p>
         </section>
       </div>
 
@@ -231,9 +234,7 @@ export function EligibilityResultCard({ proposal }: Props) {
             role="status"
           >
             <Icon name={outcome!.decision === "approved" ? "check" : "alert"} size={16} />
-            {outcome!.decision === "approved"
-              ? "Approved and logged to the audit trail. LOA marked ready."
-              : "Rejected and logged. Nothing was submitted."}
+            {outcome!.decision === "approved" ? t.approvedMsg : t.rejectedMsg}
           </div>
         ) : (
           <>
@@ -245,11 +246,11 @@ export function EligibilityResultCard({ proposal }: Props) {
               >
                 {pending ? (
                   <>
-                    <span className="vx-spin" aria-hidden="true" /> Recording…
+                    <span className="vx-spin" aria-hidden="true" /> {t.recording}
                   </>
                 ) : (
                   <>
-                    <Icon name="check" size={16} /> Approve
+                    <Icon name="check" size={16} /> {t.approve}
                   </>
                 )}
               </Button>
@@ -258,12 +259,12 @@ export function EligibilityResultCard({ proposal }: Props) {
                 disabled={pending}
                 onClick={() => decide("rejected")}
               >
-                Reject
+                {t.reject}
               </Button>
             </div>
             <span className="erc__decide-note">
               <Icon name="fingerprint" size={13} />
-              Approval is attributed and written to the immutable trail.
+              {t.decideNote}
             </span>
           </>
         )}
@@ -272,16 +273,22 @@ export function EligibilityResultCard({ proposal }: Props) {
   );
 }
 
-function RequirementsSection({ requirements }: { requirements: Requirement[] }) {
+function RequirementsSection({
+  requirements,
+  t,
+}: {
+  requirements: Requirement[];
+  t: ResultDict;
+}) {
   if (requirements.length === 0) return null;
   return (
     <section className="erc__sec">
-      <h3 className="erc__sec-title">Requirements</h3>
+      <h3 className="erc__sec-title">{t.requirements}</h3>
       <ul className="erc__reqs">
         {requirements.map((req, i) => {
           const state = !req.required ? "opt" : req.present ? "yes" : "no";
           const flag =
-            state === "yes" ? "Provided" : state === "no" ? "Needed" : "Optional";
+            state === "yes" ? t.reqProvided : state === "no" ? t.reqNeeded : t.reqOptional;
           return (
             <li key={`${req.type}-${i}`} className={`erc__req erc__req--${state}`}>
               <span className="erc__req-ic" aria-hidden="true">
@@ -306,13 +313,21 @@ function RequirementsSection({ requirements }: { requirements: Requirement[] }) 
   );
 }
 
-function DocLists({ required, missing }: { required: string[]; missing: string[] }) {
+function DocLists({
+  required,
+  missing,
+  t,
+}: {
+  required: string[];
+  missing: string[];
+  t: ResultDict;
+}) {
   if (required.length === 0 && missing.length === 0) return null;
   return (
     <div className="erc__docs">
       {required.length > 0 ? (
         <div className="erc__docs-col">
-          <p className="erc__docs-k">Required documents</p>
+          <p className="erc__docs-k">{t.requiredDocs}</p>
           <div className="erc__chiprow">
             {required.map((d) => (
               <span key={d} className="erc__docchip">
@@ -325,7 +340,7 @@ function DocLists({ required, missing }: { required: string[]; missing: string[]
       ) : null}
       {missing.length > 0 ? (
         <div className="erc__docs-col">
-          <p className="erc__docs-k erc__docs-k--danger">Missing</p>
+          <p className="erc__docs-k erc__docs-k--danger">{t.missingDocs}</p>
           <div className="erc__chiprow">
             {missing.map((d) => (
               <span key={d} className="erc__docchip erc__docchip--danger">
@@ -343,14 +358,16 @@ function DocLists({ required, missing }: { required: string[]; missing: string[]
 function EvidenceSection({
   evidence,
   rationale,
+  t,
 }: {
   evidence: Evidence[];
   rationale: string;
+  t: ResultDict;
 }) {
   return (
     <section className="erc__sec">
       <h3 className="erc__sec-title">
-        <Sig id="link" size={14} /> Evidence &amp; rationale
+        <Sig id="link" size={14} /> {t.evidenceTitle}
       </h3>
       {rationale ? <p className="erc__rationale">{rationale}</p> : null}
       {evidence.length > 0 ? (
@@ -365,7 +382,7 @@ function EvidenceSection({
           ))}
         </ul>
       ) : (
-        <p className="erc__muted">No citations returned.</p>
+        <p className="erc__muted">{t.noCitations}</p>
       )}
     </section>
   );

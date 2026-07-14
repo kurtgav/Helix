@@ -142,7 +142,11 @@ describe("MockPayerAdapter.submitLOA / getStatus", () => {
     expect(a.ok).toBe(true);
     if (!a.ok || !b.ok) return;
     expect(a.data.status).toBe("submitted");
-    expect(a.data.externalRef).toMatch(/^MAXICARE-LOA-\d+$/);
+    // Base36 (alphanumeric): a reference must never read like a 9–10 digit
+    // member/PhilHealth identifier (PHI-shaped digit runs are banned on the
+    // console surface).
+    expect(a.data.externalRef).toMatch(/^MAXICARE-LOA-[0-9A-Z]+$/);
+    expect(a.data.externalRef).not.toMatch(/\d{9,}/);
     expect(a.data.externalRef).toBe(b.data.externalRef); // deterministic
     expect(a.data.evidence[0]?.ref).toBe("#imaging");
   });

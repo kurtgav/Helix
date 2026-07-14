@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { BrainNoteMeta } from "@/lib/brain/types";
+import type { Dict } from "@/lib/i18n";
 
 // One note in the explorer listing: title, type + confidence, excerpt, and its
 // place in the link graph (backlink/outbound counts). The whole card is a link.
 
-export function NoteCard({ note }: { note: BrainNoteMeta }) {
+export function NoteCard({ note, t }: { note: BrainNoteMeta; t: Dict["brain"] }) {
   return (
     <Link href={`/brain/${note.slug}`} className="note-card" data-section={note.section}>
       <span className="note-card__top">
@@ -21,7 +22,7 @@ export function NoteCard({ note }: { note: BrainNoteMeta }) {
       <span className="note-card__meta">
         <span className="note-card__stat">
           <Icon name="link" size={12} />
-          {note.backlinks.length} in · {note.outbound.length} out
+          {t.cardLinks(note.backlinks.length, note.outbound.length)}
         </span>
         {note.updated ? (
           <time className="note-card__date" dateTime={note.updated}>

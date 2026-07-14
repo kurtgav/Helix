@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { BrainSearchDoc } from "@/lib/brain/types";
+import { DICTS, type Locale } from "@/lib/i18n";
 
 // Full-text search over the vault. The corpus (per-note plain text) is served
 // by /api/brain/index — RBAC-gated like the pages — and fetched lazily on
@@ -71,7 +72,8 @@ function snippetFor(doc: BrainSearchDoc, terms: string[]): Hit["snippet"] {
   return null;
 }
 
-export function BrainSearch() {
+export function BrainSearch({ locale }: { locale: Locale }) {
+  const t = DICTS[locale].brain;
   const [state, setState] = useState<SearchState>({ status: "idle", docs: [] });
   const [query, setQuery] = useState("");
   const loadStarted = useRef(false);
@@ -113,11 +115,11 @@ export function BrainSearch() {
     <div className="bsearch" role="search">
       <label className="bsearch__box">
         <Icon name="hash" size={15} />
-        <span className="sr-only">Search the brain</span>
+        <span className="sr-only">{t.searchLabel}</span>
         <input
           type="search"
           className="bsearch__input"
-          placeholder="Search every note — full text…"
+          placeholder={t.searchPlaceholder}
           value={query}
           onFocus={load}
           onChange={(event) => setQuery(event.target.value)}
@@ -132,14 +134,13 @@ export function BrainSearch() {
       {showResults ? (
         <div className="bsearch__results">
           <p className="bsearch__meta" aria-live="polite">
-            {state.status === "loading" && "Loading the index…"}
-            {state.status === "error" && "Could not load the search index."}
-            {state.status === "ready" &&
-              `${hits.length === 0 ? "No" : hits.length} match${hits.length === 1 ? "" : "es"}`}
+            {state.status === "loading" && t.searchLoading}
+            {state.status === "error" && t.searchError}
+            {state.status === "ready" && t.searchMatches(hits.length)}
           </p>
           {state.status === "error" ? (
             <button type="button" className="bsearch__retry" onClick={load}>
-              Retry
+              {t.searchRetry}
             </button>
           ) : null}
           <ul className="bsearch__list">
@@ -149,7 +150,7 @@ export function BrainSearch() {
                   <span className="bsearch__hit-head">
                     <span className="bsearch__hit-title">{doc.title}</span>
                     <span className="bsearch__hit-section" data-section={doc.section}>
-                      {doc.section === "root" ? "index" : doc.section}
+                      {doc.section === "root" ? t.sectionIndexBadge : doc.section}
                     </span>
                   </span>
                   {snippet ? (

@@ -1,12 +1,17 @@
 import type { AuditTrailRow } from "@helix/db";
 import { Icon, type IconName } from "@/components/Icon";
 import { formatRelativeTime } from "@/lib/console";
+import type { Dict } from "@/lib/i18n";
 
 // The immutable audit trail, made visible — the trust centerpiece. Rendered as an
 // append-only ledger: each entry carries an actor glyph (agent / user / system),
 // the action, the encounter it targeted, and, for agent runs, the model + prompt
 // version that produced the decision. A lock seal states the contract: entries are
 // appended, never edited or deleted. PHI-free by contract — kept so here.
+//
+// Locale note: action strings + metadata KEYS are canonical machine identifiers
+// from the audit log (they must match what was recorded) — they stay verbatim.
+// The chrome around them localizes.
 
 const ACTOR_GLYPH: Record<AuditTrailRow["actorType"], IconName> = {
   agent: "pulse",
@@ -14,11 +19,16 @@ const ACTOR_GLYPH: Record<AuditTrailRow["actorType"], IconName> = {
   system: "gauge",
 };
 
-const ACTOR_LABEL: Record<AuditTrailRow["actorType"], string> = {
-  agent: "Agent",
-  user: "User",
-  system: "System",
-};
+function actorLabel(t: Dict["console"], actorType: AuditTrailRow["actorType"]): string {
+  switch (actorType) {
+    case "agent":
+      return t.actorAgent;
+    case "user":
+      return t.actorUser;
+    case "system":
+      return t.actorSystem;
+  }
+}
 
 const META_LABEL: Record<string, string> = {
   status: "status",
@@ -70,9 +80,11 @@ function shortRef(id: string): string {
 export function AuditTrail({
   rows,
   now,
+  t,
 }: {
   rows: AuditTrailRow[];
   now?: number;
+  t: Dict["console"];
 }) {
   return (
     <div className="ledger-wrap">
@@ -80,15 +92,13 @@ export function AuditTrail({
         <span className="ledger-seal__lock" aria-hidden="true">
           <Icon name="lock" size={13} />
         </span>
-        <span className="ledger-seal__label">Append-only · immutable</span>
-        <span className="ledger-seal__note">
-          entries are added, never edited or deleted
-        </span>
-        <span className="ledger-seal__count mono">{rows.length} entries</span>
+        <span className="ledger-seal__label">{t.ledgerSeal}</span>
+        <span className="ledger-seal__note">{t.ledgerSealNote}</span>
+        <span className="ledger-seal__count mono">{t.ledgerEntries(rows.length)}</span>
       </div>
 
       {rows.length === 0 ? (
-        <p className="panel-empty">No audit entries yet.</p>
+        <p className="panel-empty">{t.ledgerEmpty}</p>
       ) : (
         <ol className="ledger">
           {rows.map((row) => {
@@ -116,7 +126,7 @@ export function AuditTrail({
                     ) : null}
                     <span className="ledger__actor mono">
                       <span className="sr-only">
-                        {ACTOR_LABEL[row.actorType]}:{" "}
+                        {actorLabel(t, row.actorType)}:{" "}
                       </span>
                       {row.actorId}
                     </span>
@@ -145,7 +155,7 @@ export function AuditTrail({
                   dateTime={row.at}
                   title={new Date(row.at).toLocaleString("en-PH")}
                 >
-                  {formatRelativeTime(row.at, now)}
+                  {formatRelativeTime(row.at, now, t)}
                 </time>
               </li>
             );

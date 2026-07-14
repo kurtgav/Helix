@@ -8,6 +8,7 @@ import "server-only";
 
 import type { RoiSnapshot } from "@helix/shared";
 import { getDashboardRoi } from "./agents";
+import { getDict } from "./i18n/server";
 import { buildExecutiveBrief } from "./roster";
 
 export interface ExecutiveBriefData {
@@ -18,5 +19,7 @@ export interface ExecutiveBriefData {
 
 export async function getExecutiveBrief(): Promise<ExecutiveBriefData> {
   const { roi, live } = await getDashboardRoi();
-  return { lines: buildExecutiveBrief(roi, live), roi, live };
+  // The brief is written in the request's locale — the dict slice satisfies
+  // BriefLabels structurally.
+  return { lines: buildExecutiveBrief(roi, live, getDict().agents), roi, live };
 }

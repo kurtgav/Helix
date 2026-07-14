@@ -10,37 +10,39 @@ import remarkGfm from "remark-gfm";
 
 type AnchorProps = AnchorHTMLAttributes<HTMLAnchorElement> & { children?: ReactNode };
 
-function NoteAnchor({ href = "", children, ...rest }: AnchorProps) {
-  // Wikilink to a note that exists → real client-side navigation.
-  if (href.startsWith("/brain/")) {
+function makeNoteAnchor(missingTitle: string) {
+  return function NoteAnchor({ href = "", children, ...rest }: AnchorProps) {
+    // Wikilink to a note that exists → real client-side navigation.
+    if (href.startsWith("/brain/")) {
+      return (
+        <Link href={href} className="note-link">
+          {children}
+        </Link>
+      );
+    }
+    // Wikilink whose target is not written yet → an honest stub, not a dead link.
+    if (href.startsWith("#missing-")) {
+      return (
+        <span className="note-link note-link--missing" title={missingTitle}>
+          {children}
+        </span>
+      );
+    }
+    // External link → new tab, opener-safe.
+    if (/^https?:\/\//.test(href)) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="note-link" {...rest}>
+          {children}
+        </a>
+      );
+    }
+    // In-page anchors and relative paths (rare) render as plain anchors.
     return (
-      <Link href={href} className="note-link">
-        {children}
-      </Link>
-    );
-  }
-  // Wikilink whose target is not written yet → an honest stub, not a dead link.
-  if (href.startsWith("#missing-")) {
-    return (
-      <span className="note-link note-link--missing" title="This note has not been written yet">
-        {children}
-      </span>
-    );
-  }
-  // External link → new tab, opener-safe.
-  if (/^https?:\/\//.test(href)) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="note-link" {...rest}>
+      <a href={href} className="note-link" {...rest}>
         {children}
       </a>
     );
-  }
-  // In-page anchors and relative paths (rare) render as plain anchors.
-  return (
-    <a href={href} className="note-link" {...rest}>
-      {children}
-    </a>
-  );
+  };
 }
 
 function ScrollTable({ children }: { children?: ReactNode }) {
@@ -51,10 +53,20 @@ function ScrollTable({ children }: { children?: ReactNode }) {
   );
 }
 
-export function NoteBody({ markdown }: { markdown: string }) {
+export function NoteBody({
+  markdown,
+  missingTitle,
+}: {
+  markdown: string;
+  /** Localized tooltip for wikilinks whose target note is not written yet. */
+  missingTitle: string;
+}) {
   return (
     <div className="note-body">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: NoteAnchor, table: ScrollTable }}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{ a: makeNoteAnchor(missingTitle), table: ScrollTable }}
+      >
         {markdown}
       </ReactMarkdown>
     </div>

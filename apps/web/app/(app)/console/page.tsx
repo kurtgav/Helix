@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
 import { getConsoleData } from "@/lib/console";
+import { getDict } from "@/lib/i18n/server";
 import { EncounterTable } from "@/components/console/EncounterTable";
 import { AuditTrail } from "@/components/console/AuditTrail";
 import "./console.css";
@@ -13,58 +14,54 @@ import "./console.css";
 export default async function ConsolePage() {
   const { live, encounters, audit, summary } = await getConsoleData();
   const now = Date.now();
+  const t = getDict().console;
 
   return (
     <>
       <div className="page-head">
         <div>
-          <p className="eyebrow">Operations Console</p>
-          <h1 className="page-title">Every action, on the record.</h1>
-          <p className="page-sub">
-            Live operations and the append-only audit trail — who did what, when,
-            and which agent decided it. The proof that autonomy stays accountable.
-          </p>
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h1 className="page-title">{t.title}</h1>
+          <p className="page-sub">{t.sub}</p>
           <p className={`data-badge${live ? " data-badge--live" : ""}`}>
             <span className="data-badge__dot" aria-hidden="true" />
-            {live
-              ? "Live — projected from persisted rows"
-              : "Demo — synthetic, PHI-free activity"}
+            {live ? t.badgeLive : t.badgeDemo}
           </p>
         </div>
       </div>
 
-      <section className="console-tiles" aria-label="Summary">
+      <section className="console-tiles" aria-label={t.summaryAria}>
         <Card className="tile c-tile c-tile--warn">
           <span className="c-tile__ic" aria-hidden="true">
             <Icon name="clipboard" size={18} />
           </span>
-          <p className="tile__label">Awaiting approval</p>
+          <p className="tile__label">{t.tileAwaiting}</p>
           <p className="tile__value">{summary.awaitingApproval}</p>
-          <p className="tile__foot">need a human decision</p>
+          <p className="tile__foot">{t.tileAwaitingFoot}</p>
         </Card>
         <Card className="tile c-tile c-tile--ok">
           <span className="c-tile__ic" aria-hidden="true">
             <Icon name="check" size={18} />
           </span>
-          <p className="tile__label">Approved</p>
+          <p className="tile__label">{t.tileApproved}</p>
           <p className="tile__value">{summary.approved}</p>
-          <p className="tile__foot">cleared and recorded</p>
+          <p className="tile__foot">{t.tileApprovedFoot}</p>
         </Card>
         <Card className="tile c-tile c-tile--accent">
           <span className="c-tile__ic" aria-hidden="true">
             <Icon name="layers" size={18} />
           </span>
-          <p className="tile__label">Encounters</p>
+          <p className="tile__label">{t.tileEncounters}</p>
           <p className="tile__value">{summary.total}</p>
-          <p className="tile__foot">logged this period</p>
+          <p className="tile__foot">{t.tileEncountersFoot}</p>
         </Card>
         <Card className="tile c-tile c-tile--seal">
           <span className="c-tile__ic" aria-hidden="true">
             <Icon name="lock" size={18} />
           </span>
-          <p className="tile__label">Audit events</p>
+          <p className="tile__label">{t.tileAudit}</p>
           <p className="tile__value">{audit.length}</p>
-          <p className="tile__foot">appended · immutable</p>
+          <p className="tile__foot">{t.tileAuditFoot}</p>
         </Card>
       </section>
 
@@ -73,18 +70,15 @@ export default async function ConsolePage() {
           <div className="panel__head">
             <span className="panel__eyebrow eyebrow">
               <Icon name="pulse" size={13} />
-              Live operations
+              {t.activityEyebrow}
             </span>
             <h2 id="activity-heading" className="panel__title">
-              Recent activity
+              {t.activityTitle}
             </h2>
-            <p className="panel__sub">
-              Latest encounters — service, payer, and status. No patient
-              identifiers.
-            </p>
+            <p className="panel__sub">{t.activitySub}</p>
           </div>
           <Card className="panel__card">
-            <EncounterTable rows={encounters} now={now} />
+            <EncounterTable rows={encounters} now={now} t={t} />
           </Card>
         </section>
 
@@ -92,18 +86,15 @@ export default async function ConsolePage() {
           <div className="panel__head">
             <span className="panel__eyebrow eyebrow">
               <Icon name="shield" size={13} />
-              Immutable audit trail
+              {t.ledgerEyebrow}
             </span>
             <h2 id="audit-heading" className="panel__title">
-              Audit trail
+              {t.ledgerTitle}
             </h2>
-            <p className="panel__sub">
-              Every agent decision and human approval, appended in order and never
-              altered — with the model and prompt version behind each one.
-            </p>
+            <p className="panel__sub">{t.ledgerSub}</p>
           </div>
           <Card className="panel__card panel__card--ledger">
-            <AuditTrail rows={audit} now={now} />
+            <AuditTrail rows={audit} now={now} t={t} />
           </Card>
         </section>
       </div>

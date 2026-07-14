@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
 import { actorCan } from "@/lib/auth";
+import { getDict, getLocale } from "@/lib/i18n/server";
 import { getVault } from "@/lib/brain/vault";
 import { humanizeSlug } from "@/lib/brain/markdown";
 import { NoteBody } from "@/components/brain/NoteBody";
@@ -15,7 +16,8 @@ import "../brain.css";
 
 // One brain note: provenance header, the rendered markdown (wikilinks live),
 // backlinks + related notes, and the graph centered on this note. RBAC-gated
-// with the same permission as the index.
+// with the same permission as the index. Chrome localizes; note content is EN
+// source material (ADR-010).
 
 interface Props {
   params: { slug: string };
@@ -31,16 +33,18 @@ export function generateMetadata({ params }: Props): Metadata {
 }
 
 export default function BrainNotePage({ params }: Props) {
+  const t = getDict().brain;
+
   if (!actorCan("brain.read")) {
     return (
       <>
         <div className="page-head">
           <div>
-            <p className="eyebrow">Company Brain</p>
-            <h1 className="page-title">Open for inspection.</h1>
+            <p className="eyebrow">{t.eyebrow}</p>
+            <h1 className="page-title">{t.titleDenied}</h1>
           </div>
         </div>
-        <AccessNotice />
+        <AccessNotice t={t} />
       </>
     );
   }
@@ -50,14 +54,14 @@ export default function BrainNotePage({ params }: Props) {
   if (!note) notFound();
 
   const titleOf = (slug: string): string => vault.bySlug.get(slug)?.title ?? humanizeSlug(slug);
-  const sectionLabel = note.section === "root" ? "index" : note.section;
+  const sectionLabel = note.section === "root" ? t.sectionIndexBadge : note.section;
 
   return (
     <>
-      <nav className="note-crumbs" aria-label="Breadcrumb">
+      <nav className="note-crumbs" aria-label={t.crumbAria}>
         <Link href="/brain" className="note-crumbs__link">
           <Icon name="arrow" size={12} style={{ transform: "rotate(180deg)" }} />
-          Brain
+          {t.crumbBrain}
         </Link>
         <span className="note-crumbs__sep" aria-hidden="true">
           /
@@ -77,11 +81,11 @@ export default function BrainNotePage({ params }: Props) {
             <p className="note-head__meta">
               <span className="note-head__stat">
                 <Icon name="doc" size={13} />
-                {note.wordCount.toLocaleString()} words
+                {t.words(note.wordCount.toLocaleString())}
               </span>
               <span className="note-head__stat">
                 <Icon name="link" size={13} />
-                {note.backlinks.length} backlink{note.backlinks.length === 1 ? "" : "s"}
+                {t.backlinksCount(note.backlinks.length)}
               </span>
               {note.updated ? (
                 <time className="note-head__stat" dateTime={note.updated}>
@@ -92,27 +96,28 @@ export default function BrainNotePage({ params }: Props) {
             </p>
           </header>
           <Card className="note-paper">
-            <NoteBody markdown={note.markdown} />
+            <NoteBody markdown={note.markdown} missingTitle={t.missingNote} />
           </Card>
         </article>
 
-        <aside className="note-side" aria-label="Note context">
+        <aside className="note-side" aria-label={t.noteAriaContext}>
           <Card className="note-side__card">
-            <ProvenancePanel note={note} />
+            <ProvenancePanel note={note} t={t} />
           </Card>
           <Card className="note-side__card">
-            <NoteConnections note={note} titleOf={titleOf} />
+            <NoteConnections note={note} titleOf={titleOf} t={t} />
           </Card>
           <Card className="note-side__card note-side__graph">
             <h2 className="conn__title">
               <Icon name="pulse" size={13} />
-              In the graph
+              {t.inGraph}
             </h2>
             <BrainGraph
               graph={vault.graph}
               activeSlug={note.slug}
-              label={`Knowledge graph centered on ${note.title}`}
+              label={t.graphNoteLabel(note.title)}
               showLabels={false}
+              locale={getLocale()}
             />
           </Card>
         </aside>

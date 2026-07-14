@@ -2,25 +2,18 @@ import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Icon } from "@/components/Icon";
 import { formatPesos } from "@/lib/format";
 import type { RevenueTriageRow } from "@/lib/revenue";
+import type { Dict } from "@/lib/i18n";
 import type { DenialReason, RecoveryAction, RevenueRisk } from "@helix/shared";
 
-// Presentational only — pure function of `rows`. No state, no data access. The
-// server page joins findings to cases and hands the rows down.
+// Presentational only — pure function of `rows` + the locale dict slice. No
+// state, no data access. The server page joins findings to cases and hands the
+// rows down.
+
+type RevenueDict = Dict["revenue"];
 
 // Denial reasons render as semantic badges: the fixable/administrative reasons
 // read as warnings, the hard dead-ends (exclusion, late filing) as danger, a
 // coding fix as info, and no-new-money cases as neutral.
-const REASON_LABEL: Record<DenialReason, string> = {
-  eligibility_lapsed: "Eligibility lapsed",
-  missing_loa: "Missing LOA",
-  missing_document: "Missing document",
-  service_not_covered: "Not covered",
-  coding_mismatch: "Coding mismatch",
-  late_filing: "Late filing",
-  duplicate_claim: "Duplicate",
-  other: "Needs review",
-};
-
 const REASON_TONE: Record<DenialReason, BadgeTone> = {
   eligibility_lapsed: "warn",
   missing_loa: "warn",
@@ -32,19 +25,52 @@ const REASON_TONE: Record<DenialReason, BadgeTone> = {
   other: "neutral",
 };
 
-const ACTION_LABEL: Record<RecoveryAction, string> = {
-  resubmit: "Resubmit",
-  correct_and_resubmit: "Correct & resubmit",
-  appeal: "Appeal",
-  contact_payer: "Contact payer",
-  write_off: "Write off",
-};
+function reasonLabel(t: RevenueDict, reason: DenialReason): string {
+  switch (reason) {
+    case "eligibility_lapsed":
+      return t.reasonEligibilityLapsed;
+    case "missing_loa":
+      return t.reasonMissingLoa;
+    case "missing_document":
+      return t.reasonMissingDocument;
+    case "service_not_covered":
+      return t.reasonNotCovered;
+    case "coding_mismatch":
+      return t.reasonCodingMismatch;
+    case "late_filing":
+      return t.reasonLateFiling;
+    case "duplicate_claim":
+      return t.reasonDuplicate;
+    case "other":
+      return t.reasonOther;
+  }
+}
 
-const RISK_LABEL: Record<RevenueRisk, string> = {
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-};
+function actionLabel(t: RevenueDict, action: RecoveryAction): string {
+  switch (action) {
+    case "resubmit":
+      return t.actionResubmit;
+    case "correct_and_resubmit":
+      return t.actionCorrectResubmit;
+    case "appeal":
+      return t.actionAppeal;
+    case "contact_payer":
+      return t.actionContactPayer;
+    case "write_off":
+      return t.actionWriteOff;
+  }
+}
+
+function riskLabel(t: RevenueDict, risk: RevenueRisk): string {
+  switch (risk) {
+    case "high":
+      return t.riskHigh;
+    case "medium":
+      return t.riskMedium;
+    case "low":
+      return t.riskLow;
+  }
+}
 
 // Display names for the known payer keys; unknown keys fall back to the raw key.
 const PAYER_LABEL: Record<string, string> = {
@@ -60,25 +86,26 @@ function payerLabel(key: string): string {
 
 interface Props {
   rows: readonly RevenueTriageRow[];
+  t: RevenueDict;
 }
 
-export function RevenueTriageTable({ rows }: Props) {
+export function RevenueTriageTable({ rows, t }: Props) {
   return (
     <div className="rev-table__scroll">
       <table className="rev-table">
         <thead>
           <tr>
-            <th scope="col">Claim</th>
-            <th scope="col">Denial reason</th>
-            <th scope="col">Recommended action</th>
+            <th scope="col">{t.colClaim}</th>
+            <th scope="col">{t.colReason}</th>
+            <th scope="col">{t.colAction}</th>
             <th scope="col" className="rev-table__center">
-              Recoverable
+              {t.colRecoverable}
             </th>
             <th scope="col" className="rev-table__center">
-              Risk
+              {t.colRisk}
             </th>
             <th scope="col" className="rev-table__right">
-              Amount
+              {t.colAmount}
             </th>
           </tr>
         </thead>
@@ -93,10 +120,10 @@ export function RevenueTriageTable({ rows }: Props) {
                 </span>
               </td>
               <td>
-                <Badge tone={REASON_TONE[row.reason]}>{REASON_LABEL[row.reason]}</Badge>
+                <Badge tone={REASON_TONE[row.reason]}>{reasonLabel(t, row.reason)}</Badge>
               </td>
               <td>
-                <span className="rev-action">{ACTION_LABEL[row.recommendedAction]}</span>
+                <span className="rev-action">{actionLabel(t, row.recommendedAction)}</span>
                 {row.requiredFixes.length > 0 ? (
                   <span className="rev-action__fixes mono">
                     {row.requiredFixes.join(" · ")}
@@ -107,20 +134,20 @@ export function RevenueTriageTable({ rows }: Props) {
                 {row.recoverable ? (
                   <span className="rev-reco rev-reco--yes">
                     <Icon name="check" size={13} />
-                    Yes
-                    <span className="sr-only">, recoverable</span>
+                    {t.yes}
+                    <span className="sr-only">{t.srRecoverable}</span>
                   </span>
                 ) : (
                   <span className="rev-reco rev-reco--no">
                     <span aria-hidden="true">—</span>
-                    No
-                    <span className="sr-only">, not recoverable</span>
+                    {t.no}
+                    <span className="sr-only">{t.srNotRecoverable}</span>
                   </span>
                 )}
               </td>
               <td className="rev-table__center">
                 <span className={`rev-risk rev-risk--${row.risk}`}>
-                  {RISK_LABEL[row.risk]}
+                  {riskLabel(t, row.risk)}
                 </span>
               </td>
               <td className="rev-table__right mono">{formatPesos(row.amount)}</td>

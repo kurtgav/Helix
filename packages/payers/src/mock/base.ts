@@ -149,9 +149,16 @@ export class MockPayerAdapter implements PayerAdapter {
     }
     const { memberId, serviceCode, serviceCategory } = parsed.data;
 
+    // Base36 keeps the reference compact and alphanumeric. Deliberately NOT a
+    // long decimal run: a 9–10 digit number reads like a PhilHealth/SSS/member
+    // identifier to both humans and PHI scanners (the console e2e treats long
+    // digit runs as potential identifiers), and a payer reference must never
+    // masquerade as one.
     const ref = `${this.fixture.payerId.toUpperCase()}-LOA-${stableHash(
       `${memberId}:${serviceCode}`,
-    )}`;
+    )
+      .toString(36)
+      .toUpperCase()}`;
 
     const rule = this.ruleFor(serviceCategory);
     const evidence: Evidence[] = rule

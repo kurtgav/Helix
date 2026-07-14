@@ -29,6 +29,7 @@ import { InMemoryAuditLog, AuthorizationError } from "@helix/core";
 import { runRevenueCycle, resolveRevenueCycle } from "@helix/agents";
 import { DEMO_ORG_ID, DEMO_DENIAL_CASES, type DemoDenialCase } from "./demo";
 import { requireActor } from "./auth";
+import { getDict } from "./i18n/server";
 import { formatPesos } from "./format";
 
 /** The two decisions the human-in-the-loop control can submit. */
@@ -112,17 +113,31 @@ export function buildTriageRows(
   });
 }
 
+/** The locale strings resolveMessage needs — a structural subset of
+ *  Dict["revenue"]; the server action passes its dictionary slice. */
+export interface ResolveMessageLabels {
+  resolvedApproved: (pesos: string) => string;
+  resolvedRejected: string;
+}
+
+const EN_RESOLVE_LABELS: ResolveMessageLabels = {
+  resolvedApproved: (pesos) => `${pesos} marked for recovery — logged.`,
+  resolvedRejected: "Marked as not pursued — logged.",
+};
+
 /**
  * Compose the message the resolve control shows once a decision is logged. Pure —
  * the peso figure is the amount the resolution actually moved into recovery.
+ * `labels` defaults to EN so existing callers/tests keep their behavior.
  */
 export function resolveMessage(
   decision: RevenueDecision,
   totalRecovered: number,
+  labels: ResolveMessageLabels = EN_RESOLVE_LABELS,
 ): string {
   return decision === "approved"
-    ? `${formatPesos(totalRecovered)} marked for recovery — logged.`
-    : "Marked as not pursued — logged.";
+    ? labels.resolvedApproved(formatPesos(totalRecovered))
+    : labels.resolvedRejected;
 }
 
 /**
@@ -201,11 +216,11 @@ export async function resolveRevenueTriageAction(
 
     return {
       ok: true,
-      message: resolveMessage(decision, resolution.totalRecovered),
+      message: resolveMessage(decision, resolution.totalRecovered, getDict().revenue),
     };
   } catch (error) {
     if (error instanceof AuthorizationError) {
-      return { ok: false, message: "You do not have permission to resolve claims." };
+      return { ok: false, message: getDict().revenue.resolveNoPermission };
     }
     throw error;
   }
