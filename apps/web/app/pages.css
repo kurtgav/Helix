@@ -318,3 +318,96 @@
   font-size: var(--fs-xs);
   color: var(--c-ink-3);
 }
+
+/* --- Data-source badge (dashboard: live persisted vs demo baseline) --- */
+.data-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+  color: var(--c-ink-3);
+}
+.data-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--c-faint);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-faint) 20%, transparent);
+}
+.data-badge--live {
+  color: var(--c-accent-strong);
+}
+.data-badge--live .data-badge__dot {
+  background: var(--c-ok);
+  box-shadow: 0 0 0 3px var(--c-ok-soft);
+}
+
+/* --- Demo role switcher (a REAL RBAC control living in the app bar) --- */
+.role-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.role-switch__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-faint);
+  padding-inline: 7px 2px;
+}
+.role-chip {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  text-transform: capitalize;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.role-chip:hover {
+  background: var(--c-surface-sunken);
+  color: var(--c-ink);
+}
+.role-chip[data-active="true"] {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+}
+.role-chip[data-active="true"]:hover {
+  background: var(--c-accent-strong);
+  color: var(--c-accent-ink);
+}
+@media (max-width: 1040px) {
+  .role-switch__label {
+    display: none;
+  }
+}
+
+/* --- App-shell error boundary --- */
+.app-error {
+  max-width: 52ch;
+  padding: var(--sp-8) 0;
+}
+.app-error .page-sub {
+  margin-bottom: var(--sp-5);
+}
+.app-error__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}

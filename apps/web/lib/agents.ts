@@ -13,11 +13,10 @@ import type {
   ProposedAction,
   ApprovalDecision,
   OrgId,
-  UserId,
   EncounterId,
   EncounterStatus,
   ServiceCategory,
-  Role,
+  RoiSnapshot,
 } from "@helix/shared";
 import { MockProvider } from "@helix/llm";
 import { InMemoryAuditLog, InMemoryEventBus } from "@helix/core";
@@ -35,20 +34,37 @@ import {
   updateLoaByEncounter,
   loadProposalByEncounter,
   loadEncounterContext,
+  computeRoiFromDb,
   DEMO_ORG_UUID,
 } from "@helix/db";
-import { DEMO_ORG_ID, DEMO_ORG_NAME } from "./demo";
+import { DEMO_ORG_ID, DEMO_ORG_NAME, demoRoiSnapshot } from "./demo";
+import { requireActor } from "./auth";
 import type { VerifyProposalView, ApproveResultView } from "./api-types";
 
-const events = new InMemoryEventBus();
-const memAudit = new InMemoryAuditLog();
+// In-memory fallback state must be a process-wide singleton. Next bundles each
+// route handler (/api/verify, /api/approve) separately, so a plain module-level
+// value is duplicated per route and NOT shared — an encounter parked by verify
+// would be invisible to approve. Stashing on globalThis gives one shared
+// instance across all route bundles, and also survives dev HMR module reloads.
+interface HelixMemState {
+  events: InMemoryEventBus;
+  audit: InMemoryAuditLog;
+  parked: Map<string, ParkedEncounter>;
+}
+const globalForHelix = globalThis as unknown as { __helixMem?: HelixMemState };
+const mem: HelixMemState = (globalForHelix.__helixMem ??= {
+  events: new InMemoryEventBus(),
+  audit: new InMemoryAuditLog(),
+  parked: new Map<string, ParkedEncounter>(),
+});
+const events = mem.events;
+const memAudit = mem.audit;
 
-// Single demo actor until the auth substrate lands. Front desk = staff role,
-// which RBAC permits to run eligibility and approve an LOA (not a viewer).
-const DEMO_ACTOR: { userId: UserId; role: Role } = {
-  userId: "user_demo_frontdesk" as UserId,
-  role: "staff",
-};
+// The acting user is resolved from the session (auth substrate). requireActor()
+// reads {userId, role} from the request cookie via @/lib/auth — default is
+// front-desk staff, matching the prior demo actor. RBAC then enforces per role,
+// so a viewer session is blocked end to end (route 403 + agent assertCan), not
+// merely hidden in the UI.
 
 // In mock mode we don't consult a live model. Payer fixture rules are
 // authoritative; the LLM echoes the adapter's status (parsed from the prompt),
@@ -108,7 +124,7 @@ interface ParkedEncounter {
   serviceCategory: ServiceCategory;
   status: EncounterStatus;
 }
-const parked = new Map<string, ParkedEncounter>();
+const parked = mem.parked;
 
 // ---------------------------------------------------------------------------
 export function runEligibilityAction(input: IntakeInput): Promise<VerifyProposalView> {
@@ -116,6 +132,7 @@ export function runEligibilityAction(input: IntakeInput): Promise<VerifyProposal
 }
 
 async function runDb(input: IntakeInput): Promise<VerifyProposalView> {
+  const actor = requireActor();
   await bootstrapDemo(DEMO_ORG_NAME, input.service);
   const patientId = await createPatient(input.patient);
   const coverageId = await createCoverage({
@@ -133,7 +150,7 @@ async function runDb(input: IntakeInput): Promise<VerifyProposalView> {
 
   const audit = createBufferedAuditLog();
   const action = await runEligibility(input, {
-    actor: DEMO_ACTOR,
+    actor,
     audit,
     events,
     orgId: DEMO_ORG_UUID as OrgId,
@@ -151,9 +168,10 @@ async function runDb(input: IntakeInput): Promise<VerifyProposalView> {
 }
 
 async function runMock(input: IntakeInput): Promise<VerifyProposalView> {
+  const actor = requireActor();
   const encounterId = `enc_${randomUUID()}`;
   const action = await runEligibility(input, {
-    actor: DEMO_ACTOR,
+    actor,
     audit: memAudit,
     events,
     orgId: DEMO_ORG_ID,
@@ -182,9 +200,13 @@ export function approveAction(params: ApproveParams): Promise<ApproveResultView>
   return hasDatabase() ? approveDb(params) : approveMock(params);
 }
 
-function buildDecision(params: ApproveParams, isEdit: boolean): ApprovalDecision {
+function buildDecision(
+  params: ApproveParams,
+  isEdit: boolean,
+  actorId: ApprovalDecision["by"],
+): ApprovalDecision {
   return {
-    by: DEMO_ACTOR.userId,
+    by: actorId,
     kind: params.decision === "approved" ? (isEdit ? "edited" : "approved") : "rejected",
     at: new Date().toISOString(),
     ...(params.note ? { note: params.note } : {}),
@@ -205,6 +227,7 @@ function withEditedBody(
 }
 
 async function approveDb(params: ApproveParams): Promise<ApproveResultView> {
+  const actor = requireActor();
   const proposal = await loadProposalByEncounter(params.encounterId);
   const ctx = await loadEncounterContext(params.encounterId);
   if (!proposal || !ctx) {
@@ -219,8 +242,8 @@ async function approveDb(params: ApproveParams): Promise<ApproveResultView> {
   const finalProposal = isEdit ? withEditedBody(proposal, params.editedLoaBody as string) : proposal;
 
   const audit = createBufferedAuditLog();
-  const result = await approve(finalProposal, buildDecision(params, isEdit), {
-    actor: DEMO_ACTOR,
+  const result = await approve(finalProposal, buildDecision(params, isEdit, actor.userId), {
+    actor,
     audit,
     events,
     orgId: DEMO_ORG_UUID as OrgId,
@@ -242,6 +265,7 @@ async function approveDb(params: ApproveParams): Promise<ApproveResultView> {
 }
 
 async function approveMock(params: ApproveParams): Promise<ApproveResultView> {
+  const actor = requireActor();
   const entry = parked.get(params.encounterId);
   if (!entry) {
     throw new Error("Encounter not found or the decision was already recorded.");
@@ -256,8 +280,8 @@ async function approveMock(params: ApproveParams): Promise<ApproveResultView> {
     ? withEditedBody(entry.proposal, params.editedLoaBody as string)
     : entry.proposal;
 
-  const result = await approve(finalProposal, buildDecision(params, isEdit), {
-    actor: DEMO_ACTOR,
+  const result = await approve(finalProposal, buildDecision(params, isEdit, actor.userId), {
+    actor,
     audit: memAudit,
     events,
     orgId: entry.orgId,
@@ -269,4 +293,33 @@ async function approveMock(params: ApproveParams): Promise<ApproveResultView> {
 
   parked.delete(params.encounterId);
   return { status: result.loa.status, decision: params.decision };
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard ROI — LIVE from persisted rows when a database is configured, else
+// the seeded demo baseline. Closes the iteration-5 gap where real encounters
+// persisted but never reached the ROI panel. On any DB read error we fall back
+// to the demo snapshot (mock is the bulletproof default) and log without PHI,
+// so the dashboard never hard-fails.
+export async function getDashboardRoi(): Promise<{ roi: RoiSnapshot; live: boolean }> {
+  if (!hasDatabase()) return { roi: demoRoiSnapshot(), live: false };
+  try {
+    const now = new Date();
+    const windowStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    ).toISOString();
+    const windowEnd = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999),
+    ).toISOString();
+    const roi = await computeRoiFromDb(DEMO_ORG_UUID, {
+      orgId: DEMO_ORG_UUID as OrgId,
+      windowStart,
+      windowEnd,
+    });
+    return { roi, live: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[dashboard] live ROI read failed, using demo baseline:", message);
+    return { roi: demoRoiSnapshot(), live: false };
+  }
 }

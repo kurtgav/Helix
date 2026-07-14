@@ -1,0 +1,417 @@
+/* Revenue Cycle Agent surface (/revenue). Co-located, token-driven styles for
+   the denial-triage teammate: a gradient recoverable-headline, an editorial
+   triage table, a "paper" appeal draft, and the human-in-the-loop resolve panel.
+   Reuses the globals.css tokens + pages.css primitives; adds nothing global. */
+
+/* --- Recoverable headline (hero) --- */
+.rev-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-6);
+  padding: var(--sp-6);
+  border-radius: var(--r-lg);
+  background: linear-gradient(150deg, #08312a 0%, #0c6b55 100%);
+  color: #eafaf7;
+  box-shadow: var(--sh-2);
+}
+.rev-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(90% 120% at 85% 10%, rgba(61, 220, 151, 0.22), transparent 55%);
+  pointer-events: none;
+}
+.rev-hero__lead {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 22ch;
+}
+.rev-hero__label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--fw-semibold);
+  color: #a9e5d8;
+}
+.rev-hero__value {
+  font-size: clamp(2.6rem, 1.6rem + 4.2vw, 4.4rem);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-top: var(--sp-3);
+  font-variant-numeric: tabular-nums;
+}
+.rev-hero__foot {
+  font-size: var(--fs-body);
+  color: #bfe6e0;
+  margin-top: var(--sp-3);
+  max-width: 34ch;
+}
+.rev-hero__foot strong {
+  color: #eafaf7;
+  font-weight: var(--fw-semibold);
+}
+.rev-hero__stats {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.rev-hero__stat {
+  background: rgba(6, 40, 34, 0.34);
+  padding: var(--sp-3) var(--sp-4);
+  min-width: 8.25rem;
+}
+.rev-hero__stat dt {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: var(--fw-semibold);
+  color: #a9e5d8;
+}
+.rev-hero__stat dd {
+  margin: 3px 0 0;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #eafaf7;
+}
+
+/* --- Section head --- */
+.rev-section {
+  margin-bottom: var(--sp-6);
+}
+.rev-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+.rev-section__head .section-title {
+  margin-bottom: 0;
+}
+.rev-section__note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+}
+.rev-section__note svg {
+  flex: none;
+  color: var(--c-accent);
+}
+
+/* --- Triage table --- */
+.rev-table__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.rev-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.rev-table thead th {
+  text-align: left;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+.rev-table tbody td {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+.rev-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.rev-table tbody tr {
+  transition: background var(--dur-fast) var(--ease);
+}
+.rev-table tbody tr:hover {
+  background: var(--c-surface-2);
+}
+.rev-table__center {
+  text-align: center;
+}
+.rev-table__right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rev-claim__service {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+}
+.rev-claim__meta {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+  letter-spacing: 0.01em;
+}
+
+.rev-action {
+  display: block;
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-2);
+  white-space: nowrap;
+}
+.rev-action__fixes {
+  display: block;
+  margin-top: 4px;
+  max-width: 30ch;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--c-ink-3);
+}
+
+.rev-reco {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+.rev-reco svg {
+  flex: none;
+}
+.rev-reco--yes {
+  color: var(--c-ok);
+}
+.rev-reco--no {
+  color: var(--c-faint);
+}
+
+.rev-risk {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.rev-risk--high {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+.rev-risk--medium {
+  background: var(--c-warn-soft);
+  color: var(--c-warn);
+}
+.rev-risk--low {
+  background: var(--c-ok-soft);
+  color: var(--c-ok);
+}
+
+/* --- Draft + resolve grid --- */
+.rev-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+@media (min-width: 900px) {
+  .rev-grid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* Drafted appeal — a distinct "document" card with a faint ruled-paper ground. */
+.rev-draft {
+  padding: var(--sp-5);
+  border: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-accent);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.rev-draft__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+.rev-draft__title {
+  margin-top: 2px;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+.rev-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-accent-line);
+  background: var(--c-accent-soft);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-accent-strong);
+  white-space: nowrap;
+}
+.rev-tag svg {
+  flex: none;
+}
+.rev-draft__body {
+  margin: 0;
+  padding: var(--sp-5);
+  max-height: 460px;
+  overflow: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+  color: var(--c-ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      color-mix(in srgb, var(--c-border) 50%, transparent) 27px,
+      color-mix(in srgb, var(--c-border) 50%, transparent) 28px
+    ),
+    var(--c-surface-2);
+}
+
+/* Review & resolve — the human-in-the-loop climax. */
+.rev-resolve {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.rev-resolve__title {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+.rev-resolve__rationale {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--c-ink-2);
+}
+.rev-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.rev-meta__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+}
+.rev-meta__pill svg {
+  flex: none;
+  color: var(--c-accent);
+}
+.rev-cites {
+  margin-top: var(--sp-1);
+}
+.rev-cites .section-title {
+  margin-bottom: var(--sp-2);
+}
+.rev-cites .evidence__src {
+  display: block;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+/* Resolve control (client) */
+.resolve {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--c-border);
+}
+.resolve__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+.resolve__actions .btn {
+  flex: 1 1 auto;
+}
+.resolve__stakes {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--c-ink-3);
+}
+.resolve__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--c-warn-soft);
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+.resolve__hint svg {
+  flex: none;
+  margin-top: 2px;
+}
+.resolve__status:empty {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .rev-hero {
+    padding: var(--sp-5);
+  }
+  .rev-hero__stats {
+    width: 100%;
+  }
+}

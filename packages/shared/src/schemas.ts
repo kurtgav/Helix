@@ -15,20 +15,23 @@ export const serviceCategorySchema = z.enum([
 ]);
 
 // Intake — the few fields a front-desk staffer types.
+// Upper bounds at the boundary: reject oversized free-text before it is
+// processed or persisted (storage/cost abuse control; no realistic intake field
+// approaches these caps). Mirrors the .max() discipline already on the approve route.
 export const intakeInputSchema = z.object({
   patient: z.object({
-    fullName: z.string().min(1),
+    fullName: z.string().min(1).max(200),
     birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected yyyy-mm-dd"),
     sex: sexSchema,
   }),
   coverage: z.object({
-    payerId: z.string().min(1),
-    memberId: z.string().min(1),
-    planName: z.string().min(1),
+    payerId: z.string().min(1).max(64),
+    memberId: z.string().min(1).max(100),
+    planName: z.string().min(1).max(120),
   }),
   service: z.object({
-    code: z.string().min(1),
-    name: z.string().min(1),
+    code: z.string().min(1).max(64),
+    name: z.string().min(1).max(200),
     category: serviceCategorySchema,
   }),
 });

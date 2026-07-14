@@ -9,6 +9,8 @@ interface FieldShellProps {
   children: (controlProps: {
     id: string;
     className: string;
+    required: boolean | undefined;
+    "aria-required": boolean | undefined;
     "aria-invalid": boolean | undefined;
     "aria-describedby": string | undefined;
   }) => ReactNode;
@@ -33,6 +35,11 @@ export function Field({ label, required, hint, error, children }: FieldShellProp
       {children({
         id,
         className: "field__control",
+        // The visual asterisk is aria-hidden, so the required state must reach
+        // the control itself: native `required` + `aria-required` announce it to
+        // assistive tech even though the form uses noValidate + custom errors.
+        required: required || undefined,
+        "aria-required": required || undefined,
         "aria-invalid": error ? true : undefined,
         "aria-describedby": describedBy,
       })}

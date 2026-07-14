@@ -4,6 +4,8 @@
 export * from "./schema";
 export { getDb, closeDb, type HelixDb } from "./client";
 export * from "./repositories";
+export * from "./roi";
+export * from "./history";
 export { BufferedAuditLog, createBufferedAuditLog } from "./audit";
 
 /** True when a database is configured; the app persists only when this holds. */

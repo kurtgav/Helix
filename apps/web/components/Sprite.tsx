@@ -73,6 +73,34 @@ export function Sprite() {
           <circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
           <path d="M3.5 20a5.5 5.5 0 0 1 11 0M16 5.2a3 3 0 0 1 0 5.6M17 14.4A5.5 5.5 0 0 1 20.5 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </symbol>
+        <symbol id="i-peso" viewBox="0 0 24 24">
+          <path d="M8 20V5h4.5a4 4 0 0 1 0 8H8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 9.4h12M5 12.8h12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M12 7.6V12l3 1.9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24">
+          <path d="M12 3.2l1.7 5.4a2 2 0 0 0 1.3 1.3l5.4 1.7-5.4 1.7a2 2 0 0 0-1.3 1.3L12 20l-1.7-5.4a2 2 0 0 0-1.3-1.3L3.6 11.6 9 9.9a2 2 0 0 0 1.3-1.3L12 3.2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M19 3.5v3M20.5 5h-3" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24">
+          <path d="M4.5 12a7.5 7.5 0 0 1 12.9-5.2L20 9M20 4v5h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M19.5 12a7.5 7.5 0 0 1-12.9 5.2L4 15M4 20v-5h5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </symbol>
+        <symbol id="i-pencil" viewBox="0 0 24 24">
+          <path d="M4 20.5l.7-3.2L15.4 6.6a2.1 2.1 0 0 1 3 3L7.7 20.3 4 20.5Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M13.7 8.3l3 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </symbol>
+        <symbol id="i-link" viewBox="0 0 24 24">
+          <path d="M10.5 13.5a3.5 3.5 0 0 0 5 .2l2.6-2.6a3.5 3.5 0 0 0-5-5l-1.3 1.3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M13.5 10.5a3.5 3.5 0 0 0-5-.2L5.9 12.9a3.5 3.5 0 0 0 5 5l1.3-1.3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </symbol>
+        <symbol id="i-scale" viewBox="0 0 24 24">
+          <path d="M12 4v16M7 20h10M4 9l3.5-3.5L11 9M13 9l3.5-3.5L20 9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M3.8 9a3.7 3.7 0 0 0 7.4 0M12.8 9a3.7 3.7 0 0 0 7.4 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </symbol>
       </defs>
     </svg>
   );

@@ -6,3 +6,5 @@ export * from "./approval";
 export * from "./audit";
 export * from "./metrics";
 export * from "./events";
+export * from "./roi/estimate";
+export * from "./roi/aggregate";

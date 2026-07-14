@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
-import { demoRoiSnapshot } from "@/lib/demo";
+import { getDashboardRoi } from "@/lib/agents";
 import { formatPesos, formatHours, formatDuration } from "@/lib/format";
 
-// Server component: reads ROI from seeded events via @helix/core (no client JS).
-export default function DashboardPage() {
-  const roi = demoRoiSnapshot();
+// Server component. ROI is now LIVE: computed from persisted encounters when a
+// database is configured, and from the seeded demo baseline otherwise. No client
+// JS. The badge tells the operator which they're looking at — honesty over vanity.
+export default async function DashboardPage() {
+  const { roi, live } = await getDashboardRoi();
 
   return (
     <>
@@ -17,6 +19,12 @@ export default function DashboardPage() {
           <p className="page-sub">
             Every walk-in verified, every likely denial caught before submission,
             every LOA drafted for you — logged and reversible.
+          </p>
+          <p className={`data-badge${live ? " data-badge--live" : ""}`}>
+            <span className="data-badge__dot" aria-hidden="true" />
+            {live
+              ? "Live — computed from persisted encounters"
+              : "Demo baseline — synthetic activity"}
           </p>
         </div>
         <Link href="/verify" className="btn btn--primary btn--lg">

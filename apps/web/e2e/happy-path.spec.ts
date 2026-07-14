@@ -1,30 +1,32 @@
 import { test, expect } from "@playwright/test";
 
-// Happy-path stub for the v0 demo script: intake -> verify -> result -> approve.
-// Uses accessible, deterministic selectors (roles/labels), not CSS classes.
+// Dashboard smoke — the landing surface of the app shell: the live ROI panel and
+// the primary call-to-action into the verification flow. (The full intake →
+// verify → approve journey lives in verify-flow.spec.ts; RBAC in rbac.spec.ts.)
+test.describe("Dashboard", () => {
+  test("shows the ROI panel and the primary CTA", async ({ page }) => {
+    await page.goto("/dashboard");
 
-test("dashboard shows the ROI panel and a CTA", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("region", { name: /return on investment/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: /new verification/i })).toBeVisible();
-});
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-test("verify a Maxicare MRI walk-in and approve", async ({ page }) => {
-  await page.goto("/verify");
+    // The Return-on-investment region with its headline tiles.
+    const roi = page.getByRole("region", { name: /return on investment/i });
+    await expect(roi).toBeVisible();
+    await expect(roi.getByText(/checks run/i)).toBeVisible();
+    await expect(roi.getByText(/hours saved/i)).toBeVisible();
 
-  await page.getByLabel(/full name/i).fill("Juan Dela Cruz");
-  await page.getByLabel(/birth date/i).fill("1984-03-12");
-  await page.getByLabel(/^sex/i).selectOption("M");
-  await page.getByLabel(/payer/i).selectOption("maxicare");
-  await page.getByLabel(/member id/i).fill("MX-000123456");
-  await page.getByLabel(/plan/i).fill("Prime Gold");
-  await page.getByLabel(/requested service/i).selectOption("MRI-BRAIN");
+    // Primary CTA routes into the verification flow.
+    const cta = page.getByRole("link", { name: /new verification/i });
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute("href", "/verify");
+  });
 
-  await page.getByRole("button", { name: /^verify$/i }).click();
+  test("the app nav exposes every primary surface", async ({ page }) => {
+    await page.goto("/dashboard");
 
-  // Result card renders with a status badge and decision controls.
-  await expect(page.getByText(/eligibility result/i)).toBeVisible();
-  await page.getByRole("button", { name: /^approve$/i }).click();
-  await expect(page.getByRole("status")).toContainText(/logged/i);
+    const nav = page.getByRole("navigation", { name: /product/i });
+    for (const label of ["Dashboard", "Verify", "Console", "Revenue", "Agents"]) {
+      await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
+  });
 });

@@ -14,6 +14,8 @@ export const ACTIONS = [
   "loa.draft",
   "loa.submit",
   "loa.approve",
+  "revenue.review",
+  "revenue.resolve",
   "metrics.read",
   "audit.read",
   "user.manage",
@@ -26,7 +28,11 @@ export type Action = (typeof ACTIONS)[number];
 // Roles are additive by convention (owner ⊇ admin ⊇ staff ⊇ viewer) but each
 // grant is spelled out so a review reads the true surface, not an inheritance
 // chain. A viewer is strictly read-only and can NEVER approve.
-const VIEWER: readonly Action[] = ["encounter.read", "metrics.read"];
+const VIEWER: readonly Action[] = [
+  "encounter.read",
+  "metrics.read",
+  "revenue.review",
+];
 
 const STAFF: readonly Action[] = [
   ...VIEWER,
@@ -35,6 +41,7 @@ const STAFF: readonly Action[] = [
   "loa.draft",
   "loa.submit",
   "loa.approve",
+  "revenue.resolve",
 ];
 
 const ADMIN: readonly Action[] = [...STAFF, "audit.read", "user.manage"];

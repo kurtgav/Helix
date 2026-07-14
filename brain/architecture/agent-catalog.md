@@ -10,8 +10,8 @@ Each agent shares the same substrate: tools/adapters + retrieval + LLM + **human
 
 | # | Agent | Job | Phase | Status |
 |---|---|---|---|---|
-| 1 | **Eligibility & Pre-Auth** | verify coverage, determine LOA needs, draft LOA, flag missing docs | v0 (now) | 🔨 building [[vertical-slice-v0]] |
-| 2 | **Revenue Cycle** | monitor denials, reimbursement lag, revenue leakage; propose fixes/resubmissions | next | ⏳ |
+| 1 | **Eligibility & Pre-Auth** | verify coverage, determine LOA needs, draft LOA, flag missing docs | v0 | ✅ shipped [[vertical-slice-v0]] |
+| 2 | **Revenue Cycle** | administrative denial triage: classify denial, decide recoverability, list fixes, draft resubmission | v1 | ✅ live (mock) — [[operations-os-v1]], surface `/revenue` |
 | 3 | **Documentation** | ingest PDFs/referrals/IDs/discharge notes → structured data + retrieval | next (feeds #1) | ⏳ |
 | 4 | **Coding assist** | ICD/CPT/case-rate suggestions + claim validation (human confirms) | later | ⏳ |
 | 5 | **Compliance** | Q&A over SOPs, accreditation manuals, DPA/NPC rules, internal policy | later | ⏳ |

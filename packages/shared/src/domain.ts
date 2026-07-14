@@ -191,3 +191,65 @@ export interface RoiSnapshot {
   windowStart: string;
   windowEnd: string;
 }
+
+// --- Revenue Cycle Agent (catalog #2 — ADMINISTRATIVE denial triage) ---
+// The second AI teammate. Given denied / at-risk claims (persisted or synthetic),
+// it classifies the denial, decides if the money is recoverable, lists the fixes,
+// and drafts a resubmission/appeal — as a ProposedAction<RevenueCycleProposal>
+// that ALWAYS requires human approval before anything reaches a payer. It never
+// invents payer rules and makes no clinical judgment.
+
+// Fixed, auditable taxonomy — the agent classifies into these, never free-text.
+export type DenialReason =
+  | "eligibility_lapsed"
+  | "missing_loa"
+  | "missing_document"
+  | "service_not_covered"
+  | "coding_mismatch"
+  | "late_filing"
+  | "duplicate_claim"
+  | "other";
+
+export type RecoveryAction =
+  | "resubmit"
+  | "correct_and_resubmit"
+  | "appeal"
+  | "contact_payer"
+  | "write_off";
+
+export type RevenueRisk = "low" | "medium" | "high";
+
+// One denied / at-risk claim the agent reasons over. `amount` = pesos at stake;
+// `ageDays` drives late-filing risk and reimbursement-lag signals.
+export interface DenialCase {
+  id: string;
+  encounterId?: EncounterId;
+  payerId: PayerId;
+  serviceCode: string;
+  serviceName: string;
+  amount: number;
+  reason: DenialReason;
+  deniedAt: string; // ISO
+  ageDays: number;
+}
+
+// The agent's per-case determination — recoverable? which action? what fixes?
+export interface RevenueCycleFinding {
+  caseId: string;
+  reason: DenialReason;
+  recommendedAction: RecoveryAction;
+  recoverable: boolean;
+  amountAtRisk: number;
+  requiredFixes: string[];
+  risk: RevenueRisk;
+  rationale: string;
+}
+
+// The full proposal the agent returns for one batch of cases.
+export interface RevenueCycleProposal {
+  findings: RevenueCycleFinding[];
+  draftMessage: string; // cited resubmission / appeal draft
+  totalRecoverable: number;
+  recoverableCount: number;
+  caseCount: number;
+}

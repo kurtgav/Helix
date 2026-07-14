@@ -7,7 +7,24 @@ import type { VerifyProposalView, ApiResponse } from "@/lib/api-types";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TextField, SelectField } from "@/components/ui/Field";
+import { Icon } from "@/components/Icon";
 import { EligibilityResultCard } from "@/components/EligibilityResultCard";
+
+// Signal glyph — references a sprite symbol by id (mirrors <Icon/> but not bound
+// to its typed name union, so newly-added sprite symbols like "spark" work here
+// without editing the shared Icon component).
+function Sig({ id, size = 16 }: { id: string; size?: number }) {
+  return (
+    <svg
+      className="ico"
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <use href={`#i-${id}`} />
+    </svg>
+  );
+}
 
 interface Props {
   payers: readonly PayerOption[];
@@ -52,6 +69,22 @@ export function VerifyExperience({ payers, services }: Props) {
 
   function set<K extends keyof FormState>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  // Effortless demo: drop in a valid synthetic walk-in (Maxicare · MRI, matching
+  // the landing thesis). Client-only — this never touches the API contract.
+  function loadSample() {
+    setForm({
+      fullName: "Juan Dela Cruz",
+      birthDate: "1990-04-12",
+      sex: "M",
+      payerId: payers[0]?.id ?? "",
+      memberId: "MX-0244163",
+      planName: "Prima Gold",
+      serviceCode: services[0]?.code ?? "",
+    });
+    setErrors({});
+    setSubmitError(null);
   }
 
   function buildIntake(): unknown {
@@ -112,140 +145,182 @@ export function VerifyExperience({ payers, services }: Props) {
   }
 
   return (
-    <div className="verify-grid">
-      <Card>
-        <CardBody>
-          <form onSubmit={onSubmit} noValidate>
-            <fieldset className="form-section" style={{ border: 0, padding: 0, margin: 0 }}>
-              <legend className="form-section__legend eyebrow">Patient</legend>
-              <TextField
-                label="Full name"
-                required
-                autoComplete="off"
-                placeholder="Juan Dela Cruz"
-                value={form.fullName}
-                error={errors.fullName}
-                onChange={(e) => set("fullName", e.target.value)}
-              />
-              <div className="form-row">
+    <div className="vx-grid">
+      <div className="vx-formcol">
+        <Card>
+          <CardBody>
+            <form onSubmit={onSubmit} noValidate className="vx-form">
+              <div className="vx-form__head">
+                <span className="vx-form__ic" aria-hidden="true">
+                  <Icon name="shield" />
+                </span>
+                <div className="vx-form__heading">
+                  <h2 className="vx-form__title">Walk-in intake</h2>
+                  <p className="vx-form__sub">Synthetic demo — no real patient data</p>
+                </div>
+                <button type="button" className="vx-sample" onClick={loadSample}>
+                  <Sig id="spark" size={14} /> Sample
+                </button>
+              </div>
+
+              <fieldset className="vx-sec">
+                <legend className="vx-sec__legend">
+                  <span className="vx-sec__n">01</span> Patient
+                </legend>
                 <TextField
-                  label="Birth date"
+                  label="Full name"
                   required
-                  type="date"
-                  value={form.birthDate}
-                  error={errors.birthDate}
-                  onChange={(e) => set("birthDate", e.target.value)}
+                  autoComplete="off"
+                  placeholder="Juan Dela Cruz"
+                  value={form.fullName}
+                  error={errors.fullName}
+                  onChange={(e) => set("fullName", e.target.value)}
                 />
+                <div className="form-row">
+                  <TextField
+                    label="Birth date"
+                    required
+                    type="date"
+                    value={form.birthDate}
+                    error={errors.birthDate}
+                    onChange={(e) => set("birthDate", e.target.value)}
+                  />
+                  <SelectField
+                    label="Sex"
+                    required
+                    value={form.sex}
+                    error={errors.sex}
+                    onChange={(e) => set("sex", e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Select…
+                    </option>
+                    <option value="F">Female</option>
+                    <option value="M">Male</option>
+                    <option value="X">Other</option>
+                  </SelectField>
+                </div>
+              </fieldset>
+
+              <fieldset className="vx-sec">
+                <legend className="vx-sec__legend">
+                  <span className="vx-sec__n">02</span> Coverage
+                </legend>
                 <SelectField
-                  label="Sex"
+                  label="Payer"
                   required
-                  value={form.sex}
-                  error={errors.sex}
-                  onChange={(e) => set("sex", e.target.value)}
+                  value={form.payerId}
+                  error={errors.payerId}
+                  onChange={(e) => set("payerId", e.target.value)}
                 >
                   <option value="" disabled>
-                    Select…
+                    Select payer…
                   </option>
-                  <option value="F">Female</option>
-                  <option value="M">Male</option>
-                  <option value="X">Other</option>
+                  {payers.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
                 </SelectField>
-              </div>
-            </fieldset>
+                <div className="form-row">
+                  <TextField
+                    label="Member ID"
+                    required
+                    placeholder="MX-000123456"
+                    value={form.memberId}
+                    error={errors.memberId}
+                    onChange={(e) => set("memberId", e.target.value)}
+                  />
+                  <TextField
+                    label="Plan"
+                    required
+                    placeholder="Prime Gold"
+                    value={form.planName}
+                    error={errors.planName}
+                    onChange={(e) => set("planName", e.target.value)}
+                  />
+                </div>
+              </fieldset>
 
-            <fieldset
-              className="form-section"
-              style={{ border: 0, padding: 0, margin: "var(--sp-5) 0 0" }}
-            >
-              <legend className="form-section__legend eyebrow">Coverage</legend>
-              <SelectField
-                label="Payer"
-                required
-                value={form.payerId}
-                error={errors.payerId}
-                onChange={(e) => set("payerId", e.target.value)}
-              >
-                <option value="" disabled>
-                  Select payer…
-                </option>
-                {payers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </SelectField>
-              <div className="form-row">
-                <TextField
-                  label="Member ID"
+              <fieldset className="vx-sec">
+                <legend className="vx-sec__legend">
+                  <span className="vx-sec__n">03</span> Service
+                </legend>
+                <SelectField
+                  label="Requested service"
                   required
-                  placeholder="MX-000123456"
-                  value={form.memberId}
-                  error={errors.memberId}
-                  onChange={(e) => set("memberId", e.target.value)}
-                />
-                <TextField
-                  label="Plan"
-                  required
-                  placeholder="Prime Gold"
-                  value={form.planName}
-                  error={errors.planName}
-                  onChange={(e) => set("planName", e.target.value)}
-                />
-              </div>
-            </fieldset>
-
-            <fieldset
-              className="form-section"
-              style={{ border: 0, padding: 0, margin: "var(--sp-5) 0 0" }}
-            >
-              <legend className="form-section__legend eyebrow">Service</legend>
-              <SelectField
-                label="Requested service"
-                required
-                value={form.serviceCode}
-                error={errors.serviceCode}
-                onChange={(e) => set("serviceCode", e.target.value)}
-              >
-                <option value="" disabled>
-                  Select service…
-                </option>
-                {services.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.name}
+                  value={form.serviceCode}
+                  error={errors.serviceCode}
+                  onChange={(e) => set("serviceCode", e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select service…
                   </option>
-                ))}
-              </SelectField>
-            </fieldset>
+                  {services.map((s) => (
+                    <option key={s.code} value={s.code}>
+                      {s.name}
+                    </option>
+                  ))}
+                </SelectField>
+              </fieldset>
 
-            {submitError ? (
-              <p className="form-alert" role="alert" style={{ marginTop: "var(--sp-5)" }}>
-                {submitError}
-              </p>
-            ) : null}
+              {submitError ? (
+                <p className="vx-alert" role="alert">
+                  <Icon name="alert" size={16} />
+                  {submitError}
+                </p>
+              ) : null}
 
-            <div style={{ marginTop: "var(--sp-5)" }}>
-              <Button type="submit" variant="primary" size="lg" block disabled={loading}>
-                {loading ? "Verifying…" : "Verify"}
-              </Button>
-            </div>
-          </form>
-        </CardBody>
-      </Card>
+              <div className="vx-submit">
+                <Button type="submit" variant="primary" size="lg" block disabled={loading}>
+                  {loading ? (
+                    <>
+                      <span className="vx-spin" aria-hidden="true" /> Verifying…
+                    </>
+                  ) : (
+                    <>
+                      Verify eligibility
+                      <Icon name="arrow" size={16} />
+                    </>
+                  )}
+                </Button>
+                <p className="vx-submit__note">
+                  <Icon name="lock" size={12} />
+                  Nothing is sent to a payer — Helix drafts, your team approves.
+                </p>
+              </div>
+            </form>
+          </CardBody>
+        </Card>
+      </div>
 
-      <div aria-live="polite">
+      <div className="vx-resultcol" aria-live="polite">
         {proposal ? (
-          <EligibilityResultCard proposal={proposal} />
+          <EligibilityResultCard key={proposal.encounterId} proposal={proposal} />
         ) : (
-          <div className="result-empty">
-            <div>
-              <p style={{ fontWeight: "var(--fw-semibold)", color: "var(--c-ink-2)" }}>
-                Fill the intake and click Verify
-              </p>
-              <p style={{ fontSize: "var(--fs-sm)", marginTop: "var(--sp-2)" }}>
-                Helix returns eligibility, LOA needs, missing docs, and a drafted
-                letter — each with cited evidence.
-              </p>
-            </div>
+          <div className="vx-empty">
+            <span className="vx-empty__ic" aria-hidden="true">
+              <Icon name="shield" />
+            </span>
+            <p className="vx-empty__t">Your decision appears here</p>
+            <p className="vx-empty__d">
+              Fill the intake and Helix returns eligibility, requirements, blocking
+              gaps, a drafted LOA, and cited evidence — for your approval.
+            </p>
+            <ul className="vx-empty__list">
+              <li>
+                <Icon name="check" size={14} /> Eligibility status &amp; benefit
+              </li>
+              <li>
+                <Icon name="check" size={14} /> Requirements &amp; blocking gaps
+              </li>
+              <li>
+                <Icon name="check" size={14} /> Drafted Letter of Authorization
+              </li>
+              <li>
+                <Icon name="check" size={14} /> Cited evidence &amp; confidence
+              </li>
+            </ul>
           </div>
         )}
       </div>

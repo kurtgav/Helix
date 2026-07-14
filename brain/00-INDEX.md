@@ -17,6 +17,8 @@ This vault is the company's persistent memory. Every decision, assumption, and l
 - [[wedge-and-icp]] — the single wedge we build first, and who buys it
 - [[ph-payer-landscape]] — PhilHealth + HMO reality (the actual friction)
 - [[business-model]] — how Helix makes money (ROI, not "AI")
+- [[product-os-thesis]] — the researched case for Helix as the best product OS for this wedge
+- [[competitive-landscape]] — who's credible globally + the unoccupied PH clinic-side seam
 - [[risks-and-kill-criteria]] — what would make us stop or pivot
 
 ## 🏗️ Architecture
@@ -33,6 +35,7 @@ This vault is the company's persistent memory. Every decision, assumption, and l
 
 ## 📦 Delivery
 - [[vertical-slice-v0]] — the first shippable thing (Eligibility & Pre-Auth Agent)
+- [[operations-os-v1]] — iteration 6: the AI operating layer made real (live ROI, console, agent #2, RBAC)
 
 ---
 **North star:** remove one hour of admin work and recover one denied claim, per clinic, per day — provably.

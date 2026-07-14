@@ -49,3 +49,17 @@ export {
   type EligibilityContext,
   type ApprovalContext,
 } from "./context";
+
+// --- Revenue Cycle agent (catalog #2 — administrative denial triage) ---
+export {
+  runRevenueCycle,
+  resolveRevenueCycle,
+  scoreTriageConfidence,
+  triageDenials,
+  draftResubmission,
+  assessRisk,
+  REVENUE_CYCLE_ACTION_KIND,
+  REVENUE_POLICY_SOURCE,
+  type RevenueCycleResolution,
+  type RevenueCycleContext,
+} from "./revenueCycle";
