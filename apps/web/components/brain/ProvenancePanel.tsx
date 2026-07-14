@@ -17,6 +17,14 @@ function confidenceClass(confidence?: string): string {
   return CONFIDENCE_CLASS[key] ?? "";
 }
 
+/** Frontmatter strings may carry [[wikilink]] syntax; show the target text —
+ *  the panel is a metadata readout, not a markdown surface. */
+function plainFrontmatter(value: string): string {
+  return value.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_m, target: string, alias?: string) =>
+    (alias ?? target).trim(),
+  );
+}
+
 export function ProvenancePanel({ note }: { note: BrainNoteMeta }) {
   const { provenance } = note;
   return (
@@ -52,7 +60,7 @@ export function ProvenancePanel({ note }: { note: BrainNoteMeta }) {
         </div>
         <div className="prov__row prov__row--wide">
           <dt>Source</dt>
-          <dd>{provenance.source ?? "—"}</dd>
+          <dd>{provenance.source ? plainFrontmatter(provenance.source) : "—"}</dd>
         </div>
         {note.status ? (
           <div className="prov__row prov__row--wide">

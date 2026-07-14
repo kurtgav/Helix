@@ -112,6 +112,7 @@ export default function BrainNotePage({ params }: Props) {
               graph={vault.graph}
               activeSlug={note.slug}
               label={`Knowledge graph centered on ${note.title}`}
+              showLabels={false}
             />
           </Card>
         </aside>

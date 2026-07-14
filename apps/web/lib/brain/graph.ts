@@ -68,7 +68,9 @@ export function layoutGraph(
     if (a && b && a !== b) springs.push({ a, b });
   }
 
-  const k = Math.sqrt(1 / n); // ideal spring length for a unit-area canvas
+  // Ideal spring length for a unit-area canvas, stretched 30% — vault hubs
+  // (the MOC links everything) otherwise collapse the center into a knot.
+  const k = Math.sqrt(1 / n) * 1.3;
 
   for (let iter = 0; iter < ITERATIONS; iter++) {
     for (const p of points) {

@@ -9,7 +9,7 @@ import type { BrainGraphData } from "@/lib/brain/types";
 // draws and handles hover/focus/navigation — no layout jump, tiny JS.
 
 const VIEW_W = 100;
-const VIEW_H = 62;
+const VIEW_H = 70;
 
 interface Props {
   graph: BrainGraphData;
@@ -17,13 +17,22 @@ interface Props {
   activeSlug?: string;
   /** Accessible name for the figure. */
   label: string;
+  /** Hide text labels (the compact sidebar variant) — titles stay available
+   *  via each node's tooltip + aria-label. */
+  showLabels?: boolean;
 }
 
 function nodeRadius(degree: number): number {
-  return Math.min(2.1 + degree * 0.35, 4.6);
+  return Math.min(1.3 + degree * 0.2, 2.7);
 }
 
-export function BrainGraph({ graph, activeSlug, label }: Props) {
+const LABEL_MAX = 24;
+
+function truncateTitle(title: string): string {
+  return title.length > LABEL_MAX ? `${title.slice(0, LABEL_MAX - 1).trimEnd()}…` : title;
+}
+
+export function BrainGraph({ graph, activeSlug, label, showLabels = true }: Props) {
   const router = useRouter();
   const [hovered, setHovered] = useState<string | undefined>(undefined);
 
@@ -100,13 +109,31 @@ export function BrainGraph({ graph, activeSlug, label }: Props) {
                 className={`graph__node${dim ? " graph__node--dim" : ""}${active ? " graph__node--active" : ""}`}
                 data-section={node.section}
               >
+                <title>{node.title}</title>
                 {active ? (
                   <circle cx={cx} cy={cy} r={r + 1.4} className="graph__ring" />
                 ) : null}
                 <circle cx={cx} cy={cy} r={r} className="graph__dot" />
-                <text x={cx} y={cy + r + 2.6} className="graph__label">
-                  {node.title}
-                </text>
+                {showLabels ? (
+                  <text
+                    x={cx}
+                    // Upper-half nodes label above, lower-half below — halves
+                    // the label collisions in the dense middle band. Clamped at
+                    // the canvas rim so edge labels never clip out of view.
+                    y={
+                      node.y < 0.5 || node.y > 0.92
+                        ? node.y < 0.08
+                          ? cy + r + 2.6
+                          : cy - r - 1.3
+                        : cy + r + 2.6
+                    }
+                    className="graph__label"
+                    // Edge nodes anchor inward so labels never clip the canvas.
+                    textAnchor={node.x < 0.16 ? "start" : node.x > 0.84 ? "end" : "middle"}
+                  >
+                    {truncateTitle(node.title)}
+                  </text>
+                ) : null}
               </a>
             );
           })}

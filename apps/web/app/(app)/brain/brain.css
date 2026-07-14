@@ -28,7 +28,8 @@
   --_sec-soft: var(--c-warn-soft);
 }
 [data-section="delivery"] {
-  --_sec: var(--c-accent-2);
+  /* Mint — visibly distinct from strategy's deep teal in the graph legend. */
+  --_sec: var(--c-accent-bright);
   --_sec-soft: var(--c-accent-soft-2);
 }
 
@@ -284,7 +285,7 @@
   font-size: 1.9px;
   font-family: var(--font-sans);
   fill: var(--c-ink-2);
-  text-anchor: middle;
+  /* text-anchor comes from the element (edge-aware) — do not set it here. */
   paint-order: stroke;
   stroke: var(--c-surface-2);
   stroke-width: 0.5;
