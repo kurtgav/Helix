@@ -110,6 +110,9 @@
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  /* Contain absolutely-positioned descendants (e.g. .sr-only) in the scroll
+     box so they can never widen the document. */
+  position: relative;
 }
 .enc-table {
   width: 100%;

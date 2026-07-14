@@ -151,7 +151,9 @@
 }
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0,…): a bare 1fr floors at the input's INTRINSIC min-content width
+     (date inputs ~200px), which blows the column past narrow viewports. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--sp-3);
 }
 .form-alert {

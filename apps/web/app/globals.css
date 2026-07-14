@@ -307,6 +307,56 @@ svg {
   text-decoration: none;
 }
 
+/* --- Appbar collapse -------------------------------------------------------
+   The bar carries brand + primary nav + two switchers (locale, acting-role) +
+   org context. One 66px row only fits ≥~1100px; below that it wraps into two
+   rows — controls up top, the nav on its own full-width line that scrolls
+   horizontally instead of ever overflowing the page. */
+@media (max-width: 1180px) {
+  .org-chip {
+    display: none; /* contextual, lowest-value under pressure */
+  }
+}
+@media (max-width: 1080px) {
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 58px;
+    padding-block: var(--sp-2);
+    row-gap: 0;
+    column-gap: var(--sp-3);
+  }
+  .navlinks {
+    order: 10;
+    flex: 1 0 100%;
+    gap: var(--sp-4);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: var(--sp-1) var(--sp-2);
+  }
+  .navlinks::-webkit-scrollbar {
+    display: none;
+  }
+  .navlinks a {
+    /* Comfortable touch targets on the wrapped nav row. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}
+@media (max-width: 560px) {
+  .role-chip {
+    padding: 4px 7px;
+  }
+  .topbar {
+    column-gap: var(--sp-2);
+  }
+  .topbar > .link-quiet {
+    display: none; /* "View site" — reachable from the landing anyway */
+  }
+}
+
 .org-chip {
   display: inline-flex;
   align-items: center;

@@ -119,6 +119,10 @@
 /* --- Triage table --- */
 .rev-table__scroll {
   overflow-x: auto;
+  /* Positioned so absolutely-placed descendants (the .sr-only text inside
+     cells) resolve against THIS scroll box — otherwise they land past the
+     viewport edge and widen the whole document. */
+  position: relative;
   border: 1px solid var(--c-border);
   border-radius: var(--r-lg);
   background: var(--c-surface);

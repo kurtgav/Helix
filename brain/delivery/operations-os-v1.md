@@ -44,7 +44,7 @@ Verified green: typecheck 8/8 · lint 8/8 · **264 unit tests** · **46 Playwrig
 - Real (non-mock) payer adapters remain gated on confirmed payer rules ([[ph-payer-landscape]]).
 - Rate limiter is per-instance/in-memory (best-effort) — move to a shared store (Redis/platform) for production.
 - Multi-tenant hardening: add `orgId` predicates + Supabase RLS before a second org exists.
-- Persist per-check `durationMs` so avg-time-to-verify is measured, not assumed.
+- ~~Persist per-check `durationMs` so avg-time-to-verify is measured, not assumed.~~ **Closed in iteration 7** — `eligibility_checks.duration_ms` persisted + fed into live ROI (see [[journal]]).
 
 ## Explicitly NOT in v1
 Real payer APIs · real authentication/IdP · multi-tenant · mobile · billing/ERP · clinical anything · agents #3–#8 (next).
