@@ -15,6 +15,7 @@ import {
   uuid,
   text,
   date,
+  integer,
   jsonb,
   timestamp,
   index,
@@ -198,6 +199,11 @@ export const eligibilityChecks = pgTable(
       .$type<Evidence[]>()
       .notNull()
       .default(sql`'[]'::jsonb`),
+    // Measured wall-clock latency of the verify run that produced this check.
+    // Nullable: rows written before measurement shipped (or by paths that
+    // cannot time themselves) stay honest — the ROI aggregator substitutes its
+    // documented default instead of us inventing a number.
+    durationMs: integer("duration_ms"),
     checkedAt: timestamp("checked_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

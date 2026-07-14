@@ -131,7 +131,11 @@ export async function updateEncounterStatus(id: string, status: EncounterStatus)
   await getDb().update(encounters).set({ status }).where(eq(encounters.id, id));
 }
 
-export async function saveEligibilityCheck(encounterId: string, e: EligibilityResult): Promise<void> {
+export async function saveEligibilityCheck(
+  encounterId: string,
+  e: EligibilityResult,
+  durationMs?: number,
+): Promise<void> {
   await getDb().insert(eligibilityChecks).values({
     encounterId,
     status: e.status,
@@ -139,6 +143,8 @@ export async function saveEligibilityCheck(encounterId: string, e: EligibilityRe
     requirements: e.requirements,
     gaps: e.gaps,
     evidence: e.evidence,
+    // Whole milliseconds; sub-ms noise adds nothing to an ROI average.
+    durationMs: durationMs === undefined ? null : Math.max(0, Math.round(durationMs)),
     checkedAt: new Date(e.checkedAt),
   });
 }

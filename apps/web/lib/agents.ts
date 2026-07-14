@@ -149,6 +149,9 @@ async function runDb(input: IntakeInput): Promise<VerifyProposalView> {
   });
 
   const audit = createBufferedAuditLog();
+  // Measure the agent run wall-clock so avg time-to-verify on the dashboard is
+  // measured, not assumed (persisted per check as eligibility_checks.duration_ms).
+  const startedAtMs = Date.now();
   const action = await runEligibility(input, {
     actor,
     audit,
@@ -157,9 +160,10 @@ async function runDb(input: IntakeInput): Promise<VerifyProposalView> {
     encounterId: encounterId as EncounterId,
     llm: mockCrossCheck(),
   });
+  const durationMs = Date.now() - startedAtMs;
 
   const { eligibility, loa } = action.proposal;
-  await saveEligibilityCheck(encounterId, eligibility);
+  await saveEligibilityCheck(encounterId, eligibility, durationMs);
   await saveLoaRequest(encounterId, loa);
   await updateEncounterStatus(encounterId, "awaiting_approval");
   await audit.flush();

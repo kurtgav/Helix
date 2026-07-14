@@ -181,3 +181,14 @@ describe("enums mirror @helix/shared unions", () => {
     ]);
   });
 });
+
+describe("eligibility_checks duration column (measured verify latency)", () => {
+  it("exposes durationMs mapped to duration_ms, nullable for legacy rows", () => {
+    const cols = getTableColumns(eligibilityChecks);
+    expect(Object.keys(cols)).toEqual(
+      expect.arrayContaining(["id", "encounterId", "status", "durationMs", "checkedAt"]),
+    );
+    expect(cols.durationMs.name).toBe("duration_ms");
+    expect(cols.durationMs.notNull).toBe(false);
+  });
+});

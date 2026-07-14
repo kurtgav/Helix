@@ -33,6 +33,7 @@ export async function computeRoiFromDb(orgId: string, window: RoiWindow): Promis
       serviceCode: encounters.serviceCode,
       gaps: eligibilityChecks.gaps,
       checkedAt: eligibilityChecks.checkedAt,
+      durationMs: eligibilityChecks.durationMs,
     })
     .from(eligibilityChecks)
     .innerJoin(encounters, eq(eligibilityChecks.encounterId, encounters.id))
@@ -49,15 +50,15 @@ export async function computeRoiFromDb(orgId: string, window: RoiWindow): Promis
     .where(eq(encounters.orgId, orgId));
   const loaDraftedCount = loaCountRow?.value ?? 0;
 
-  // INTEGRATOR NOTE: durationMs (per-check latency) is not persisted yet, so we
-  // omit it here and the aggregator substitutes DEFAULT_VERIFY_MS. Once the
-  // eligibility write path records real duration (e.g. into audit_log.metadata
-  // or a new eligibility_checks column), map it onto each row below and
-  // avgTimeToVerifyMs will reflect measured latency instead of the default.
+  // durationMs is the MEASURED verify latency persisted with each check (null
+  // on rows that predate measurement); the aggregator substitutes its
+  // documented DEFAULT_VERIFY_MS only for those legacy nulls, so the dashboard
+  // average is measured wherever measurement exists.
   const checks: RoiCheckRow[] = rows.map((row) => ({
     serviceCode: row.serviceCode,
     gaps: row.gaps ?? [], // jsonb is NOT NULL by schema; ?? [] is belt-and-suspenders
     checkedAt: row.checkedAt.toISOString(),
+    ...(row.durationMs === null ? {} : { durationMs: row.durationMs }),
   }));
 
   return aggregateRoi({ orgId: orgId as OrgId, checks, loaDraftedCount }, window);
