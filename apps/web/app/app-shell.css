@@ -1,0 +1,239 @@
+/* ============================================================================
+   App shell — persistent sidebar + slim workbar + full-width workspace.
+   Desktop-first: the sidebar owns navigation and org context; the workbar owns
+   the session controls (locale, acting role); the workspace stretches to the
+   viewport (soft-capped for ultrawide readability). Below 1024px the SAME DOM
+   collapses to a sticky top rail with a horizontally scrolling nav — one <nav>,
+   no duplicated landmarks. Tokens only; light-locked like the rest.
+   ========================================================================== */
+
+.app-frame {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  min-height: 100svh;
+}
+
+/* ---- Sidebar ---- */
+.side {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-5) var(--sp-4) var(--sp-5);
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  overflow-y: auto;
+  z-index: 60;
+}
+.side__brand {
+  padding-inline: var(--sp-2);
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  flex: 1;
+  min-height: 0;
+}
+.side-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.side-nav__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--c-faint);
+  padding-inline: var(--sp-3);
+  margin-bottom: 5px;
+  user-select: none;
+}
+.side-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px var(--sp-3);
+  border-radius: 10px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-2);
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.side-link .ico {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  color: var(--c-faint);
+  transition: color var(--dur-fast) var(--ease);
+}
+.side-link:hover {
+  background: var(--c-surface-sunken);
+  color: var(--c-ink);
+  text-decoration: none;
+}
+.side-link:hover .ico {
+  color: var(--c-ink-2);
+}
+.side-link[aria-current="page"] {
+  background: var(--c-accent-soft);
+  color: var(--c-accent-strong);
+  font-weight: var(--fw-semibold);
+}
+.side-link[aria-current="page"] .ico {
+  color: var(--c-accent-strong);
+}
+.side-link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: var(--r-pill);
+  background: var(--c-accent);
+}
+
+.side__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding-inline: var(--sp-2);
+}
+.side__site {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+}
+.side__site:hover {
+  color: var(--c-ink);
+  text-decoration: none;
+}
+
+/* ---- Main column ---- */
+.frame-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.workbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  min-height: 60px;
+  padding: 8px clamp(20px, 3.2vw, 56px);
+  background: color-mix(in srgb, var(--c-bg) 85%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--c-border);
+}
+.workbar__context {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  color: var(--c-ink-3);
+  white-space: nowrap;
+}
+.workbar__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--c-ok);
+  box-shadow: 0 0 0 3px var(--c-ok-soft);
+}
+
+/* The working canvas: fill the screen, breathe at the edges, and soft-cap only
+   on ultrawide monitors so line lengths stay sane. */
+.workspace {
+  width: 100%;
+  max-width: 1840px;
+  margin-inline: auto;
+  padding: clamp(24px, 2.6vw, 44px) clamp(20px, 3.2vw, 56px) var(--sp-9);
+}
+
+/* ---- Collapse: sticky top rail below 1024px ---- */
+@media (max-width: 1023px) {
+  .app-frame {
+    display: block;
+  }
+  .side {
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-2) var(--sp-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--c-border);
+    overflow: visible;
+  }
+  .side__brand {
+    padding-inline: 0;
+    flex: none;
+  }
+  .side-nav {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sp-1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: var(--sp-1);
+  }
+  .side-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .side-nav__group {
+    flex-direction: row;
+    gap: var(--sp-1);
+  }
+  .side-nav__label {
+    display: none;
+  }
+  .side-link {
+    padding: 8px 11px;
+    white-space: nowrap;
+  }
+  .side-link[aria-current="page"]::before {
+    content: none;
+  }
+  .side__foot {
+    display: none;
+  }
+  /* One sticky bar is enough on small screens — the nav rail keeps priority. */
+  .workbar {
+    position: static;
+    background: var(--c-bg);
+  }
+  .workbar__context {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .workbar {
+    padding-inline: var(--sp-4);
+    gap: var(--sp-2);
+  }
+  .workbar .spacer {
+    display: none;
+  }
+}

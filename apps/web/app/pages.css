@@ -22,11 +22,18 @@
   max-width: 52ch;
 }
 
-/* --- ROI panel --- */
+/* --- ROI panel ---
+   One KPI band across the full workspace: the peso hero runs double-width, the
+   four stat tiles share the rest. Collapses 6 → 4 → 2 columns. */
 .roi {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--sp-4);
+}
+@media (max-width: 1280px) {
+  .roi {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 @media (max-width: 820px) {
   .roi {
@@ -82,49 +89,6 @@
 }
 .tile--hero .tile__foot {
   color: #bfe6e0;
-}
-
-/* --- Flow strip --- */
-.flow {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-3);
-  margin-top: var(--sp-6);
-  counter-reset: step;
-}
-@media (max-width: 820px) {
-  .flow {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.flow__step {
-  padding: var(--sp-4);
-  background: var(--c-surface-2);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-}
-.flow__step::before {
-  counter-increment: step;
-  content: counter(step);
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--r-pill);
-  background: var(--c-accent-soft);
-  color: var(--c-accent-strong);
-  font-weight: var(--fw-bold);
-  font-size: var(--fs-xs);
-  margin-bottom: var(--sp-2);
-}
-.flow__step h3 {
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-}
-.flow__step p {
-  font-size: var(--fs-sm);
-  color: var(--c-ink-3);
-  margin-top: 2px;
 }
 
 /* --- Verify form --- */

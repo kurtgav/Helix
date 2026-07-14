@@ -246,6 +246,12 @@ textarea.field__control {
     top: 84px;
   }
 }
+@media (min-width: 1560px) {
+  .vx-grid {
+    grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
+    gap: var(--sp-8);
+  }
+}
 
 /* ---- intake form ---- */
 .vx-form__head {

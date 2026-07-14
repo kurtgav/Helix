@@ -1,9 +1,9 @@
 ---
 name: journal
 type: loop
-updated: 2026-07-12
+updated: 2026-07-15
 model: claude-fable-5
-run: iteration-6
+run: iteration-8
 confidence: high
 source: append-only iteration log (primary evidence)
 ---
@@ -97,3 +97,13 @@ Goal (/goal): complete + verified + shippable — close the goal-spec gaps: an i
 - **Responsive gate** — new `e2e/responsive.spec.ts`: 8 surfaces × 5 widths, zero horizontal document overflow, permanent. It immediately caught real pre-existing defects: the appbar never wrapped (710px overflow at 375), intake inputs' intrinsic min-width blew the form grid (fix: minmax(0,1fr) + min-width:0), `sr-only` absolutes escaped table scroll boxes (fix: position:relative on scroll containers). Also: mock LOA refs switched to base36 — a 9-digit decimal ref reads like a PhilHealth/member number and tripped the console PHI tripwire (it was flagged via a stale reused e2e server pointing at the live DB; the ref format was still worth fixing at the source).
 - **Verified green:** typecheck 8/8 · lint 8/8 · unit suites all packages (106 web incl. i18n parity + vault integrity) · **67 e2e** desktop+mobile · build ✓ 14 routes, worst first-load 123 kB · matrix run: 40 page-loads, zero console errors, zero overflow.
 - **Ship:** user gave explicit "push it on live prod" → pushed to origin/main + Vercel production deploy (posture unchanged from the already-public demo; ADR-007 remains the #1 pre-GTM item on [[open-questions]]).
+
+## 2026-07-15 · Iteration 8 — Full-screen product shell + scroll-driven landing
+Goal (user, via /goal): redesign the landing full-screen with high-standard scroll animations, and redesign the dashboard system to be professional, organized, and space-efficient (the old 1120px centered column wasted the viewport; the appbar crammed brand+nav+3 switchers into one row).
+
+- **App shell** — replaced the top-bar-over-centered-column chrome with a persistent 264px sidebar (brand, nav grouped Overview/Operations/Intelligence with icons + active rail, org chip + view-site foot) beside a slim sticky workbar carrying the locale + acting-role switchers. Workspace now fills the viewport (fluid padding, soft cap 1840px) — at 1920px the content uses the screen instead of ~58% of it. One `<nav>` only: below 1024px the same DOM collapses to a sticky top rail with horizontal-scroll nav (no duplicated landmarks, no hamburger state to break). `SidebarNav` is the only new client piece (usePathname active state); labels arrive pre-localized from the server layout.
+- **Dashboard** — KPI band (peso hero double-width + 4 stat tiles, 6→4→2 columns), then a working split: recent activity reusing the console's PHI-free `EncounterTable` + dict slice (no new projection, no new PHI surface) with an "Open the console" exit, beside a vertical numbered how-it-works rail and the disclaimer. Copy unchanged — every e2e selector (roiAria region, tile labels, New-verification CTA) survives.
+- **Landing** — rebuilt as full-bleed editorial: 100svh hero (drifting accent washes, masked grid lines, floating proposed-action card w/ parallax + echo, scroll cue), payer marquee (duplicated list, CSS translate loop, aria-hidden clone), dark proof band (count-up ₱385,200 + stats, spark bars scaleY-in staggered), sticky story deck (3 sticky cards stack + settle via data-active from a center-band IO), 12-col bento workforce, dark hash-chained ledger with row-by-row reveal, full-bleed CTA band, reading-progress hairline. All copy/content kept.
+- **ScrollFx engine** (~150 lines, no deps): one IO for reveals (.fx → .is-in, unobserve after), one for the deck's active card, one rAF-throttled scroll loop for nav chrome + progress bar + parallax; [data-stagger] parents get per-child --d delays; [data-count] numbers ease-out count up. **Progressive by construction:** hidden pre-reveal states only exist under [data-armed], which the engine stamps on mount — no JS ships a fully visible page; prefers-reduced-motion skips parallax/counts and the global kill-switch zeroes transitions. Compositor-only (transform/opacity), CSP untouched (static "/" policy unchanged).
+- **Housekeeping** — `.link-quiet` promoted to globals.css (app routes referenced it but only marketing.css defined it — latent unstyled-link quirk); dead appbar/topbar/navlinks CSS removed; `IconName` + sprite gain `peso`; new dict keys (nav groups, dashboard activity) added EN+FIL under the compile-enforced parity.
+- **Verified green:** typecheck 8/8 · lint 8/8 · unit 8/8 packages (106 web) · **67 e2e** desktop+mobile passed on the first full run and again after polish (incl. the permanent responsive gate: 375–1920 × 8 surfaces, zero overflow) · build ✓ (landing 97.3 kB first-load, worst /verify 124 kB) · eyeballed 12 prod screenshots (1920/1366/375) — count-ups, deck stacking, marquee, sidebar active states all live.

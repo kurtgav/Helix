@@ -24,6 +24,9 @@ export const en = {
     brain: "Brain",
     ariaProduct: "Product",
     brandAria: "Helix dashboard",
+    groupOverview: "Overview",
+    groupOperate: "Operations",
+    groupIntelligence: "Intelligence",
   },
   errorPage: {
     eyebrow: "Something interrupted this view",
@@ -61,6 +64,10 @@ export const en = {
     flow4Desc: "You approve or edit. Helix records it to the audit trail.",
     disclaimer:
       "Synthetic demo data. Real payer integration is behind a flag. Nothing reaches a payer without a human approving it.",
+    recentEyebrow: "Live operations",
+    recentTitle: "Recent activity",
+    recentSub: "The latest encounters as they move through intake, verification, and approval.",
+    openConsole: "Open the console",
   },
   verify: {
     eyebrow: "New verification",

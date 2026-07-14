@@ -1,36 +1,28 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { LandingInteractions } from "./LandingInteractions";
+import { ScrollFx } from "./ScrollFx";
 
-// Signal glyph — references a sprite symbol by id (mirrors <Icon/> but not bound
-// to its typed name union, so newly-added sprite symbols like peso/clock/spark
-// can be used here without editing the shared Icon component).
-function Sig({ id, size = 18 }: { id: string; size?: number }) {
-  return (
-    <svg
-      className="ico"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <use href={`#i-${id}`} />
-    </svg>
-  );
-}
-
-// The Helix marketing landing — fully server-rendered and static. The hero
-// thesis is the real product moment: a live "proposed action" card. Content is
-// painted on the server and revealed with CSS-only motion (see marketing.css
-// `mk-rise`); nothing here gates visibility on client JS.
+// The Helix marketing landing — fully server-rendered and static. Full-screen
+// editorial layout: a 100svh hero around the real product moment (a live
+// "proposed action" card), then full-bleed proof, story, workforce, trust and
+// CTA bands. Scroll choreography (reveals, parallax, count-ups, the sticky
+// story deck, the progress hairline) is progressive enhancement via ScrollFx —
+// with JS off the page is simply readable, nothing gated.
 export function Landing() {
   return (
     <div className="mk">
       <a href="#top" className="skip-link">
         Skip to main content
       </a>
+
+      {/* Reading progress — scaleX driven by ScrollFx */}
+      <div className="mk-progress" aria-hidden="true">
+        <span data-progress />
+      </div>
+
       {/* NAV */}
       <header className="mk-nav" id="mk-nav">
-        <div className="wrap mk-nav__in">
+        <div className="mk-nav__in">
           <Link href="/" className="brand" aria-label="Helix home">
             <span className="brand__mark" aria-hidden="true">
               <Icon name="helix" />
@@ -57,19 +49,24 @@ export function Landing() {
       </header>
 
       <main id="top">
-        {/* HERO */}
+        {/* HERO — full viewport */}
         <section className="mk-hero" id="product">
-          <div className="mk-hero__bg" aria-hidden="true" />
-          <div className="wrap mk-hero__grid">
+          <div className="mk-hero__bg" aria-hidden="true">
+            <span className="mk-hero__wash mk-hero__wash--a" data-parallax="0.06" />
+            <span className="mk-hero__wash mk-hero__wash--b" data-parallax="0.1" />
+            <span className="mk-hero__lines" />
+          </div>
+
+          <div className="mk-hero__inner">
             <div className="mk-hero__copy">
-              <span className="pill reveal">
+              <span className="pill rise">
                 <span className="pill__tag">Helix</span>
                 The AI operating layer for healthcare operations
               </span>
-              <h1 className="mk-hero__title reveal d1">
+              <h1 className="mk-hero__title rise d1">
                 An autonomous teammate for every healthcare workflow.
               </h1>
-              <p className="mk-hero__sub reveal d2">
+              <p className="mk-hero__sub rise d2">
                 Helix is an operating layer over the systems your clinic already runs —{" "}
                 <strong>
                   a growing workforce of agents that verify eligibility, clear
@@ -78,7 +75,7 @@ export function Landing() {
                 Your staff approves every action; Helix does the work. Purpose-built
                 for PhilHealth and Philippine HMOs.
               </p>
-              <div className="mk-hero__actions reveal d3">
+              <div className="mk-hero__actions rise d3">
                 <Link href="/verify" className="btn btn--primary btn--lg">
                   Open the app
                   <Icon name="arrow" size={17} />
@@ -89,7 +86,7 @@ export function Landing() {
               </div>
 
               {/* Workforce status — two agents live today */}
-              <div className="mk-hero__force reveal d4">
+              <div className="mk-hero__force rise d4">
                 <span className="mk-hero__force-cap">
                   <span className="mk-live__dot" /> Live now
                 </span>
@@ -104,119 +101,133 @@ export function Landing() {
             </div>
 
             {/* Hero thesis: the real product moment */}
-            <div className="mk-card-stage reveal d2">
-              <div className="mk-card-echo" aria-hidden="true" />
-              <article
-                className="mk-card"
-                aria-label="Helix eligibility and pre-authorization result"
-              >
-                <div className="mk-card__head">
-                  <Icon name="shield" />
-                  <span className="mk-card__label">Eligibility · Pre-Auth</span>
-                  <span className="mk-live">
-                    <span className="mk-live__dot" /> Live
-                  </span>
-                </div>
-                <div className="mk-card__body">
-                  <div className="mk-subject">
-                    <span className="mk-subject__name">Juan D. · 34</span>
-                    <span className="mk-subject__id">PT-4821</span>
+            <div className="mk-stage rise d2">
+              <div className="mk-stage__float" data-parallax="0.05">
+                <div className="mk-card-echo" aria-hidden="true" />
+                <article
+                  className="mk-card"
+                  aria-label="Helix eligibility and pre-authorization result"
+                >
+                  <div className="mk-card__head">
+                    <Icon name="shield" />
+                    <span className="mk-card__label">Eligibility · Pre-Auth</span>
+                    <span className="mk-live">
+                      <span className="mk-live__dot" /> Live
+                    </span>
                   </div>
-                  <div className="mk-chips">
-                    <span className="mk-chip">Maxicare · Prima</span>
-                    <span className="mk-chip mk-chip--service">MRI — Brain</span>
-                    <span className="mk-chip">Walk-in</span>
-                  </div>
-                  <span className="mk-verdict">
-                    <Icon name="shield" /> Authorization required
-                  </span>
+                  <div className="mk-card__body">
+                    <div className="mk-subject">
+                      <span className="mk-subject__name">Juan D. · 34</span>
+                      <span className="mk-subject__id">PT-4821</span>
+                    </div>
+                    <div className="mk-chips">
+                      <span className="mk-chip">Maxicare · Prima</span>
+                      <span className="mk-chip mk-chip--service">MRI — Brain</span>
+                      <span className="mk-chip">Walk-in</span>
+                    </div>
+                    <span className="mk-verdict">
+                      <Icon name="shield" /> Authorization required
+                    </span>
 
-                  <div className="mk-checks">
-                    <div className="mk-check mk-check--ok">
-                      <span className="mk-check__ic">
-                        <Icon name="check" />
-                      </span>
-                      <span>
-                        <span className="mk-check__t">Coverage active</span>
-                        <span className="mk-check__d">
-                          Maxicare Prima · valid to <span className="mono">12/2026</span>
+                    <div className="mk-checks">
+                      <div className="mk-check mk-check--ok">
+                        <span className="mk-check__ic">
+                          <Icon name="check" />
                         </span>
-                      </span>
-                      <span className="mk-check__flag">Verified</span>
-                    </div>
-                    <div className="mk-check mk-check--ok">
-                      <span className="mk-check__ic">
-                        <Icon name="doc" />
-                      </span>
-                      <span>
-                        <span className="mk-check__t">Pre-authorization drafted</span>
-                        <span className="mk-check__d">
-                          Letter of Authorization ready for review
+                        <span>
+                          <span className="mk-check__t">Coverage active</span>
+                          <span className="mk-check__d">
+                            Maxicare Prima · valid to <span className="mono">12/2026</span>
+                          </span>
                         </span>
-                      </span>
-                      <span className="mk-check__flag">Drafted</span>
-                    </div>
-                    <div className="mk-check mk-check--bad">
-                      <span className="mk-check__ic">
-                        <Icon name="alert" />
-                      </span>
-                      <span>
-                        <span className="mk-check__t">Referral missing</span>
-                        <span className="mk-check__d">
-                          Required for imaging · request sent to referring physician
+                        <span className="mk-check__flag">Verified</span>
+                      </div>
+                      <div className="mk-check mk-check--ok">
+                        <span className="mk-check__ic">
+                          <Icon name="doc" />
                         </span>
-                      </span>
-                      <span className="mk-check__flag">Blocking</span>
+                        <span>
+                          <span className="mk-check__t">Pre-authorization drafted</span>
+                          <span className="mk-check__d">
+                            Letter of Authorization ready for review
+                          </span>
+                        </span>
+                        <span className="mk-check__flag">Drafted</span>
+                      </div>
+                      <div className="mk-check mk-check--bad">
+                        <span className="mk-check__ic">
+                          <Icon name="alert" />
+                        </span>
+                        <span>
+                          <span className="mk-check__t">Referral missing</span>
+                          <span className="mk-check__d">
+                            Required for imaging · request sent to referring physician
+                          </span>
+                        </span>
+                        <span className="mk-check__flag">Blocking</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mk-card__foot">
-                  <span className="mk-card__attrib">
-                    <b>Helix</b> proposed this.
-                    <br />
-                    You approve.
+                  <div className="mk-card__foot">
+                    <span className="mk-card__attrib">
+                      <b>Helix</b> proposed this.
+                      <br />
+                      You approve.
+                    </span>
+                    <span className="spacer" />
+                    <Link href="/verify" className="btn btn--ghost">
+                      Edit
+                    </Link>
+                    <Link href="/verify" className="btn btn--primary">
+                      Approve
+                    </Link>
+                  </div>
+                </article>
+                <div className="mk-card__meta" aria-hidden="true">
+                  <span>
+                    <Icon name="pulse" size={13} /> verified in 1.8s
                   </span>
-                  <span className="spacer" />
-                  <Link href="/verify" className="btn btn--ghost">
-                    Edit
-                  </Link>
-                  <Link href="/verify" className="btn btn--primary">
-                    Approve
-                  </Link>
+                  <span>
+                    <Icon name="fingerprint" size={13} /> audit #A2F9C
+                  </span>
                 </div>
-              </article>
-              <div className="mk-card__meta" aria-hidden="true">
-                <span>
-                  <Icon name="pulse" size={13} /> verified in 1.8s
-                </span>
-                <span>
-                  <Icon name="fingerprint" size={13} /> audit #A2F9C
-                </span>
               </div>
             </div>
           </div>
+
+          <div className="mk-hero__cue" aria-hidden="true">
+            <span className="mk-hero__cue-track">
+              <span className="mk-hero__cue-dot" />
+            </span>
+            Scroll
+          </div>
         </section>
 
-        {/* PAYER STRIP */}
-        <div className="mk-payers">
-          <div className="wrap mk-payers__in">
-            <span className="mk-payers__cap">Designed for</span>
-            <div className="mk-payers__list">
-              <b>PhilHealth</b>
-              <b>Maxicare</b>
-              <b>Intellicare</b>
-              <b>Medicard</b>
-              <b>PhilCare</b>
-              <b>ValuCare</b>
+        {/* PAYER MARQUEE */}
+        <div className="mk-payers" aria-label="Designed for Philippine payers">
+          <span className="mk-payers__cap">Designed for</span>
+          <div className="mk-payers__viewport">
+            <div className="mk-payers__track">
+              <div className="mk-payers__list">
+                {PAYERS.map((p) => (
+                  <b key={p}>{p}</b>
+                ))}
+              </div>
+              <div className="mk-payers__list" aria-hidden="true">
+                {PAYERS.map((p) => (
+                  <b key={p}>{p}</b>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ROI PROOF */}
-        <section className="mk-section" id="roi">
-          <div className="wrap">
-            <div className="mk-head reveal">
-              <span className="eyebrow">Proof, not promises</span>
+        {/* ROI PROOF — full-bleed dark band */}
+        <section className="mk-roi" id="roi">
+          <div className="mk-roi__grain" aria-hidden="true" />
+          <div className="mk-wrap">
+            <div className="mk-head mk-head--dark fx fx--up">
+              <span className="eyebrow mk-eyebrow--dark">Proof, not promises</span>
               <h2>The work Helix took off the desk last month.</h2>
               <p>
                 Every figure below is produced by the same engine that runs inside the
@@ -224,13 +235,14 @@ export function Landing() {
               </p>
             </div>
 
-            <div className="mk-roi reveal d1">
-              <article className="mk-roi__hero">
+            <div className="mk-roi__grid">
+              <article className="mk-roi__hero fx fx--up">
                 <span className="mk-roi__label">
-                  <Sig id="peso" size={15} /> Revenue recovered
+                  <Icon name="peso" size={15} /> Revenue recovered
                 </span>
                 <div className="mk-roi__big">
-                  <span className="mk-roi__cur">₱</span>385,200
+                  <span className="mk-roi__cur">₱</span>
+                  <span data-count="385200">385,200</span>
                 </div>
                 <p className="mk-roi__note">
                   37 would-be denials caught before submission — flagged, fixed, and
@@ -240,26 +252,31 @@ export function Landing() {
                   {ROI_BARS.map((h, i) => (
                     <span
                       key={i}
-                      style={{ height: `${h}%`, animationDelay: `${0.12 + i * 0.035}s` }}
+                      style={{ ["--h" as string]: `${h}%`, ["--i" as string]: i }}
                     />
                   ))}
                 </div>
               </article>
 
-              <div className="mk-roi__stats">
+              <div className="mk-roi__stats fx fx--up" data-stagger="90">
                 <div className="mk-roi__stat">
                   <span className="mk-roi__stat-ic">
                     <Icon name="shield" size={17} />
                   </span>
-                  <div className="mk-roi__stat-n">37</div>
+                  <div className="mk-roi__stat-n">
+                    <span data-count="37">37</span>
+                  </div>
                   <div className="mk-roi__stat-l">Denials prevented</div>
                 </div>
                 <div className="mk-roi__stat">
                   <span className="mk-roi__stat-ic">
-                    <Sig id="clock" size={17} />
+                    <Icon name="clock" size={17} />
                   </span>
                   <div className="mk-roi__stat-n">
-                    22.6<span className="u">hrs</span>
+                    <span data-count="22.6" data-count-decimals="1">
+                      22.6
+                    </span>
+                    <span className="u">hrs</span>
                   </div>
                   <div className="mk-roi__stat-l">Front-desk time saved</div>
                 </div>
@@ -267,7 +284,9 @@ export function Landing() {
                   <span className="mk-roi__stat-ic">
                     <Icon name="pulse" size={17} />
                   </span>
-                  <div className="mk-roi__stat-n">180</div>
+                  <div className="mk-roi__stat-n">
+                    <span data-count="180">180</span>
+                  </div>
                   <div className="mk-roi__stat-l">Verifications run</div>
                 </div>
                 <div className="mk-roi__stat">
@@ -275,23 +294,26 @@ export function Landing() {
                     <Icon name="gauge" size={17} />
                   </span>
                   <div className="mk-roi__stat-n">
-                    1.8<span className="u">s</span>
+                    <span data-count="1.8" data-count-decimals="1">
+                      1.8
+                    </span>
+                    <span className="u">s</span>
                   </div>
                   <div className="mk-roi__stat-l">Avg. time to verify</div>
                 </div>
               </div>
             </div>
 
-            <p className="mk-roi__cap mono reveal d2">
+            <p className="mk-roi__cap mono fx fx--fade">
               Rolling 30-day snapshot · Helix Diagnostics, Makati · synthetic demo data
             </p>
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
-        <section className="mk-section" id="how" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="mk-head reveal">
+        {/* HOW IT WORKS — sticky story deck */}
+        <section className="mk-how" id="how">
+          <div className="mk-wrap">
+            <div className="mk-head fx fx--up">
               <span className="eyebrow">How it works</span>
               <h2>Integrate, don&apos;t replace. Then let the work run itself.</h2>
               <p>
@@ -299,39 +321,44 @@ export function Landing() {
                 producing value on day one.
               </p>
             </div>
-            <div className="mk-steps">
-              <div className="mk-step reveal">
-                <span className="mk-step__n">01 — Connect</span>
-                <h3>Sits on what you have</h3>
-                <p>
-                  Helix layers on top of your HIS, billing software, or spreadsheets. No
-                  migration, no rip-and-replace.
-                </p>
-              </div>
-              <div className="mk-step reveal d1">
-                <span className="mk-step__n">02 — Verify &amp; draft</span>
-                <h3>Does the work at intake</h3>
-                <p>
-                  It checks coverage, flags what&apos;s missing, and drafts the
-                  authorization — every claim sourced and cited, never guessed.
-                </p>
-              </div>
-              <div className="mk-step reveal d2">
-                <span className="mk-step__n">03 — Approve &amp; audit</span>
-                <h3>You stay in control</h3>
-                <p>
-                  Your staff approves in one tap. Every decision writes to an immutable,
-                  reversible audit trail.
-                </p>
-              </div>
-            </div>
+          </div>
+          <div className="mk-wrap mk-deck" data-active="0">
+            {STEPS.map((s, i) => (
+              <article className="mk-deck__card" key={s.n}>
+                <div className="mk-deck__index" aria-hidden="true">
+                  {s.n}
+                </div>
+                <div className="mk-deck__main">
+                  <span className="mk-deck__kicker mono">
+                    {s.n} — {s.kicker}
+                  </span>
+                  <h3>{s.title}</h3>
+                  <p>{s.desc}</p>
+                  <div className="mk-deck__tags">
+                    {s.tags.map((tag) => (
+                      <span className="mk-deck__tag mono" key={tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="mk-deck__visual" aria-hidden="true">
+                  <span className="mk-deck__ic">
+                    <Icon name={s.icon} size={26} />
+                  </span>
+                  <span className="mk-deck__count mono">
+                    {i + 1} / {STEPS.length}
+                  </span>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
-        {/* WORKFORCE */}
-        <section className="mk-section" id="agents" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="mk-head reveal">
+        {/* WORKFORCE — bento */}
+        <section className="mk-force" id="agents">
+          <div className="mk-wrap">
+            <div className="mk-head fx fx--up">
               <span className="eyebrow">The workforce</span>
               <h2>Two agents live. A department that never sleeps.</h2>
               <p>
@@ -341,7 +368,7 @@ export function Landing() {
               </p>
             </div>
 
-            <div className="mk-force-grid reveal d1">
+            <div className="mk-force-grid fx fx--up" data-stagger="80">
               {LIVE_AGENTS.map((a) => (
                 <article className="mk-force-card" key={a.name}>
                   <div className="mk-force-card__top">
@@ -360,34 +387,29 @@ export function Landing() {
                   </div>
                 </article>
               ))}
-            </div>
-
-            <div className="mk-more reveal d2">
-              <span className="mk-more__cap">
-                <Sig id="spark" size={14} /> Rolling out next
-              </span>
-              <div className="mk-more__grid">
-                {COMING_AGENTS.map((a) => (
-                  <div className="mk-more__item" key={a.name}>
-                    <span className="mk-more__ic">
-                      <Icon name={a.icon} />
+              {COMING_AGENTS.map((a) => (
+                <div className="mk-more__item" key={a.name}>
+                  <span className="mk-more__ic">
+                    <Icon name={a.icon} />
+                  </span>
+                  <span className="mk-more__body">
+                    <span className="mk-more__name">
+                      {a.name}
+                      <span className="mk-more__soon mono">Rolling out</span>
                     </span>
-                    <span className="mk-more__body">
-                      <span className="mk-more__name">{a.name}</span>
-                      <span className="mk-more__desc">{a.desc}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    <span className="mk-more__desc">{a.desc}</span>
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* SECURITY */}
-        <section className="mk-section" id="security" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="mk-secure">
-              <div className="mk-head reveal" style={{ marginBottom: 0 }}>
+        {/* SECURITY + LEDGER */}
+        <section className="mk-secure" id="security">
+          <div className="mk-wrap">
+            <div className="mk-secure__grid">
+              <div className="mk-head mk-head--tight fx fx--up">
                 <span className="eyebrow">Trust</span>
                 <h2>Built for the most regulated work there is.</h2>
                 <p>
@@ -396,7 +418,7 @@ export function Landing() {
                   be traced to its source.
                 </p>
               </div>
-              <div className="mk-secure__list reveal d1">
+              <div className="mk-secure__list fx fx--up" data-stagger="80">
                 {SECURITY.map((s) => (
                   <div className="mk-secure__item" key={s.title}>
                     <Icon name={s.icon} />
@@ -408,14 +430,14 @@ export function Landing() {
             </div>
 
             {/* Immutable audit trail — the receipt behind every action */}
-            <div className="mk-ledger reveal d2" aria-label="Sample immutable audit trail">
+            <div className="mk-ledger fx fx--up" aria-label="Sample immutable audit trail">
               <div className="mk-ledger__head">
                 <span className="mk-ledger__title">
                   <Icon name="fingerprint" size={15} /> Immutable audit trail
                 </span>
                 <span className="mk-ledger__tag mono">append-only · hash-chained</span>
               </div>
-              <div className="mk-ledger__rows">
+              <div className="mk-ledger__rows" data-stagger="120">
                 {LEDGER.map((r) => (
                   <div className="mk-ledger__row" key={r.hash}>
                     <span className={`mk-ledger__actor mk-ledger__actor--${r.kind}`}>
@@ -436,13 +458,13 @@ export function Landing() {
         </section>
 
         {/* FAQ */}
-        <section className="mk-section" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="mk-head reveal">
+        <section className="mk-faqsec">
+          <div className="mk-wrap">
+            <div className="mk-head fx fx--up">
               <span className="eyebrow">Questions</span>
               <h2>What clinics ask first.</h2>
             </div>
-            <div className="mk-faq reveal d1">
+            <div className="mk-faq fx fx--up" data-stagger="70">
               {FAQ.map((f) => (
                 <div className="mk-faq__item" key={f.q}>
                   <h3>{f.q}</h3>
@@ -453,32 +475,33 @@ export function Landing() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="mk-section" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="mk-cta reveal">
-              <div className="mk-cta__in">
-                <span className="eyebrow mk-cta__eyebrow">Open the live app</span>
-                <h2>See Helix on your own workflows.</h2>
-                <p>
-                  Run a verification end to end — eligibility, an LOA draft, cited
-                  evidence, and a one-tap approval. No sign-up, no migration to start.
-                </p>
-                <div className="mk-cta__actions">
-                  <Link href="/verify" className="btn btn--primary btn--lg">
-                    Open the app
-                    <Icon name="arrow" size={17} />
-                  </Link>
-                  <Link href="/dashboard" className="btn btn--lg">
-                    View the dashboard
-                  </Link>
-                </div>
+        {/* CTA — full-bleed band */}
+        <section className="mk-cta">
+          <div className="mk-cta__grain" aria-hidden="true" />
+          <div className="mk-wrap mk-cta__in fx fx--zoom">
+            <div className="mk-cta__copy">
+              <span className="eyebrow mk-cta__eyebrow">Open the live app</span>
+              <h2>See Helix on your own workflows.</h2>
+              <p>
+                Run a verification end to end — eligibility, an LOA draft, cited
+                evidence, and a one-tap approval. No sign-up, no migration to start.
+              </p>
+              <div className="mk-cta__actions">
+                <Link href="/verify" className="btn btn--primary btn--lg mk-btn-invert">
+                  Open the app
+                  <Icon name="arrow" size={17} />
+                </Link>
+                <Link href="/dashboard" className="btn btn--lg mk-btn-outline">
+                  View the dashboard
+                </Link>
               </div>
-              <div className="mk-cta__aside" aria-hidden="true">
-                <span className="mk-cta__stat-k mono">This month, for one clinic</span>
-                <span className="mk-cta__stat-v">₱385,200</span>
-                <span className="mk-cta__stat-l">recovered · 37 denials prevented</span>
-              </div>
+            </div>
+            <div className="mk-cta__aside" aria-hidden="true">
+              <span className="mk-cta__stat-k mono">This month, for one clinic</span>
+              <span className="mk-cta__stat-v">
+                ₱<span data-count="385200">385,200</span>
+              </span>
+              <span className="mk-cta__stat-l">recovered · 37 denials prevented</span>
             </div>
           </div>
         </section>
@@ -486,7 +509,7 @@ export function Landing() {
 
       {/* FOOTER */}
       <footer className="mk-foot">
-        <div className="wrap mk-foot__grid">
+        <div className="mk-wrap mk-foot__grid">
           <div className="mk-foot__brand">
             <Link href="/" className="brand" aria-label="Helix home">
               <span className="brand__mark" aria-hidden="true">
@@ -520,19 +543,55 @@ export function Landing() {
             </span>
           </div>
         </div>
-        <div className="wrap mk-foot__base">
+        <div className="mk-wrap mk-foot__base">
           <p>© 2026 Helix. Manila, Philippines.</p>
           <p className="mono">Interface shown with synthetic data.</p>
         </div>
       </footer>
 
-      <LandingInteractions />
+      <ScrollFx />
     </div>
   );
 }
 
+const PAYERS = [
+  "PhilHealth",
+  "Maxicare",
+  "Intellicare",
+  "Medicard",
+  "PhilCare",
+  "ValuCare",
+] as const;
+
 // Deterministic upward trend for the ROI hero sparkline (percent heights).
 const ROI_BARS = [34, 46, 40, 55, 48, 63, 57, 68, 62, 78, 84, 96] as const;
+
+const STEPS = [
+  {
+    n: "01",
+    kicker: "Connect",
+    title: "Sits on what you have",
+    desc: "Helix layers on top of your HIS, billing software, or spreadsheets. No migration, no rip-and-replace.",
+    tags: ["HIS", "billing", "spreadsheets", "day one"],
+    icon: "layers",
+  },
+  {
+    n: "02",
+    kicker: "Verify & draft",
+    title: "Does the work at intake",
+    desc: "It checks coverage, flags what's missing, and drafts the authorization — every claim sourced and cited, never guessed.",
+    tags: ["eligibility", "payer rules", "LOA draft", "citations"],
+    icon: "shield",
+  },
+  {
+    n: "03",
+    kicker: "Approve & audit",
+    title: "You stay in control",
+    desc: "Your staff approves in one tap. Every decision writes to an immutable, reversible audit trail.",
+    tags: ["human approval", "append-only", "reversible"],
+    icon: "fingerprint",
+  },
+] as const;
 
 const LIVE_AGENTS = [
   {

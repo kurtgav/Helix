@@ -2,16 +2,26 @@ import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
 import { getDashboardRoi } from "@/lib/agents";
+import { getConsoleData } from "@/lib/console";
 import { getDict } from "@/lib/i18n/server";
 import { formatPesos, formatHours, formatDuration } from "@/lib/format";
+import { EncounterTable } from "@/components/console/EncounterTable";
+import "../console/console.css";
+import "./dashboard.css";
 
 // Server component. ROI is LIVE: computed from persisted encounters when a
 // database is configured, and from the seeded demo baseline otherwise. No client
 // JS. The badge tells the operator which they're looking at — honesty over vanity.
 // All copy comes from the request-locale dictionary (EN default, FIL switchable).
+//
+// Composition: KPI band up top, then the working split — recent activity (the
+// same PHI-free projection the console renders) beside the how-it-works rail.
 export default async function DashboardPage() {
-  const { roi, live } = await getDashboardRoi();
-  const t = getDict().dashboard;
+  const [{ roi, live }, consoleView] = await Promise.all([getDashboardRoi(), getConsoleData()]);
+  const dict = getDict();
+  const t = dict.dashboard;
+  const recent = consoleView.encounters.slice(0, 7);
+  const now = Date.now();
 
   return (
     <>
@@ -59,35 +69,57 @@ export default async function DashboardPage() {
         </Card>
       </section>
 
-      <section aria-label={t.flowAria}>
-        <div className="flow">
-          <div className="flow__step">
-            <h3>{t.flow1Title}</h3>
-            <p>{t.flow1Desc}</p>
+      <div className="dash-grid">
+        <section className="panel" aria-labelledby="dash-activity-heading">
+          <div className="panel__head">
+            <span className="panel__eyebrow eyebrow">
+              <Icon name="pulse" size={13} />
+              {t.recentEyebrow}
+            </span>
+            <h2 id="dash-activity-heading" className="panel__title">
+              {t.recentTitle}
+            </h2>
+            <p className="panel__sub">{t.recentSub}</p>
           </div>
-          <div className="flow__step">
-            <h3>{t.flow2Title}</h3>
-            <p>{t.flow2Desc}</p>
-          </div>
-          <div className="flow__step">
-            <h3>{t.flow3Title}</h3>
-            <p>{t.flow3Desc}</p>
-          </div>
-          <div className="flow__step">
-            <h3>{t.flow4Title}</h3>
-            <p>{t.flow4Desc}</p>
-          </div>
-        </div>
-      </section>
+          <Card className="panel__card">
+            <EncounterTable rows={recent} now={now} t={dict.console} />
+            <Link href="/console" className="dash-more">
+              {t.openConsole}
+              <Icon name="arrow" size={15} />
+            </Link>
+          </Card>
+        </section>
 
-      <div style={{ marginTop: "var(--sp-6)" }}>
-        <Card>
-          <CardBody>
-            <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-              {t.disclaimer}
-            </p>
-          </CardBody>
-        </Card>
+        <aside className="dash-side">
+          <section aria-label={t.flowAria} className="dash-flowcard">
+            <ol className="dash-flow">
+              <li className="dash-flow__step">
+                <h3>{t.flow1Title}</h3>
+                <p>{t.flow1Desc}</p>
+              </li>
+              <li className="dash-flow__step">
+                <h3>{t.flow2Title}</h3>
+                <p>{t.flow2Desc}</p>
+              </li>
+              <li className="dash-flow__step">
+                <h3>{t.flow3Title}</h3>
+                <p>{t.flow3Desc}</p>
+              </li>
+              <li className="dash-flow__step">
+                <h3>{t.flow4Title}</h3>
+                <p>{t.flow4Desc}</p>
+              </li>
+            </ol>
+          </section>
+
+          <Card>
+            <CardBody>
+              <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
+                {t.disclaimer}
+              </p>
+            </CardBody>
+          </Card>
+        </aside>
       </div>
     </>
   );

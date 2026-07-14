@@ -211,10 +211,19 @@ svg {
   max-width: var(--wrap-narrow);
 }
 
-.shell {
-  max-width: var(--wrap);
-  margin: 0 auto;
-  padding: var(--sp-6) var(--gutter) var(--sp-9);
+/* Quiet inline link — shared by the app chrome and the marketing nav. */
+.link-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-3);
+  transition: color var(--dur-fast) var(--ease);
+}
+.link-quiet:hover {
+  color: var(--c-ink);
+  text-decoration: none;
 }
 
 .stack {
@@ -235,33 +244,7 @@ svg {
   flex: 1;
 }
 
-/* ---- App header (shared with marketing nav look) ---- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-  height: 66px;
-  padding-inline: var(--gutter);
-  max-width: var(--wrap);
-  margin: 0 auto;
-}
-.appbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  border-bottom: 1px solid transparent;
-  background: color-mix(in srgb, var(--c-bg) 82%, transparent);
-  backdrop-filter: saturate(1.4) blur(12px);
-  -webkit-backdrop-filter: saturate(1.4) blur(12px);
-  transition: border-color var(--dur-normal) var(--ease);
-}
-.appbar--bordered {
-  border-bottom-color: var(--c-border);
-}
-
+/* ---- Brand lockup (shared by the app sidebar and the marketing nav) ---- */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -290,70 +273,9 @@ svg {
   height: 19px;
 }
 
-.navlinks {
-  display: flex;
-  gap: var(--sp-6);
-}
-.navlinks a {
-  color: var(--c-ink-3);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  transition: color var(--dur-fast) var(--ease);
-  /* Localized labels ("Mag-verify", "Mga Agent") must never wrap mid-item. */
-  white-space: nowrap;
-}
-.navlinks a:hover {
-  color: var(--c-ink);
-  text-decoration: none;
-}
-
-/* --- Appbar collapse -------------------------------------------------------
-   The bar carries brand + primary nav + two switchers (locale, acting-role) +
-   org context. One 66px row only fits ≥~1100px; below that it wraps into two
-   rows — controls up top, the nav on its own full-width line that scrolls
-   horizontally instead of ever overflowing the page. */
-@media (max-width: 1180px) {
-  .org-chip {
-    display: none; /* contextual, lowest-value under pressure */
-  }
-}
-@media (max-width: 1080px) {
-  .topbar {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 58px;
-    padding-block: var(--sp-2);
-    row-gap: 0;
-    column-gap: var(--sp-3);
-  }
-  .navlinks {
-    order: 10;
-    flex: 1 0 100%;
-    gap: var(--sp-4);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-block: var(--sp-1) var(--sp-2);
-  }
-  .navlinks::-webkit-scrollbar {
-    display: none;
-  }
-  .navlinks a {
-    /* Comfortable touch targets on the wrapped nav row. */
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-  }
-}
 @media (max-width: 560px) {
   .role-chip {
     padding: 4px 7px;
-  }
-  .topbar {
-    column-gap: var(--sp-2);
-  }
-  .topbar > .link-quiet {
-    display: none; /* "View site" — reachable from the landing anyway */
   }
 }
 

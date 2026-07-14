@@ -19,7 +19,8 @@ export type IconName =
   | "users"
   | "link"
   | "spark"
-  | "clock";
+  | "clock"
+  | "peso";
 
 type Props = {
   name: IconName;

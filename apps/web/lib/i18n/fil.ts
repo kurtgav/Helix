@@ -24,6 +24,9 @@ export const fil: Dict = {
     brain: "Brain",
     ariaProduct: "Produkto",
     brandAria: "Helix dashboard",
+    groupOverview: "Pangkalahatan",
+    groupOperate: "Operasyon",
+    groupIntelligence: "Intelligence",
   },
   errorPage: {
     eyebrow: "May humarang sa view na ito",
@@ -61,6 +64,11 @@ export const fil: Dict = {
     flow4Desc: "Ikaw ang mag-a-approve o mag-e-edit. Itatala ito ni Helix sa audit trail.",
     disclaimer:
       "Synthetic demo data. Naka-flag pa ang totoong payer integration. Walang aabot sa payer nang walang tao na nag-a-approve.",
+    recentEyebrow: "Live na operasyon",
+    recentTitle: "Pinakabagong aktibidad",
+    recentSub:
+      "Ang mga pinakabagong encounter habang dumadaan sa intake, verification, at approval.",
+    openConsole: "Buksan ang console",
   },
   verify: {
     eyebrow: "Bagong verification",
