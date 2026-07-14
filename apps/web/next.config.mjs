@@ -57,6 +57,17 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // The /brain explorer reads the company vault (repo-root brain/**/*.md)
+  // straight off the filesystem at request time. Locally that's a plain
+  // relative read; on serverless the files must be traced into the function
+  // bundle explicitly — file tracing only follows import graphs, not fs reads.
+  experimental: {
+    outputFileTracingIncludes: {
+      "/brain": ["../../brain/**/*.md"],
+      "/brain/[slug]": ["../../brain/**/*.md"],
+      "/api/brain/index": ["../../brain/**/*.md"],
+    },
+  },
 };
 
 export default nextConfig;

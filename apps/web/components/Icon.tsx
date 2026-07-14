@@ -16,7 +16,10 @@ export type IconName =
   | "plug"
   | "gauge"
   | "fingerprint"
-  | "users";
+  | "users"
+  | "link"
+  | "spark"
+  | "clock";
 
 type Props = {
   name: IconName;

@@ -39,6 +39,13 @@ describe("rbac.can", () => {
     expect(can("viewer", "loa.approve")).toBe(false);
   });
 
+  it("gates the company brain at staff+ (viewer denied)", () => {
+    expect(can("viewer", "brain.read")).toBe(false);
+    expect(can("staff", "brain.read")).toBe(true);
+    expect(can("admin", "brain.read")).toBe(true);
+    expect(can("owner", "brain.read")).toBe(true);
+  });
+
   it("grants admin user + audit management but not org.manage", () => {
     expect(can("admin", "user.manage")).toBe(true);
     expect(can("admin", "audit.read")).toBe(true);

@@ -35,6 +35,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Link href="/console">Console</Link>
             <Link href="/revenue">Revenue</Link>
             <Link href="/agents">Agents</Link>
+            <Link href="/brain">Brain</Link>
           </nav>
           <span className="spacer" />
           <form className="role-switch" aria-label="Acting role (demo)">

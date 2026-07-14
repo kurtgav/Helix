@@ -18,6 +18,7 @@ export const ACTIONS = [
   "revenue.resolve",
   "metrics.read",
   "audit.read",
+  "brain.read",
   "user.manage",
   "org.manage",
 ] as const;
@@ -42,6 +43,11 @@ const STAFF: readonly Action[] = [
   "loa.submit",
   "loa.approve",
   "revenue.resolve",
+  // Company memory (the brain vault) is readable by everyone who WORKS the
+  // system — staff and up. A viewer is external/read-only reporting and does
+  // not see internal strategy, so brain.read is the permission that proves
+  // the knowledge base is gated, not public.
+  "brain.read",
 ];
 
 const ADMIN: readonly Action[] = [...STAFF, "audit.read", "user.manage"];
