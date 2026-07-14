@@ -3,6 +3,10 @@ name: ph-payer-landscape
 type: strategy
 updated: 2026-07-12
 status: draft — assumptions flagged, confirm with real users/payer docs
+model: claude-fable-5
+run: iteration-0
+confidence: medium
+source: public payer docs + desk research; channel details unverified
 ---
 
 # PH Payer Landscape (the actual friction)

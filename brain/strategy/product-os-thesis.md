@@ -3,6 +3,10 @@ name: product-os-thesis
 type: strategy
 updated: 2026-07-14
 status: draft — research-backed, assumptions flagged ⚠️
+model: claude-fable-5
+run: iteration-6
+confidence: medium
+source: web research (funding/competitor scan), 2026-07-15
 ---
 
 # Product-OS Thesis — why Helix can own this wedge

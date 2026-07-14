@@ -2,6 +2,10 @@
 name: wedge-and-icp
 type: strategy
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: medium
+source: derived from problem-validation; needs interview confirmation
 ---
 
 # Wedge & ICP

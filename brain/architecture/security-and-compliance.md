@@ -2,6 +2,10 @@
 name: security-and-compliance
 type: architecture
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: high
+source: RA 10173 + HIPAA-inspired checklist; enforced via review gates
 ---
 
 # Security & Compliance

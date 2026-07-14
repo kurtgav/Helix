@@ -3,6 +3,10 @@ name: operations-os-v1
 type: delivery
 updated: 2026-07-15
 status: shipped (local, verified green) · not deployed (awaiting human ok)
+model: claude-fable-5
+run: iteration-6
+confidence: high
+source: DoD + evidence in journal iteration 6
 ---
 
 # Operations OS v1 — the AI operating layer, made real

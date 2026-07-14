@@ -2,6 +2,10 @@
 name: system-architecture
 type: architecture
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: high
+source: founding design; implemented through v0-v1
 ---
 
 # System Architecture — the AI OS shape

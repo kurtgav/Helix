@@ -3,6 +3,10 @@ name: competitive-landscape
 type: strategy
 updated: 2026-07-14
 status: draft — scan from iteration-6 research, PH-domestic gaps still ⚠️ VALIDATE
+model: claude-fable-5
+run: iteration-6
+confidence: medium
+source: web research, 2026-07-15; absence-of-evidence caveats logged
 ---
 
 # Competitive Landscape

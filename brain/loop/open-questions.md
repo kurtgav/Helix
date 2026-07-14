@@ -2,6 +2,10 @@
 name: open-questions
 type: loop
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-6
+confidence: high
+source: accumulated unknowns; each is a validation target
 ---
 
 # Open Questions (validate with humans / payer docs)

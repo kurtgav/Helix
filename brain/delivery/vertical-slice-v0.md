@@ -2,6 +2,10 @@
 name: vertical-slice-v0
 type: delivery
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-2
+confidence: high
+source: DoD + evidence in journal iteration 2
 ---
 
 # Vertical Slice v0 — Eligibility & Pre-Auth Agent

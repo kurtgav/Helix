@@ -2,6 +2,10 @@
 name: business-model
 type: strategy
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: medium
+source: modeled from wedge ROI assumptions; pricing unvalidated
 ---
 
 # Business Model

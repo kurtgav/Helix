@@ -2,6 +2,10 @@
 name: agent-catalog
 type: architecture
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: high
+source: build-order roadmap; statuses updated as agents ship
 ---
 
 # Agent Catalog (build order)

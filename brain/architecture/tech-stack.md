@@ -2,6 +2,10 @@
 name: tech-stack
 type: architecture
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-0
+confidence: high
+source: founding decision (ADR-002 in decisions)
 ---
 
 # Tech Stack (ADR summary)

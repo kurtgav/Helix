@@ -2,6 +2,10 @@
 name: journal
 type: loop
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-6
+confidence: high
+source: append-only iteration log (primary evidence)
 ---
 
 # Hermes Journal (append-only)

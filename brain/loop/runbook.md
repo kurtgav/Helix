@@ -4,6 +4,10 @@ type: loop
 updated: 2026-07-12
 mode: safe
 pattern: continuous (self-paced, Hermes)
+model: claude-fable-5
+run: iteration-0
+confidence: high
+source: loop constitution
 ---
 
 # Loop Runbook

@@ -3,6 +3,10 @@ name: problem-validation
 type: strategy
 updated: 2026-07-12
 status: draft — needs real-user confirmation
+model: claude-fable-5
+run: iteration-0
+confidence: medium
+source: adversarial desk validation (YC lens); needs real-user confirmation
 ---
 
 # Problem Validation

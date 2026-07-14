@@ -2,6 +2,10 @@
 name: helix-brain-index
 type: moc
 updated: 2026-07-12
+model: claude-fable-5
+run: iteration-6
+confidence: high
+source: loop-maintained map of content
 ---
 
 # 🧬 Helix — Brain (Map of Content)
