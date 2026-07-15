@@ -5,6 +5,21 @@
 > [`brain/loop/decisions.md`](./brain/loop/decisions.md) — both readable
 > in-product at `/brain` (staff+).
 
+## Iteration 10 — Receivables Agent (payer accountability) + app-wide polish (2026-07-15)
+
+| Slice | Status | Evidence |
+|---|---|---|
+| A — Research & thesis: validated payer-payment pain (₱59.6B PhilHealth backlog, ₱4.49B RTH un-refiled, 18-month HMO delays) + novelty (no PH/SEA clinic-side payer analytics / cited follow-ups / cash forecasting) + scale channels (YAKAP certification-as-distribution, freemium→money-flow stickiness) | ✅ | `brain/strategy/receivables-and-scale.md` (cited) · ADR-012 |
+| B — Rulebook payment rules: PhilHealth 60d action window (**verified**: IRR of RA 7875 §47 + PHIC v. Urdaneta, G.R. 214485) and HMO 45d contractual default (AHMOPI-informed, `reported`, verify-before-live); new `payer_payment` deadline kind | ✅ | payers unit suite 38 (was 35) |
+| C — Receivables engine + agent #3: pure ledger assessment (on_track/due_soon/overdue/settled/underpaid/denied→triage), measured payer scorecards (median days-to-pay, on-time, shortfall, denial rates → A–D grade; overdue caps at B), collections forecast (observed behavior w/ rulebook fallback), cited follow-up drafts (status follow-up, never a demand), RBAC `revenue.review`/`resolve` + citations-only audit | ✅ | agents 142 (was 112): ledger 13 · draft 4 · agent 13 suites |
+| D — /ledger surface: past-window hero, grade-toned scoreboard, forecast bars, claim table w/ payer-window countdown, draft + copy + human resolve; nav (Operations), roster teammate #3 live (10 total / 3 live), landing "Three agents live"; EN+FIL parity | ✅ | e2e `ledger.spec.ts` (6 specs) · i18n +FIL ledger h1 · responsive+a11y gates extended |
+| E — App-wide polish: loading skeletons ×7 (first ever), in-shell 404, revenue empty-state + citations fallback + copy button, hero gradient tokenized (`--grad-hero`), blocking-gaps list fix, icon dedup (Sig → typed Icon) | ✅ | build ✓ 15 routes · web unit 114 |
+| F — Brain usability (priority): honest provenance % (was hardcoded 100%), TOC on notes, toned tiles, low-confidence tier, auto-fit grids, capped connections w/ expanders, search dismissal, labeled note-graph + list-graph zoom, localized breadcrumb, brain routes added to a11y gate | ✅ | brain unit tests extended · e2e brain suite green |
+
+**Gates (all green):** typecheck 8/8 · lint 8/8 (0 warnings) · unit **414** (shared 3, llm 29, core 52, payers 38, agents 143, scripts 9, db 15, web 125) · **e2e 96** desktop+mobile (95 passed + 1 skipped; incl. new ledger suite, /ledger in the responsive gate, /brain + /ledger in the a11y gate) · `next build` ✓ (15 routes; /ledger 110 kB first-load, worst /verify 127 kB). Suite now runs under the app's reduced-motion mode (playwright `contextOptions.reducedMotion` — smooth-scroll made deep-page mobile clicks land mid-glide).
+
+**Fixed along the way (pre-existing + own):** bare `1fr` grid tracks floored at a 680px table's min-content and blew /ledger past narrow viewports (same class as the iteration-7 form-row bug — now commented at both sites); `loading.tsx` streaming swallowed the /brain/[slug] 404 status (Next flushes 200 with the shell before `notFound()` runs — brain segment ships without a skeleton, the honest trade); scorecard grades hit binary-float drift exactly on the B boundary (0.7·0.5+0.3 = 0.6499…, now rounded before compare); a stale eslint-disable in scripts/seed.ts.
+
 ## Iteration 9 — PH payer rulebook + policy intelligence layer (2026-07-15)
 
 | Slice | Status | Evidence |
@@ -49,7 +64,7 @@
 pnpm install
 pnpm dev                        # DATABASE_URL unset → deterministic in-memory mode
 pnpm typecheck && pnpm lint && pnpm test
-cd apps/web && pnpm exec playwright test   # builds + serves prod, 67 specs
+cd apps/web && pnpm exec playwright test   # builds + serves prod, 96 specs
 ```
 
 ## What remains (tracked in brain/loop/open-questions.md)

@@ -181,7 +181,6 @@ function logSummary(dataset: SeedDataset, wroteDb: boolean): void {
 
 main().catch((err: unknown) => {
   const message = err instanceof Error ? err.message : String(err);
-  // eslint-disable-next-line no-console -- CLI script error surface.
   console.error(`seed failed: ${message}`);
   process.exitCode = 1;
 });
