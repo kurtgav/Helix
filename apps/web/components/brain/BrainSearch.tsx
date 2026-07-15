@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { BrainSearchDoc } from "@/lib/brain/types";
@@ -10,6 +10,10 @@ import { DICTS, type Locale } from "@/lib/i18n";
 // by /api/brain/index — RBAC-gated like the pages — and fetched lazily on
 // first focus so the explorer HTML stays lean. Matching runs entirely on the
 // client: on a ~20-note corpus it is instant on every keystroke.
+//
+// Dismissal contract: outside click / Escape / the × button close the results
+// WITHOUT clearing the query; refocusing the input or editing the query
+// reopens them.
 
 interface SearchState {
   status: "idle" | "loading" | "ready" | "error";
@@ -76,7 +80,22 @@ export function BrainSearch({ locale }: { locale: Locale }) {
   const t = DICTS[locale].brain;
   const [state, setState] = useState<SearchState>({ status: "idle", docs: [] });
   const [query, setQuery] = useState("");
+  const [dismissed, setDismissed] = useState(false);
   const loadStarted = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Close on any pointer press outside the search root. pointerdown (not
+  // click) so the panel is gone before a press elsewhere becomes a drag.
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const root = rootRef.current;
+      if (root && event.target instanceof Node && !root.contains(event.target)) {
+        setDismissed(true);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
   const load = useCallback(async () => {
     if (loadStarted.current) return;
@@ -109,10 +128,10 @@ export function BrainSearch({ locale }: { locale: Locale }) {
     return scored.slice(0, MAX_RESULTS);
   }, [query, state]);
 
-  const showResults = query.trim().length > 0;
+  const showResults = query.trim().length > 0 && !dismissed;
 
   return (
-    <div className="bsearch" role="search">
+    <div className="bsearch" role="search" ref={rootRef}>
       <label className="bsearch__box">
         <Icon name="hash" size={15} />
         <span className="sr-only">{t.searchLabel}</span>
@@ -121,10 +140,21 @@ export function BrainSearch({ locale }: { locale: Locale }) {
           className="bsearch__input"
           placeholder={t.searchPlaceholder}
           value={query}
-          onFocus={load}
-          onChange={(event) => setQuery(event.target.value)}
+          onFocus={() => {
+            void load();
+            setDismissed(false);
+          }}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setDismissed(false);
+          }}
           onKeyDown={(event) => {
-            if (event.key === "Escape") setQuery("");
+            if (event.key === "Escape") {
+              // preventDefault: the native <input type=search> Escape would
+              // wipe the query — dismissal must keep it.
+              event.preventDefault();
+              setDismissed(true);
+            }
           }}
           autoComplete="off"
           spellCheck={false}
@@ -133,11 +163,21 @@ export function BrainSearch({ locale }: { locale: Locale }) {
 
       {showResults ? (
         <div className="bsearch__results">
-          <p className="bsearch__meta" aria-live="polite">
-            {state.status === "loading" && t.searchLoading}
-            {state.status === "error" && t.searchError}
-            {state.status === "ready" && t.searchMatches(hits.length)}
-          </p>
+          <div className="bsearch__top">
+            <p className="bsearch__meta" aria-live="polite">
+              {state.status === "loading" && t.searchLoading}
+              {state.status === "error" && t.searchError}
+              {state.status === "ready" && t.searchMatches(hits.length)}
+            </p>
+            <button
+              type="button"
+              className="bsearch__close"
+              aria-label={t.searchClose}
+              onClick={() => setDismissed(true)}
+            >
+              ×
+            </button>
+          </div>
           {state.status === "error" ? (
             <button type="button" className="bsearch__retry" onClick={load}>
               {t.searchRetry}

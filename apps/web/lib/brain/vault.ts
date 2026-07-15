@@ -221,6 +221,15 @@ export function loadVault(dir: string): Vault {
     .sort()
     .at(-1);
 
+  // "Provenanced" means the full trio — a note with a model but no run (or no
+  // confidence) does not count. The explorer tile renders this share verbatim.
+  const provenanced = notes.filter(
+    (n) =>
+      n.provenance.model !== undefined &&
+      n.provenance.run !== undefined &&
+      n.provenance.confidence !== undefined,
+  ).length;
+
   return {
     notes,
     bySlug: new Map(notes.map((n) => [n.slug, n])),
@@ -229,6 +238,7 @@ export function loadVault(dir: string): Vault {
       linkCount: edges.length,
       lastUpdated,
       sections: SECTION_ORDER.filter((s) => notes.some((n) => n.section === s)),
+      provenanceCoverage: notes.length > 0 ? provenanced / notes.length : 0,
     },
     graph,
     searchDocs: notes.map((n) => ({
@@ -247,7 +257,7 @@ function emptyVault(): Vault {
   return {
     notes: [],
     bySlug: new Map(),
-    stats: { noteCount: 0, linkCount: 0, sections: [] },
+    stats: { noteCount: 0, linkCount: 0, sections: [], provenanceCoverage: 0 },
     graph: { nodes: [], edges: [] },
     searchDocs: [],
   };

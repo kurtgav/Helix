@@ -1,8 +1,12 @@
 /* ============================================================================
    Brain explorer — the company vault, readable in-product. Co-located styling
    on the shared token system (globals.css) + the app-page primitives
-   (pages.css: .page-head, .tile, .data-badge). Everything else is defined
-   here. Light-locked, responsive, reduced-motion safe (global neutralizer).
+   (pages.css: .page-head, .tile, .data-badge). Light-locked, responsive,
+   reduced-motion safe (global neutralizer).
+
+   Split for the 800-line file budget: this sheet carries the explorer index +
+   everything both pages share (section map, graph, denied state); the note
+   page adds brain-note.css on top.
 
    Section identity runs through data-section attributes:
      root=ink · strategy=accent(teal) · architecture=info · loop=warn ·
@@ -40,13 +44,25 @@
   gap: var(--sp-4);
   margin-bottom: var(--sp-5);
 }
+/* Tone indirection (console .c-tile pattern): each tile carries one semantic
+   hue through gradient, identity bar and icon — never four teal clones. */
 .b-tile {
+  --_accent: var(--c-accent);
+  --_accent-soft: var(--c-accent-soft);
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--c-accent) 4%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in srgb, var(--_accent) 4%, transparent), transparent 42%),
     var(--c-surface);
+}
+.b-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  background: var(--_accent);
 }
 .b-tile__ic {
   position: absolute;
@@ -57,8 +73,24 @@
   width: 34px;
   height: 34px;
   border-radius: var(--r-md);
-  background: var(--c-accent-soft);
-  color: var(--c-accent);
+  background: var(--_accent-soft);
+  color: var(--_accent);
+}
+.b-tile--accent {
+  --_accent: var(--c-accent);
+  --_accent-soft: var(--c-accent-soft);
+}
+.b-tile--info {
+  --_accent: var(--c-info);
+  --_accent-soft: var(--c-info-soft);
+}
+.b-tile--ok {
+  --_accent: var(--c-ok);
+  --_accent-soft: var(--c-ok-soft);
+}
+.b-tile--neutral {
+  --_accent: var(--c-ink-2);
+  --_accent-soft: var(--c-surface-sunken);
 }
 .b-tile__value--date {
   font-family: var(--font-mono);
@@ -118,14 +150,40 @@
   max-height: min(28rem, 60vh);
   overflow-y: auto;
 }
-.bsearch__meta {
+.bsearch__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
   margin: 0 0 var(--sp-2);
+}
+.bsearch__meta {
+  margin: 0;
   padding: 0 var(--sp-2);
   font-size: var(--fs-xs);
   color: var(--c-ink-3);
   letter-spacing: var(--tr-wide);
   text-transform: uppercase;
   font-weight: var(--fw-medium);
+}
+.bsearch__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--c-ink-3);
+  font: inherit;
+  font-size: var(--fs-lead);
+  line-height: 1;
+  cursor: pointer;
+}
+.bsearch__close:hover {
+  background: var(--c-surface-sunken);
+  color: var(--c-ink);
 }
 .bsearch__retry {
   margin: 0 var(--sp-2) var(--sp-2);
@@ -230,6 +288,10 @@
 .graph {
   margin: 0;
 }
+/* Positioning context for the zoom overlay — the legend stays outside it. */
+.graph__stage {
+  position: relative;
+}
 .graph__svg {
   display: block;
   width: 100%;
@@ -239,6 +301,37 @@
     var(--c-surface-2);
   border: 1px solid var(--c-border);
   border-radius: var(--r-md);
+}
+.graph__zoom {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.graph__zoom-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  box-shadow: var(--sh-1);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: 1;
+  cursor: pointer;
+}
+.graph__zoom-btn:hover:not(:disabled) {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+.graph__zoom-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 .graph__edge {
   stroke: var(--c-border-strong);
@@ -325,7 +418,13 @@
 }
 .brain-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* auto-fit lets a 1–2 note section fill its row instead of leaving dead
+     tracks; the max() floor caps a full row at 3 tracks, the min() guard
+     keeps a track from forcing horizontal overflow on narrow screens. */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, max(16rem, calc((100% - 2 * var(--sp-4)) / 3))), 1fr)
+  );
   gap: var(--sp-4);
 }
 .note-card {
@@ -388,6 +487,12 @@
 .note-card__conf[data-confidence="medium"] {
   color: var(--c-warn);
   background: var(--c-warn-soft);
+  border-color: transparent;
+}
+.note-card__conf[data-confidence="low"] {
+  /* Same tier scale as the note page's .prov-chip--low. */
+  color: var(--c-danger);
+  background: var(--c-danger-soft);
   border-color: transparent;
 }
 .note-card__title {
@@ -468,396 +573,16 @@
   border-radius: var(--r-sm);
 }
 
-/* --- Note page: breadcrumbs + layout ----------------------------------------------- */
-.note-crumbs {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-  font-size: var(--fs-sm);
-}
-.note-crumbs__link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  min-height: 44px;
-  padding-right: var(--sp-2);
-  color: var(--c-ink-3);
-  text-decoration: none;
-  font-weight: var(--fw-medium);
-}
-.note-crumbs__link:hover {
-  color: var(--c-accent);
-}
-.note-crumbs__sep {
-  color: var(--c-faint);
-}
-.note-crumbs__here {
-  color: var(--_sec, var(--c-ink-3));
-  font-weight: var(--fw-medium);
-  text-transform: capitalize;
-}
-.note-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: var(--sp-6);
-  align-items: start;
-}
-.note-main {
-  min-width: 0;
-}
-.note-head {
-  margin-bottom: var(--sp-4);
-}
-.note-head__type {
-  margin: 0 0 var(--sp-1);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  letter-spacing: var(--tr-wide);
-  text-transform: uppercase;
-  color: var(--_sec, var(--c-ink-3));
-}
-.note-title {
-  margin: 0 0 var(--sp-2);
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--tr-tight);
-  line-height: var(--lh-tight);
-}
-.note-head__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2) var(--sp-4);
-  margin: 0;
-}
-.note-head__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  font-size: var(--fs-xs);
-  color: var(--c-ink-3);
-  font-family: var(--font-mono);
-}
-.note-paper {
-  padding: clamp(var(--sp-5), 4vw, var(--sp-7));
-}
-.note-side {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-  min-width: 0;
-}
-.note-side__card {
-  padding: var(--sp-5);
-}
-
-/* --- Provenance panel ---------------------------------------------------------------- */
-.prov__title,
-.conn__title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin: 0 0 var(--sp-3);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--tr-wide);
-  text-transform: uppercase;
-  color: var(--c-ink-2);
-}
-.prov__title svg,
-.conn__title svg {
-  color: var(--c-accent);
-}
-.prov__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-3) var(--sp-4);
-  margin: 0;
-}
-.prov__row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.prov__row--wide {
-  grid-column: 1 / -1;
-}
-.prov__row dt {
-  font-size: var(--fs-xs);
-  color: var(--c-faint);
-  letter-spacing: var(--tr-wide);
-  text-transform: uppercase;
-}
-.prov__row dd {
-  margin: 0;
-  font-size: var(--fs-sm);
-  color: var(--c-ink);
-  line-height: var(--lh-normal);
-  overflow-wrap: anywhere;
-}
-.prov__mono {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs) !important;
-}
-.prov-chip {
-  display: inline-flex;
-  padding: 1px 9px;
-  border-radius: var(--r-pill);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  background: var(--c-surface-sunken);
-  color: var(--c-ink-2);
-}
-.prov-chip--high {
-  background: var(--c-ok-soft);
-  color: var(--c-ok);
-}
-.prov-chip--medium {
-  background: var(--c-warn-soft);
-  color: var(--c-warn);
-}
-.prov-chip--low {
-  background: var(--c-danger-soft);
-  color: var(--c-danger);
-}
-.prov__foot {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin: var(--sp-4) 0 0;
-  padding-top: var(--sp-3);
-  border-top: 1px dashed var(--c-border);
-  font-size: var(--fs-xs);
-  color: var(--c-faint);
-}
-.prov__foot svg {
-  flex: none;
-  color: var(--c-accent);
-}
-
-/* --- Connections panel ------------------------------------------------------------------ */
-.conn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-.conn__group .conn__title {
-  margin-bottom: var(--sp-2);
-}
-.conn__count {
-  font-family: var(--font-mono);
-  color: var(--c-faint);
-  font-weight: var(--fw-regular);
-}
-.conn__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-.conn__link {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: 44px;
-  padding: var(--sp-1) var(--sp-2);
-  margin: 0 calc(-1 * var(--sp-2));
-  border-radius: var(--r-md);
-  font-size: var(--fs-sm);
-  color: var(--c-ink-2);
-  text-decoration: none;
-}
-.conn__link:hover {
-  background: var(--c-surface-sunken);
-  color: var(--c-accent-strong);
-}
-.conn__link svg {
-  flex: none;
-  color: var(--c-faint);
-}
-.conn__link:hover svg {
-  color: var(--c-accent);
-}
-.conn__empty {
-  margin: 0;
-  font-size: var(--fs-sm);
-  color: var(--c-faint);
-}
-
-/* --- Note body (the reading surface) -------------------------------------------------------- */
-.note-body {
-  font-size: var(--fs-body);
-  line-height: 1.7;
-  color: var(--c-ink-2);
-  max-width: 72ch;
-}
-.note-body > :first-child {
-  margin-top: 0;
-}
-.note-body > :last-child {
-  margin-bottom: 0;
-}
-.note-body h1,
-.note-body h2,
-.note-body h3,
-.note-body h4 {
-  color: var(--c-ink);
-  letter-spacing: var(--tr-tight);
-  line-height: var(--lh-snug);
-  scroll-margin-top: 90px;
-}
-.note-body h1 {
-  font-size: var(--fs-h2);
-  margin: 0 0 var(--sp-4);
-}
-.note-body h2 {
-  font-size: var(--fs-h3);
-  margin: var(--sp-6) 0 var(--sp-3);
-  padding-bottom: var(--sp-2);
-  border-bottom: 1px solid var(--c-border);
-}
-.note-body h3 {
-  font-size: var(--fs-lead);
-  margin: var(--sp-5) 0 var(--sp-2);
-}
-.note-body h4 {
-  font-size: var(--fs-body);
-  margin: var(--sp-4) 0 var(--sp-2);
-}
-.note-body p {
-  margin: 0 0 var(--sp-3);
-}
-.note-body ul,
-.note-body ol {
-  margin: 0 0 var(--sp-3);
-  padding-left: 1.4em;
-}
-.note-body li {
-  margin-bottom: var(--sp-1);
-}
-.note-body li::marker {
-  color: var(--c-accent);
-}
-.note-body input[type="checkbox"] {
-  accent-color: var(--c-accent);
-  margin-right: var(--sp-1);
-}
-.note-body blockquote {
-  margin: 0 0 var(--sp-3);
-  padding: var(--sp-3) var(--sp-4);
-  border-left: 3px solid var(--c-accent-line);
-  background: var(--c-accent-soft-2);
-  border-radius: 0 var(--r-md) var(--r-md) 0;
-  color: var(--c-ink-2);
-}
-.note-body blockquote p:last-child {
-  margin-bottom: 0;
-}
-.note-body code {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  background: var(--c-surface-sunken);
-  border: 1px solid var(--c-border);
-  padding: 1px 5px;
-  border-radius: var(--r-sm);
-  overflow-wrap: anywhere;
-}
-.note-body pre {
-  margin: 0 0 var(--sp-3);
-  padding: var(--sp-4);
-  background: var(--c-surface-sunken);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  overflow-x: auto;
-}
-.note-body pre code {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  font-size: var(--fs-xs);
-  line-height: 1.6;
-  overflow-wrap: normal;
-}
-.note-body .table-scroll {
-  margin: 0 0 var(--sp-3);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-}
-.note-body table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-sm);
-}
-.note-body th {
-  text-align: left;
-  font-weight: var(--fw-semibold);
-  color: var(--c-ink);
-  background: var(--c-surface-sunken);
-  padding: var(--sp-2) var(--sp-3);
-  border-bottom: 1px solid var(--c-border-strong);
-  white-space: nowrap;
-}
-.note-body td {
-  padding: var(--sp-2) var(--sp-3);
-  border-bottom: 1px solid var(--c-border);
-  vertical-align: top;
-}
-.note-body tr:last-child td {
-  border-bottom: 0;
-}
-.note-body hr {
-  margin: var(--sp-5) 0;
-  border: 0;
-  border-top: 1px dashed var(--c-border-strong);
-}
-.note-body strong {
-  color: var(--c-ink);
-}
-.note-link {
-  color: var(--c-accent-strong);
-  text-decoration: underline;
-  text-decoration-color: var(--c-accent-line);
-  text-underline-offset: 3px;
-  border-radius: var(--r-sm);
-}
-.note-link:hover {
-  text-decoration-color: var(--c-accent);
-}
-.note-link--missing {
-  color: var(--c-ink-3);
-  text-decoration-style: dashed;
-  text-decoration-color: var(--c-border-strong);
-  cursor: help;
-}
-
 /* --- Responsive ---------------------------------------------------------------------------- */
-@media (max-width: 1100px) {
-  .brain-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .note-layout {
-    grid-template-columns: minmax(0, 1fr) 280px;
-  }
-}
 @media (max-width: 900px) {
   .brain-tiles {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .note-layout {
-    grid-template-columns: 1fr;
   }
   .graph__label {
     font-size: 2.3px;
   }
 }
 @media (max-width: 620px) {
-  .brain-grid {
-    grid-template-columns: 1fr;
-  }
   .brain-tiles {
     gap: var(--sp-3);
   }

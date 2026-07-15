@@ -6,14 +6,27 @@ import type { Dict } from "@/lib/i18n";
 // One note in the explorer listing: title, type + confidence, excerpt, and its
 // place in the link graph (backlink/outbound counts). The whole card is a link.
 
+/** Known tiers get a localized label; anything else shows the raw frontmatter
+ *  value (honest, if unstyled — CSS only tones high/medium/low). */
+function confidenceLabel(confidence: string, t: Dict["brain"]): string {
+  const labels: Record<string, string> = {
+    high: t.confHigh,
+    medium: t.confMedium,
+    low: t.confLow,
+  };
+  return labels[confidence.toLowerCase()] ?? confidence;
+}
+
 export function NoteCard({ note, t }: { note: BrainNoteMeta; t: Dict["brain"] }) {
+  // Frontmatter is hand-written YAML — "High" must tone like "high".
+  const confidence = note.provenance.confidence?.toLowerCase();
   return (
     <Link href={`/brain/${note.slug}`} className="note-card" data-section={note.section}>
       <span className="note-card__top">
         <span className="note-card__type">{note.type}</span>
         {note.provenance.confidence ? (
-          <span className="note-card__conf" data-confidence={note.provenance.confidence}>
-            {note.provenance.confidence}
+          <span className="note-card__conf" data-confidence={confidence}>
+            {confidenceLabel(note.provenance.confidence, t)}
           </span>
         ) : null}
       </span>

@@ -67,6 +67,11 @@ describe("loadVault (fixture)", () => {
     const doc = vault.searchDocs.find((d) => d.slug === "journal");
     expect(doc?.text).toContain("payer eligibility denials");
   });
+
+  it("measures provenance coverage — model AND run AND confidence, not any-of", () => {
+    // 00-INDEX carries the full trio; wedge has only confidence; journal none.
+    expect(vault.stats.provenanceCoverage).toBeCloseTo(1 / 3, 10);
+  });
 });
 
 describe("the real repo vault (integrity gate)", () => {
@@ -92,6 +97,10 @@ describe("the real repo vault (integrity gate)", () => {
       .filter((n) => n.provenance.model === undefined || n.provenance.run === undefined)
       .map((n) => n.slug);
     expect(missingProvenance).toEqual([]);
+
+    // The explorer's provenance tile renders this share — 100% must be earned
+    // (model + run + confidence on every committed note), never asserted.
+    expect(vault.stats.provenanceCoverage).toBe(1);
 
     // The MOC must actually be the hub.
     const index = vault.bySlug.get("00-INDEX");

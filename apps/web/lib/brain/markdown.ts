@@ -17,8 +17,9 @@ export function humanizeSlug(slug: string): string {
  * Split markdown into alternating [text, fence, text, fence, …] segments so
  * transforms can skip fenced code blocks. The fence segments keep their
  * delimiters, so joining the array back yields the original document.
+ * (Exported: the TOC extractor must skip fences with the same rule.)
  */
-function splitByFences(md: string): string[] {
+export function splitByFences(md: string): string[] {
   return md.split(/(```[\s\S]*?(?:```|$))/);
 }
 
@@ -66,8 +67,9 @@ export function extractTitle(md: string, fallbackSlug: string): string {
   return cleaned.length > 0 ? cleaned : humanizeSlug(fallbackSlug);
 }
 
-/** Strip inline markdown syntax from a single line of text. */
-function stripInline(text: string): string {
+/** Strip inline markdown syntax from a single line of text. (Exported: the
+ *  TOC extractor needs heading TEXT to match what react-markdown renders.) */
+export function stripInline(text: string): string {
   return text
     .replace(WIKILINK, (_m, target: string, _h, alias?: string) => (alias ?? target).trim())
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1") // images → alt

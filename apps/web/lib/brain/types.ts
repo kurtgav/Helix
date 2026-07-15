@@ -87,4 +87,8 @@ export interface BrainStats {
   /** Max frontmatter `updated` across notes (ISO date string), if any. */
   lastUpdated?: string;
   sections: readonly BrainSection[];
+  /** Share (0..1) of notes carrying full provenance — model AND run AND
+   *  confidence. Computed, never asserted: the tile must not claim 100%
+   *  unless the vault actually earns it. */
+  provenanceCoverage: number;
 }

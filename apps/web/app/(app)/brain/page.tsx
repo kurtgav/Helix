@@ -4,12 +4,11 @@ import { Icon } from "@/components/Icon";
 import { actorCan } from "@/lib/auth";
 import { getDict, getLocale } from "@/lib/i18n/server";
 import { getVault } from "@/lib/brain/vault";
+import { sectionTitles } from "@/lib/brain/sections";
 import { BrainGraph } from "@/components/brain/BrainGraph";
 import { BrainSearch } from "@/components/brain/BrainSearch";
 import { NoteCard } from "@/components/brain/NoteCard";
 import { AccessNotice } from "@/components/brain/AccessNotice";
-import type { BrainSection } from "@/lib/brain/types";
-import type { Dict } from "@/lib/i18n";
 import "./brain.css";
 
 export const metadata: Metadata = {
@@ -23,18 +22,6 @@ export const metadata: Metadata = {
 // laid out server-side, and RBAC gates the whole surface (brain.read, staff+).
 // UI chrome renders in the request locale; NOTE CONTENT stays English (the
 // vault is a set of English source documents — ADR-010).
-
-function sectionTitles(
-  t: Dict["brain"],
-): Record<BrainSection, { title: string; sub: string }> {
-  return {
-    root: { title: t.sectionRootTitle, sub: t.sectionRootSub },
-    strategy: { title: t.sectionStrategyTitle, sub: t.sectionStrategySub },
-    architecture: { title: t.sectionArchitectureTitle, sub: t.sectionArchitectureSub },
-    loop: { title: t.sectionLoopTitle, sub: t.sectionLoopSub },
-    delivery: { title: t.sectionDeliveryTitle, sub: t.sectionDeliverySub },
-  };
-}
 
 export default function BrainPage() {
   const t = getDict().brain;
@@ -72,7 +59,7 @@ export default function BrainPage() {
       </div>
 
       <section className="brain-tiles" aria-label={t.summaryAria}>
-        <Card className="tile b-tile">
+        <Card className="tile b-tile b-tile--accent">
           <span className="b-tile__ic" aria-hidden="true">
             <Icon name="doc" size={18} />
           </span>
@@ -80,7 +67,7 @@ export default function BrainPage() {
           <p className="tile__value">{stats.noteCount}</p>
           <p className="tile__foot">{t.tileNotesFoot}</p>
         </Card>
-        <Card className="tile b-tile">
+        <Card className="tile b-tile b-tile--info">
           <span className="b-tile__ic" aria-hidden="true">
             <Icon name="link" size={18} />
           </span>
@@ -88,15 +75,16 @@ export default function BrainPage() {
           <p className="tile__value">{stats.linkCount}</p>
           <p className="tile__foot">{t.tileLinksFoot}</p>
         </Card>
-        <Card className="tile b-tile">
+        <Card className="tile b-tile b-tile--ok">
           <span className="b-tile__ic" aria-hidden="true">
             <Icon name="fingerprint" size={18} />
           </span>
           <p className="tile__label">{t.tileProvenance}</p>
-          <p className="tile__value">100%</p>
+          {/* Computed share, not a claim — see BrainStats.provenanceCoverage. */}
+          <p className="tile__value">{Math.round(stats.provenanceCoverage * 100)}%</p>
           <p className="tile__foot">{t.tileProvenanceFoot}</p>
         </Card>
-        <Card className="tile b-tile">
+        <Card className="tile b-tile b-tile--neutral">
           <span className="b-tile__ic" aria-hidden="true">
             <Icon name="clock" size={18} />
           </span>
@@ -117,7 +105,7 @@ export default function BrainPage() {
             </h2>
             <p className="brain-sub">{t.graphSub}</p>
           </div>
-          <BrainGraph graph={vault.graph} label={t.graphLabel} locale={getLocale()} />
+          <BrainGraph graph={vault.graph} label={t.graphLabel} locale={getLocale()} zoomable />
         </Card>
       </section>
 

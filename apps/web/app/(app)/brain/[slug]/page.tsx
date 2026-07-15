@@ -7,12 +7,15 @@ import { actorCan } from "@/lib/auth";
 import { getDict, getLocale } from "@/lib/i18n/server";
 import { getVault } from "@/lib/brain/vault";
 import { humanizeSlug } from "@/lib/brain/markdown";
+import { sectionTitles } from "@/lib/brain/sections";
+import { extractHeadings } from "@/lib/brain/toc";
 import { NoteBody } from "@/components/brain/NoteBody";
 import { ProvenancePanel } from "@/components/brain/ProvenancePanel";
 import { NoteConnections } from "@/components/brain/NoteConnections";
 import { BrainGraph } from "@/components/brain/BrainGraph";
 import { AccessNotice } from "@/components/brain/AccessNotice";
 import "../brain.css";
+import "../brain-note.css";
 
 // One brain note: provenance header, the rendered markdown (wikilinks live),
 // backlinks + related notes, and the graph centered on this note. RBAC-gated
@@ -24,11 +27,19 @@ interface Props {
 }
 
 export function generateMetadata({ params }: Props): Metadata {
+  // Same gate as the page: without it a viewer reads real note titles and
+  // excerpts out of <head>, and can enumerate slugs via 404-vs-denied.
+  if (!actorCan("brain.read")) {
+    return { title: "Brain — Helix" };
+  }
   const note = getVault().bySlug.get(params.slug);
-  const title = note ? note.title : humanizeSlug(params.slug);
+  // Unknown slug 404s HERE, not in the page body: metadata resolves before
+  // the loading.tsx suspense shell flushes, so this is the last point where
+  // the response can still carry a real 404 status (the e2e asserts it).
+  if (!note) notFound();
   return {
-    title: `${title} — Brain — Helix`,
-    description: note?.excerpt || "A note from the Helix company brain.",
+    title: `${note.title} — Brain — Helix`,
+    description: note.excerpt || "A note from the Helix company brain.",
   };
 }
 
@@ -54,7 +65,10 @@ export default function BrainNotePage({ params }: Props) {
   if (!note) notFound();
 
   const titleOf = (slug: string): string => vault.bySlug.get(slug)?.title ?? humanizeSlug(slug);
-  const sectionLabel = note.section === "root" ? t.sectionIndexBadge : note.section;
+  // Same localized titles as the list page's section headers — never the raw
+  // English folder slug (ADR-010: chrome localizes, content stays EN).
+  const sectionLabel = sectionTitles(t)[note.section].title;
+  const headings = extractHeadings(note.markdown);
 
   return (
     <>
@@ -104,6 +118,27 @@ export default function BrainNotePage({ params }: Props) {
           <Card className="note-side__card">
             <ProvenancePanel note={note} t={t} />
           </Card>
+          {/* Outline only when it can actually orient: 2+ section headings.
+              A <section>, NOT a <nav> — the shell owns the single nav landmark. */}
+          {headings.length >= 2 ? (
+            <Card className="note-side__card">
+              <section className="toc" aria-label={t.tocAria}>
+                <h2 className="conn__title">
+                  <Icon name="hash" size={13} />
+                  {t.tocTitle}
+                </h2>
+                <ol className="toc__list">
+                  {headings.map((heading) => (
+                    <li key={heading.id} className="toc__item" data-depth={heading.depth}>
+                      <a href={`#${heading.id}`} className="toc__link">
+                        {heading.text}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </Card>
+          ) : null}
           <Card className="note-side__card">
             <NoteConnections note={note} titleOf={titleOf} t={t} />
           </Card>
@@ -116,7 +151,7 @@ export default function BrainNotePage({ params }: Props) {
               graph={vault.graph}
               activeSlug={note.slug}
               label={t.graphNoteLabel(note.title)}
-              showLabels={false}
+              showLabels
               locale={getLocale()}
             />
           </Card>
