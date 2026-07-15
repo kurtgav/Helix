@@ -47,7 +47,7 @@
 }
 .tile--hero {
   grid-column: span 2;
-  background: linear-gradient(150deg, #08312a 0%, #0c6b55 100%);
+  background: var(--grad-hero);
   border-color: transparent;
   color: #eafaf7;
 }
@@ -55,7 +55,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(90% 120% at 85% 10%, rgba(61, 220, 151, 0.22), transparent 55%);
+  background: var(--grad-hero-glow);
   pointer-events: none;
 }
 @media (max-width: 820px) {
@@ -378,4 +378,156 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-3);
+}
+
+/* --- Small-print utility (replaces one-off inline font-size styles) --- */
+.text-sm {
+  font-size: var(--fs-sm);
+}
+
+/* --- Resolve control (client) — the shared human-in-the-loop bar used by
+   /revenue and /ledger. Agents propose; this is where humans dispose. --- */
+.resolve {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--c-border);
+}
+.resolve__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+.resolve__actions .btn {
+  flex: 1 1 auto;
+}
+.resolve__stakes {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--c-ink-3);
+}
+.resolve__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--c-warn-soft);
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+.resolve__hint svg {
+  flex: none;
+  margin-top: 2px;
+}
+.resolve__status:empty {
+  display: none;
+}
+
+/* --- Copy-to-clipboard chip (drafted letters on /revenue and /ledger) --- */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-ink-3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+.copy-btn:hover {
+  background: var(--c-accent-soft);
+  border-color: var(--c-accent-line);
+  color: var(--c-accent-strong);
+}
+.copy-btn svg {
+  flex: none;
+}
+
+/* --- Page skeleton (route loading.tsx) — one page-shaped shimmer for every
+   app surface: head block, wide band, two-panel split. Blocks sit on
+   --c-surface-sunken; the sheen is a gradient slid via background-position
+   (paint-only, transient) and is removed entirely under reduced motion. --- */
+.skel {
+  display: grid;
+  gap: var(--sp-6);
+}
+.skel__head {
+  display: grid;
+  gap: var(--sp-3);
+  justify-items: start;
+}
+.skel__bar,
+.skel__band,
+.skel__panel {
+  display: block;
+  border-radius: var(--r-md);
+  background: linear-gradient(
+    100deg,
+    var(--c-surface-sunken) 35%,
+    color-mix(in srgb, var(--c-surface) 70%, var(--c-surface-sunken)) 50%,
+    var(--c-surface-sunken) 65%
+  );
+  background-size: 300% 100%;
+  animation: skel-sheen 1.6s ease-in-out infinite;
+}
+.skel__bar--eyebrow {
+  width: min(9rem, 40%);
+  height: 0.8rem;
+  border-radius: var(--r-pill);
+}
+.skel__bar--title {
+  width: min(24rem, 70%);
+  height: 2.1rem;
+}
+.skel__bar--sub {
+  width: min(34rem, 90%);
+  height: 1rem;
+  border-radius: var(--r-pill);
+}
+.skel__band {
+  height: 10rem;
+  border-radius: var(--r-lg);
+}
+.skel__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: var(--sp-5);
+}
+.skel__panel {
+  height: 16rem;
+  border-radius: var(--r-lg);
+}
+@media (max-width: 820px) {
+  .skel__grid {
+    grid-template-columns: 1fr;
+  }
+}
+@keyframes skel-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skel__bar,
+  .skel__band,
+  .skel__panel {
+    animation: none;
+  }
 }

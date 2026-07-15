@@ -1,0 +1,591 @@
+/* Receivables Agent surface (/ledger). Co-located, token-driven styles for the
+   payer-accountability teammate: a gradient past-due headline, grade-toned
+   payer scorecards, a collections-forecast bar rail, the claim ledger table,
+   and the "paper" follow-up draft beside the human-in-the-loop resolve panel.
+   Reuses the globals.css tokens + pages.css primitives; adds nothing global. */
+
+/* --- Past-window headline (hero) --- */
+.led-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-6);
+  padding: var(--sp-6);
+  border-radius: var(--r-lg);
+  background: var(--grad-hero);
+  color: #eafaf7;
+  box-shadow: var(--sh-2);
+}
+.led-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grad-hero-glow);
+  pointer-events: none;
+}
+.led-hero__lead {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 22ch;
+}
+.led-hero__label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--fw-semibold);
+  color: #a9e5d8;
+}
+.led-hero__value {
+  font-size: clamp(2.6rem, 1.6rem + 4.2vw, 4.4rem);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-top: var(--sp-3);
+  font-variant-numeric: tabular-nums;
+}
+.led-hero__foot {
+  font-size: var(--fs-body);
+  color: #bfe6e0;
+  margin-top: var(--sp-3);
+  max-width: 38ch;
+}
+.led-hero__stats {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.led-hero__stat {
+  background: rgba(6, 40, 34, 0.34);
+  padding: var(--sp-3) var(--sp-4);
+  min-width: 8.25rem;
+}
+.led-hero__stat dt {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: var(--fw-semibold);
+  color: #a9e5d8;
+}
+.led-hero__stat dd {
+  margin: 3px 0 0;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #eafaf7;
+}
+
+/* --- Section head --- */
+.led-section {
+  margin-bottom: var(--sp-6);
+}
+.led-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+.led-section__head .section-title {
+  margin-bottom: 0;
+}
+.led-section__note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-3);
+  max-width: 64ch;
+}
+.led-section__note svg {
+  flex: none;
+  color: var(--c-accent);
+}
+
+/* --- Payer scoreboard: grade-toned behavior cards --- */
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--sp-4);
+}
+.scorecard {
+  --_grade: var(--c-ok);
+  --_grade-soft: var(--c-ok-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--c-border);
+  border-top: 3px solid var(--_grade);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+  transition: box-shadow var(--dur-fast) var(--ease);
+}
+.scorecard:hover {
+  box-shadow: var(--sh-2);
+}
+.scorecard[data-grade="B"] {
+  --_grade: var(--c-info);
+  --_grade-soft: var(--c-info-soft);
+}
+.scorecard[data-grade="C"] {
+  --_grade: var(--c-warn);
+  --_grade-soft: var(--c-warn-soft);
+}
+.scorecard[data-grade="D"] {
+  --_grade: var(--c-danger);
+  --_grade-soft: var(--c-danger-soft);
+}
+.scorecard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.scorecard__payer {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+.scorecard__meta {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+}
+.scorecard__grade {
+  display: grid;
+  place-items: center;
+  inline-size: 2.4rem;
+  block-size: 2.4rem;
+  border-radius: var(--r-md);
+  background: var(--_grade-soft);
+  color: var(--_grade);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+}
+.scorecard__rates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3) var(--sp-4);
+  margin: 0;
+}
+.scorecard__rate dt {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-3);
+}
+.scorecard__rate dd {
+  margin: 2px 0 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.scorecard__foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  border-top: 1px dashed var(--c-border);
+  font-size: var(--fs-sm);
+}
+.scorecard__amount {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  justify-content: space-between;
+  color: var(--c-ink-2);
+}
+.scorecard__amount .mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-semibold);
+}
+.scorecard__amount--overdue {
+  color: var(--c-danger);
+}
+.scorecard__amount--overdue svg {
+  flex: none;
+}
+.scorecard__amount-label {
+  flex: 1;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: var(--fw-semibold);
+}
+.scorecard__nohistory {
+  font-size: var(--fs-xs);
+  color: var(--c-faint);
+  line-height: 1.5;
+}
+
+/* --- Forecast + ledger duo --- */
+.led-duo {
+  display: grid;
+  /* minmax(0,…): a bare 1fr floors at the children's intrinsic min-content
+     (the 680px ledger table), which blows the single column past narrow
+     viewports — same trap as .form-row in pages.css. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+@media (min-width: 1100px) {
+  .led-duo {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+  }
+  .led-duo .led-section {
+    margin-bottom: 0;
+  }
+}
+
+/* Collections forecast — four proportional bars, first bucket = chase now.
+   minmax(0,1fr) + min-width:0: a bare 1fr floors at the bucket's intrinsic
+   min-content width, and four of those blow narrow viewports (the same trap
+   the intake form hit — see .form-row in pages.css). */
+.forecast {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-3);
+  align-items: end;
+  margin: 0;
+  padding: var(--sp-5);
+  list-style: none;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.forecast__bucket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  min-width: 0;
+}
+.forecast__amount {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink-2);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.forecast__bar-track {
+  display: flex;
+  align-items: flex-end;
+  inline-size: 100%;
+  block-size: 7.5rem;
+  border-radius: var(--r-sm);
+  background: var(--c-surface-sunken);
+}
+.forecast__bar {
+  inline-size: 100%;
+  border-radius: var(--r-sm);
+  background: linear-gradient(180deg, var(--c-accent-2), var(--c-accent));
+  min-block-size: 0;
+  transition: block-size var(--dur-normal) var(--ease);
+}
+.forecast__bucket[data-first="true"] .forecast__bar {
+  background: linear-gradient(180deg, var(--c-danger), color-mix(in srgb, var(--c-danger) 72%, #7a1d1d));
+}
+.forecast__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink);
+}
+.forecast__count {
+  font-size: var(--fs-xs);
+  color: var(--c-faint);
+}
+.forecast__empty {
+  padding: var(--sp-6);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-lg);
+  color: var(--c-ink-3);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+/* --- Claim ledger table --- */
+.led-table__scroll {
+  overflow-x: auto;
+  position: relative;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.led-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.led-table thead th {
+  text-align: left;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+.led-table tbody td {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+.led-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.led-table tbody tr {
+  transition: background var(--dur-fast) var(--ease);
+}
+.led-table tbody tr:hover {
+  background: var(--c-surface-2);
+}
+.led-table tbody tr[data-standing="overdue"] {
+  background: color-mix(in srgb, var(--c-danger-soft) 45%, transparent);
+}
+.led-table tbody tr[data-standing="overdue"]:hover {
+  background: var(--c-danger-soft);
+}
+.led-table__right {
+  text-align: right;
+  white-space: nowrap;
+}
+.led-table__empty {
+  padding: var(--sp-6);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-lg);
+  color: var(--c-ink-3);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+.led-claim__service {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+}
+.led-claim__meta {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+  letter-spacing: 0.01em;
+}
+
+/* Payment-window cell: countdown headline + governing date beneath. */
+.led-window {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.led-window__date {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  color: var(--c-faint);
+}
+.led-window--open {
+  color: var(--c-ok);
+}
+.led-window--soon {
+  color: var(--c-warn);
+}
+.led-window--critical,
+.led-window--expired {
+  color: var(--c-danger);
+}
+.led-window--none {
+  color: var(--c-faint);
+  font-weight: var(--fw-regular);
+}
+
+/* --- Draft + resolve grid --- */
+.led-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+@media (min-width: 900px) {
+  .led-grid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* Drafted follow-up — the same "document" treatment as the appeal draft. */
+.led-draft {
+  padding: var(--sp-5);
+  border: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-accent);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.led-draft__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+.led-draft__title {
+  margin-top: 2px;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+.led-draft__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.led-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-accent-line);
+  background: var(--c-accent-soft);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-accent-strong);
+  white-space: nowrap;
+}
+.led-tag svg {
+  flex: none;
+}
+.led-draft__body {
+  margin: 0;
+  padding: var(--sp-5);
+  max-height: 460px;
+  overflow: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+  color: var(--c-ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      color-mix(in srgb, var(--c-border) 50%, transparent) 27px,
+      color-mix(in srgb, var(--c-border) 50%, transparent) 28px
+    ),
+    var(--c-surface-2);
+}
+
+/* Review & resolve — the human-in-the-loop climax. */
+.led-resolve {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-1);
+}
+.led-resolve__title {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+}
+.led-resolve__rationale {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--c-ink-2);
+}
+.led-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.led-meta__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-ink-3);
+}
+.led-meta__pill svg {
+  flex: none;
+  color: var(--c-accent);
+}
+.led-cites {
+  margin-top: var(--sp-1);
+}
+.led-cites .section-title {
+  margin-bottom: var(--sp-2);
+}
+.led-cites .evidence__src {
+  display: block;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  /* Four skinny columns are unreadable on phones — 2×2 keeps the bars legible. */
+  .forecast {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--sp-5);
+  }
+}
+@media (max-width: 520px) {
+  .led-hero {
+    padding: var(--sp-5);
+  }
+  .led-hero__stats {
+    width: 100%;
+  }
+  .forecast {
+    padding: var(--sp-4);
+    gap: var(--sp-2);
+    row-gap: var(--sp-4);
+  }
+  .forecast__bar-track {
+    block-size: 5.5rem;
+  }
+}

@@ -6,9 +6,9 @@
 import type { RoiSnapshot } from "@helix/shared";
 import { formatPesos, formatHours, formatDuration } from "./format";
 
-// One AI teammate in the catalog. `n` is the catalog index (1..8); the
+// One AI teammate in the catalog. `n` is the catalog index (1..9); the
 // Supervisor orchestration layer has no number (null). `href` is set only for
-// the two LIVE teammates that link to a working surface.
+// the LIVE teammates that link to a working surface.
 export interface AgentTeammate {
   n: number | null;
   name: string;
@@ -21,9 +21,9 @@ export interface AgentTeammate {
 // The catalog, in build order (brain/architecture/agent-catalog.md). Each agent
 // shares the same substrate: tools/adapters + retrieval + LLM + human-approval
 // gate + audit. We ship them one at a time, earning each with the ROI of the
-// last. #1 and #2 are LIVE today (verify + revenue); the rest are planned.
-// `phase` reflects shipping reality: the two live teammates are the v0
-// workforce; everything after follows the catalog's next / later / Phase 2.
+// last. #1–#3 are LIVE today (verify + revenue + ledger); the rest are planned.
+// `phase` reflects shipping reality: the live teammates are the v0 workforce;
+// everything after follows the catalog's next / later / Phase 2.
 export const ROSTER: readonly AgentTeammate[] = [
   {
     n: 1,
@@ -43,41 +43,49 @@ export const ROSTER: readonly AgentTeammate[] = [
   },
   {
     n: 3,
+    name: "Receivables",
+    job: "Tracks every submitted claim against the payer's own payment window, scores payer behavior, and drafts cited follow-ups when money runs late.",
+    status: "live",
+    phase: "v0",
+    href: "/ledger",
+  },
+  {
+    n: 4,
     name: "Documentation",
     job: "Ingests PDFs, referrals, IDs, and discharge notes into structured, retrievable data.",
     status: "planned",
     phase: "Next",
   },
   {
-    n: 4,
+    n: 5,
     name: "Coding Assist",
     job: "Suggests ICD / CPT and case-rate codes and validates claims — a human always confirms.",
     status: "planned",
     phase: "Later",
   },
   {
-    n: 5,
+    n: 6,
     name: "Compliance",
     job: "Answers questions over SOPs, accreditation manuals, DPA / NPC rules, and internal policy.",
     status: "planned",
     phase: "Later",
   },
   {
-    n: 6,
+    n: 7,
     name: "Reception",
     job: "Handles appointments, reminders, intake, and front-desk FAQs.",
     status: "planned",
     phase: "Later",
   },
   {
-    n: 7,
+    n: 8,
     name: "Knowledge",
     job: "An org-scoped assistant over every corner of the hospital's administrative knowledge.",
     status: "planned",
     phase: "Later",
   },
   {
-    n: 8,
+    n: 9,
     name: "Executive",
     job: "Writes the daily ops, risk, and revenue summary with recommendations — not dashboards.",
     status: "planned",

@@ -44,6 +44,12 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    // Run the suite in the app's reduced-motion mode (a first-class product
+    // path: globals.css swaps scroll-behavior to auto and zeroes transitions).
+    // Without this, `html { scroll-behavior: smooth }` makes every
+    // scroll-into-view glide, and clicks deep in long pages (mobile /ledger)
+    // land mid-animation on whatever drifts past — a whole class of flake.
+    contextOptions: { reducedMotion: "reduce" },
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },

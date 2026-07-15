@@ -98,16 +98,20 @@ describe("buildExecutiveBrief", () => {
 });
 
 describe("ROSTER", () => {
-  it("lists all eight catalog agents plus the Supervisor", () => {
-    expect(ROSTER).toHaveLength(9);
-    expect(ROSTER.filter((a) => a.n !== null)).toHaveLength(8);
+  it("lists all nine catalog agents plus the Supervisor", () => {
+    expect(ROSTER).toHaveLength(10);
+    expect(ROSTER.filter((a) => a.n !== null)).toHaveLength(9);
     expect(ROSTER.filter((a) => a.n === null)).toHaveLength(1);
   });
 
-  it("marks exactly the two live teammates and gives them working links", () => {
+  it("marks exactly the three live teammates and gives them working links", () => {
     const live = ROSTER.filter((a) => a.status === "live");
-    expect(live.map((a) => a.name)).toEqual(["Eligibility & Pre-Auth", "Revenue Cycle"]);
-    expect(live.map((a) => a.href)).toEqual(["/verify", "/revenue"]);
+    expect(live.map((a) => a.name)).toEqual([
+      "Eligibility & Pre-Auth",
+      "Revenue Cycle",
+      "Receivables",
+    ]);
+    expect(live.map((a) => a.href)).toEqual(["/verify", "/revenue", "/ledger"]);
   });
 
   it("leaves every planned teammate without a link", () => {

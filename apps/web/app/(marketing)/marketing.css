@@ -1001,7 +1001,8 @@
   gap: clamp(0.9rem, 1.6vw, 1.5rem);
 }
 .mk-force-card {
-  grid-column: span 6;
+  /* Three live teammates share the row (12-col grid). */
+  grid-column: span 4;
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);

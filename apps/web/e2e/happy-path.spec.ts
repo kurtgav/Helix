@@ -25,7 +25,7 @@ test.describe("Dashboard", () => {
     await page.goto("/dashboard");
 
     const nav = page.getByRole("navigation", { name: /product/i });
-    for (const label of ["Dashboard", "Verify", "Console", "Revenue", "Agents"]) {
+    for (const label of ["Dashboard", "Verify", "Console", "Revenue", "Ledger", "Agents", "Brain"]) {
       await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
   });

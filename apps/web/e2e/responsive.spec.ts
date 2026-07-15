@@ -16,6 +16,7 @@ const SURFACES = [
   "/verify",
   "/console",
   "/revenue",
+  "/ledger",
   "/agents",
   "/brain",
   "/brain/decisions",

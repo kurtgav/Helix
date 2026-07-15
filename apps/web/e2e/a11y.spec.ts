@@ -14,7 +14,17 @@ import { test, expect, type Page } from "@playwright/test";
 // separate step: `pnpm add -D @axe-core/playwright` then run
 // `new AxeBuilder({ page }).analyze()` per route and assert zero violations.
 
-const ROUTES = ["/", "/dashboard", "/verify", "/console", "/revenue", "/agents"] as const;
+const ROUTES = [
+  "/",
+  "/dashboard",
+  "/verify",
+  "/console",
+  "/revenue",
+  "/ledger",
+  "/agents",
+  "/brain",
+  "/brain/decisions",
+] as const;
 
 async function assertLandmarksAndHeadings(page: Page): Promise<void> {
   // Exactly one main heading.

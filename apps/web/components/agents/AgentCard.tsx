@@ -18,12 +18,13 @@ type AgentsDict = Dict["agents"];
 const ICON_BY_N: Readonly<Record<number, IconName>> = {
   1: "shield",
   2: "chart",
-  3: "doc",
-  4: "hash",
-  5: "lock",
-  6: "users",
-  7: "layers",
-  8: "gauge",
+  3: "scale",
+  4: "doc",
+  5: "hash",
+  6: "lock",
+  7: "users",
+  8: "layers",
+  9: "gauge",
 };
 
 function iconFor(agent: AgentTeammate): IconName {
@@ -48,6 +49,8 @@ function jobFor(t: AgentsDict, agent: AgentTeammate): string {
       return t.job7;
     case 8:
       return t.job8;
+    case 9:
+      return t.job9;
     default:
       return t.jobSupervisor;
   }
@@ -57,6 +60,7 @@ function jobFor(t: AgentsDict, agent: AgentTeammate): string {
 function openSurface(t: AgentsDict, href: string | undefined): string {
   if (href === "/verify") return t.openIn("Verify");
   if (href === "/revenue") return t.openIn("Revenue");
+  if (href === "/ledger") return t.openIn("Ledger");
   return t.openIn("workspace");
 }
 

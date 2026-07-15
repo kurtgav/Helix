@@ -360,11 +360,11 @@ export function Landing() {
           <div className="mk-wrap">
             <div className="mk-head fx fx--up">
               <span className="eyebrow">The workforce</span>
-              <h2>Two agents live. A department that never sleeps.</h2>
+              <h2>Three agents live. A department that never sleeps.</h2>
               <p>
                 Each teammate owns one repetitive workflow and shares the same approval,
-                audit, and security foundation. Two are working today; the rest roll out
-                on the same rails.
+                audit, and security foundation. Three are working today; the rest roll
+                out on the same rails.
               </p>
             </div>
 
@@ -607,6 +607,13 @@ const LIVE_AGENTS = [
     icon: "pulse",
     capability: "Cited, auditable denial triage",
     metric: "₱385k / mo",
+  },
+  {
+    name: "Receivables",
+    desc: "Holds every payer to its own payment clock — scoring how each HMO and PhilHealth actually pays, and drafting the cited follow-up when money runs late.",
+    icon: "scale",
+    capability: "Payer scorecards & cash forecast",
+    metric: "60d rule, cited",
   },
 ] as const;
 

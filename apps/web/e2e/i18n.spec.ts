@@ -33,6 +33,11 @@ test.describe("EN/FIL locale", () => {
       page.getByRole("heading", { name: /ibinabalik sa cash/i }),
     ).toBeVisible();
 
+    await page.goto("/ledger");
+    await expect(
+      page.getByRole("heading", { name: /may sariling orasan/i }),
+    ).toBeVisible();
+
     await page.goto("/agents");
     await expect(page.getByRole("heading", { name: /naka-duty/i }).first()).toBeVisible();
 

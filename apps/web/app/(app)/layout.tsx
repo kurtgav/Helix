@@ -37,6 +37,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         { href: "/verify", label: dict.nav.verify, icon: "shield" },
         { href: "/console", label: dict.nav.console, icon: "clipboard" },
         { href: "/revenue", label: dict.nav.revenue, icon: "peso" },
+        { href: "/ledger", label: dict.nav.ledger, icon: "scale" },
       ],
     },
     {

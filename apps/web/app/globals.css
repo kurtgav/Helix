@@ -36,6 +36,16 @@
   --c-accent-bright: #3ddc97;
   --c-accent-soft-2: #f1f7f4;
 
+  /* Hero band — the one deep-green gradient every peso-headline surface
+     shares (dashboard tiles, /revenue, /agents, /ledger). Tokenized so the
+     brand wash is defined once, not copy-pasted per page. */
+  --grad-hero: linear-gradient(150deg, var(--c-accent-deep) 0%, var(--c-accent) 100%);
+  --grad-hero-glow: radial-gradient(
+    90% 120% at 85% 10%,
+    color-mix(in srgb, var(--c-accent-bright) 22%, transparent) 0%,
+    transparent 55%
+  );
+
   /* Paper — a warm off-white "document" surface for drafted letters (LOA) */
   --c-paper: #fcfcf8;
   --c-paper-2: #f7f7f1;

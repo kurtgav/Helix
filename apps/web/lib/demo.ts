@@ -9,6 +9,7 @@ import type {
   EligibilityStatus,
   LOAStatus,
   DenialReason,
+  ClaimStatus,
 } from "@helix/shared";
 import { computeRoi, type RoiEvent, type RoiWindow } from "@helix/core";
 
@@ -155,6 +156,60 @@ export interface DemoDenialCase {
   reason: DenialReason;
   ageDays: number;
   deniedAt: string;
+}
+
+// Synthetic submitted-claim ledger for the Receivables Agent demo (mock mode).
+// The story is deliberate: Maxicare settles fast and clean (grade A), Intellicare
+// slips past its window once (B), PhilHealth is punctual but one claim has
+// outrun even the verified 60-day rule (B), and Medicard is the villain —
+// overdue money and an underpayment (D). Ages are days since submission at
+// assessment time; dates anchor to HISTORY_BASE so the ledger reads identically
+// on every load.
+export interface DemoClaimRow {
+  id: string;
+  payer: string;
+  serviceCode: string;
+  serviceName: string;
+  amountBilled: number;
+  amountPaid?: number;
+  submittedAgoDays: number;
+  decidedAgoDays?: number;
+  status: ClaimStatus;
+}
+
+function agoDays(days: number): string {
+  return new Date(HISTORY_BASE - days * DAY).toISOString();
+}
+
+export const DEMO_CLAIM_LEDGER: readonly DemoClaimRow[] = [
+  // Maxicare — pays in ~20 days, in full. The benchmark payer.
+  { id: "clm_7001", payer: "Maxicare", serviceCode: "MRI-BRAIN", serviceName: "MRI (Brain, plain)", amountBilled: 12000, amountPaid: 12000, submittedAgoDays: 60, decidedAgoDays: 42, status: "paid" },
+  { id: "clm_7002", payer: "Maxicare", serviceCode: "CBC", serviceName: "Complete Blood Count (CBC)", amountBilled: 850, amountPaid: 850, submittedAgoDays: 45, decidedAgoDays: 24, status: "paid" },
+  { id: "clm_7003", payer: "Maxicare", serviceCode: "HD-SESSION", serviceName: "Hemodialysis session", amountBilled: 4200, amountPaid: 4200, submittedAgoDays: 30, decidedAgoDays: 10, status: "paid" },
+  { id: "clm_7004", payer: "Maxicare", serviceCode: "CONSULT-IM", serviceName: "Consult (Internal Medicine)", amountBilled: 700, submittedAgoDays: 12, status: "submitted" },
+  // Intellicare — one settlement blew past the 45-day operating window.
+  { id: "clm_7101", payer: "Intellicare", serviceCode: "MRI-BRAIN", serviceName: "MRI (Brain, plain)", amountBilled: 12000, amountPaid: 12000, submittedAgoDays: 70, decidedAgoDays: 15, status: "paid" },
+  { id: "clm_7102", payer: "Intellicare", serviceCode: "CBC", serviceName: "Complete Blood Count (CBC)", amountBilled: 850, amountPaid: 850, submittedAgoDays: 50, decidedAgoDays: 12, status: "paid" },
+  { id: "clm_7103", payer: "Intellicare", serviceCode: "HD-SESSION", serviceName: "Hemodialysis session", amountBilled: 4200, submittedAgoDays: 38, status: "submitted" },
+  // Medicard — the ledger's villain: two claims past the window, one short-paid.
+  { id: "clm_7201", payer: "Medicard", serviceCode: "MRI-BRAIN", serviceName: "MRI (Brain, plain)", amountBilled: 12000, submittedAgoDays: 62, status: "submitted" },
+  { id: "clm_7202", payer: "Medicard", serviceCode: "HD-SESSION", serviceName: "Hemodialysis session", amountBilled: 4200, submittedAgoDays: 75, status: "submitted" },
+  { id: "clm_7203", payer: "Medicard", serviceCode: "CBC", serviceName: "Complete Blood Count (CBC)", amountBilled: 850, amountPaid: 600, submittedAgoDays: 90, decidedAgoDays: 20, status: "paid_partial" },
+  { id: "clm_7204", payer: "Medicard", serviceCode: "CONSULT-IM", serviceName: "Consult (Internal Medicine)", amountBilled: 700, submittedAgoDays: 20, status: "in_review" },
+  // PhilHealth — punctual on paper, but one claim outran the verified 60-day rule.
+  { id: "clm_7301", payer: "PhilHealth", serviceCode: "CBC", serviceName: "Complete Blood Count (CBC)", amountBilled: 850, amountPaid: 850, submittedAgoDays: 55, decidedAgoDays: 5, status: "paid" },
+  { id: "clm_7302", payer: "PhilHealth", serviceCode: "HD-SESSION", serviceName: "Hemodialysis session", amountBilled: 4200, submittedAgoDays: 68, status: "submitted" },
+  { id: "clm_7303", payer: "PhilHealth", serviceCode: "CBC", serviceName: "Complete Blood Count (CBC)", amountBilled: 850, submittedAgoDays: 40, decidedAgoDays: 25, status: "denied" },
+];
+
+/** Resolve a demo ledger row's ISO submission timestamp. Pure. */
+export function demoClaimSubmittedAt(row: DemoClaimRow): string {
+  return agoDays(row.submittedAgoDays);
+}
+
+/** Resolve a demo ledger row's ISO decision timestamp, when decided. Pure. */
+export function demoClaimDecidedAt(row: DemoClaimRow): string | undefined {
+  return row.decidedAgoDays === undefined ? undefined : agoDays(row.decidedAgoDays);
 }
 
 export const DEMO_DENIAL_CASES: readonly DemoDenialCase[] = [

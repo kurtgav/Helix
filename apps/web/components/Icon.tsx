@@ -20,7 +20,9 @@ export type IconName =
   | "link"
   | "spark"
   | "clock"
-  | "peso";
+  | "peso"
+  | "scale"
+  | "pencil";
 
 type Props = {
   name: IconName;
