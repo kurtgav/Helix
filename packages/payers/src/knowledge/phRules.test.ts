@@ -3,13 +3,16 @@ import {
   PHILHEALTH_CLAIM_FILING,
   PHILHEALTH_APPEAL,
   PHILHEALTH_RTH_REFILE,
+  PHILHEALTH_CLAIM_PAYMENT,
   HMO_CLAIM_FILING,
   HMO_APPEAL,
   HMO_LOA_VALIDITY,
+  HMO_CLAIM_PAYMENT,
   listRules,
   claimFilingRule,
   appealRule,
   refileRule,
+  paymentRule,
   ruleEvidence,
   assessDeadline,
   daysBetween,
@@ -61,6 +64,35 @@ describe("PH rulebook — rule table", () => {
   it("keeps the HMO filing default conservative (30 days, contractual)", () => {
     expect(HMO_CLAIM_FILING.days).toBe(30);
     expect(HMO_CLAIM_FILING.verifyBeforeLive).toBe(true);
+  });
+
+  it("exposes the verified 60-day PhilHealth payment obligation (the payer's own clock)", () => {
+    const rule = paymentRule("philhealth");
+    expect(rule).toBe(PHILHEALTH_CLAIM_PAYMENT);
+    expect(rule.days).toBe(60);
+    expect(rule.kind).toBe("payer_payment");
+    expect(rule.authority).toBe("PhilHealth");
+    expect(rule.ref).toContain("§47");
+    expect(rule.ref).toContain("214485");
+    expect(rule.confidence).toBe("verified");
+    expect(rule.verifyBeforeLive).toBe(false);
+  });
+
+  it("keeps the HMO payment window contractual (45-day AHMOPI-template default)", () => {
+    const rule = paymentRule("hmo");
+    expect(rule).toBe(HMO_CLAIM_PAYMENT);
+    expect(rule.days).toBe(45);
+    expect(rule.kind).toBe("payer_payment");
+    expect(rule.authority).toBe("Helix");
+    expect(rule.ref).toContain("AHMOPI");
+    expect(rule.confidence).toBe("reported");
+    expect(rule.verifyBeforeLive).toBe(true);
+  });
+
+  it("lists both payment rules in the rulebook", () => {
+    const ids = listRules().map((rule) => rule.id);
+    expect(ids).toContain("philhealth-claim-payment");
+    expect(ids).toContain("hmo-claim-payment");
   });
 });
 

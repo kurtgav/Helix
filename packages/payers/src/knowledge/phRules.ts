@@ -134,6 +134,42 @@ export const HMO_LOA_VALIDITY: RegulatoryRule = Object.freeze({
     "LOA validity is payer-specific, not an IC rule: Maxicare 30 days from issuance (official); PhilCare 3 calendar days (official); MediCard/Intellicare unpublished (secondary sources: 3 days). Helix defaults to the conservative 3 days; the per-payer value always overrides.",
 });
 
+/**
+ * PhilHealth: the payer's OWN payment clock — claims must be acted upon
+ * (processed, reviewed, paid) within 60 calendar days of receipt. This is the
+ * receivables mirror of the filing rule: the clinic owes PhilHealth a claim in
+ * 60 days; PhilHealth owes the clinic an action in 60 days.
+ */
+export const PHILHEALTH_CLAIM_PAYMENT: RegulatoryRule = Object.freeze({
+  id: "philhealth-claim-payment",
+  authority: "PhilHealth",
+  title: "Claim processing/payment period (the payer's obligation)",
+  ref: "IRR of RA 7875 (as amended, 2013) §47; recognized in PHIC v. Urdaneta Sacred Heart Hospital, G.R. No. 214485 (Jan 11, 2021)",
+  url: "https://www.philhealth.gov.ph/about_us/IRR_NHIAct_2013.pdf",
+  days: 60,
+  appliesTo: "philhealth" as PayerKind,
+  kind: "payer_payment" as DeadlineKind,
+  confidence: "verified" as RuleConfidence,
+  verifyBeforeLive: false,
+  summary:
+    "All claims, except those under investigation, shall be acted upon within 60 calendar days from receipt by the Corporation. The Supreme Court recognized this processing mandate in PHIC v. Urdaneta Sacred Heart Hospital (G.R. No. 214485). Claims under formal investigation are excepted — an overdue flag is a follow-up trigger, never an automatic entitlement.",
+});
+
+/** HMO: provider payment timeline — contractual; Helix conservative default. */
+export const HMO_CLAIM_PAYMENT: RegulatoryRule = Object.freeze({
+  id: "hmo-claim-payment",
+  authority: "Helix",
+  title: "HMO provider payment window (operating default)",
+  ref: "policy:helix/ph-rulebook (AHMOPI-template provider terms: 45–60 days)",
+  days: 45,
+  appliesTo: "hmo" as PayerKind,
+  kind: "payer_payment" as DeadlineKind,
+  confidence: "reported" as RuleConfidence,
+  verifyBeforeLive: true,
+  summary:
+    "No statute fixes when a PH HMO must pay an accredited provider — the timeline lives in each accreditation agreement. AHMOPI-template provider terms make physician outpatient claims payable in 45–60 days; Helix defaults to the earlier bound (45 calendar days from complete submission) and the clinic's actual contract always overrides. Escalation path: written demand, then an Insurance Commission complaint — IC CL 2024-01 lists failing to affirm or deny claims within a reasonable time as an unfair claims settlement practice; CAMS (IMC 2023-01) expects HMO resolution in 7–45 working days.",
+});
+
 // --- Non-window regulatory references ---------------------------------------
 
 /**
@@ -166,9 +202,11 @@ const ALL_RULES: readonly RegulatoryRule[] = Object.freeze([
   PHILHEALTH_CLAIM_FILING,
   PHILHEALTH_APPEAL,
   PHILHEALTH_RTH_REFILE,
+  PHILHEALTH_CLAIM_PAYMENT,
   HMO_CLAIM_FILING,
   HMO_APPEAL,
   HMO_LOA_VALIDITY,
+  HMO_CLAIM_PAYMENT,
 ]);
 
 /** Every rule in the PH rulebook (frozen; copy before mutating). */
@@ -193,6 +231,15 @@ export function appealRule(payerKind: PayerKind): RegulatoryRule {
  */
 export function refileRule(payerKind: PayerKind): RegulatoryRule | undefined {
   return payerKind === "philhealth" ? PHILHEALTH_RTH_REFILE : undefined;
+}
+
+/**
+ * The payer's OWN payment/processing obligation for a submitted claim — the
+ * clock the Receivables agent watches. PhilHealth's is verified regulation;
+ * the HMO default is contractual and must be replaced per agreement.
+ */
+export function paymentRule(payerKind: PayerKind): RegulatoryRule {
+  return payerKind === "philhealth" ? PHILHEALTH_CLAIM_PAYMENT : HMO_CLAIM_PAYMENT;
 }
 
 /** Stable Evidence citation for a rulebook rule. */

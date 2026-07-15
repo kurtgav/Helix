@@ -90,7 +90,13 @@ export const policyCheckSchema = z.object({
 });
 
 export const deadlineAssessmentSchema = z.object({
-  kind: z.enum(["claim_filing", "appeal", "refile", "loa_validity"]),
+  kind: z.enum([
+    "claim_filing",
+    "appeal",
+    "refile",
+    "loa_validity",
+    "payer_payment",
+  ]),
   basis: z.string(),
   deadline: z.string(),
   daysRemaining: z.number().int(),

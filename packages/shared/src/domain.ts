@@ -127,11 +127,17 @@ export interface PolicyCheck {
   evidence: Evidence[];
 }
 
-// Time-bound windows (claim filing, denial appeal, LOA validity) assessed
-// against a concrete date. `daysRemaining` < 0 means the window already closed.
+// Time-bound windows (claim filing, denial appeal, LOA validity, payer
+// payment obligations) assessed against a concrete date. `daysRemaining` < 0
+// means the window already closed.
 export type DeadlineUrgency = "expired" | "critical" | "soon" | "open";
 
-export type DeadlineKind = "claim_filing" | "appeal" | "refile" | "loa_validity";
+export type DeadlineKind =
+  | "claim_filing"
+  | "appeal"
+  | "refile"
+  | "loa_validity"
+  | "payer_payment";
 
 export interface DeadlineAssessment {
   kind: DeadlineKind;
@@ -330,4 +336,114 @@ export interface RevenueCycleProposal {
   totalRecoverable: number;
   recoverableCount: number;
   caseCount: number;
+}
+
+// --- Receivables Agent (catalog #3 — payer-accountability ledger) ---
+// The third AI teammate watches the OTHER side of the payer clock: not what the
+// clinic owes the payer process (filing/appeal windows) but what the payer owes
+// the clinic. Every submitted claim is tracked against the payer's own payment
+// obligation (PhilHealth: act within 60 days of receipt, IRR of RA 7875 §47;
+// HMOs: contractual — Helix conservative default), payers are scored on how
+// they actually behave, and overdue money gets a cited follow-up draft that a
+// human approves before anything is sent. ADMINISTRATIVE only — no clinical
+// judgment, no invented payer rule.
+
+// Lifecycle of a submitted claim, as the clinic sees it. Closed taxonomy.
+export type ClaimStatus =
+  | "submitted" // filed with the payer, no decision yet
+  | "in_review" // payer acknowledged / asked questions (still their clock)
+  | "paid" // settled in full
+  | "paid_partial" // settled below the billed amount (shortfall)
+  | "denied"; // refused — hands off to the Revenue Cycle agent
+
+// One submitted claim the receivables engine reasons over. `ageDays` is the
+// claim's age at assessment time (same deterministic device as DenialCase —
+// "today" is reconstructed from submittedAt + ageDays, never the wall clock).
+export interface ClaimRecord {
+  id: string;
+  payerId: PayerId;
+  payerName: string;
+  serviceCode: string;
+  serviceName: string;
+  /** Pesos billed to the payer. */
+  amountBilled: number;
+  /** Pesos actually settled (paid / paid_partial rows only). */
+  amountPaid?: number;
+  submittedAt: string; // ISO
+  /** ISO date the payer decided (paid/denied rows only). */
+  decidedAt?: string;
+  status: ClaimStatus;
+  ageDays: number;
+}
+
+// Where one open claim stands against the payer's payment obligation.
+export type ReceivableStanding =
+  | "on_track" // window open, not near the edge
+  | "due_soon" // payer's window closes within the urgency threshold
+  | "overdue" // payer's own deadline has passed — follow up with citation
+  | "settled" // paid in full, nothing outstanding
+  | "underpaid" // settled short of billed — shortfall to reconcile
+  | "denied"; // routed to denial triage, not a receivable anymore
+
+// The engine's per-claim determination.
+export interface ReceivableFinding {
+  claimId: string;
+  standing: ReceivableStanding;
+  /** Pesos still unpaid on this claim (billed − paid; 0 when settled). */
+  amountOutstanding: number;
+  /** Days since submission at assessment time. */
+  daysOutstanding: number;
+  /** The payer's payment window, assessed and cited (open claims only). */
+  deadline?: DeadlineAssessment;
+  /** Short, cited administrative rationale. */
+  rationale: string;
+}
+
+// How one payer actually behaves, measured from the ledger — the clinic's
+// negotiation ammunition. All rates are 0..1; medians are in days.
+export interface PayerScorecard {
+  payerId: PayerId;
+  payerName: string;
+  claimCount: number;
+  totalBilled: number;
+  totalPaid: number;
+  totalOutstanding: number;
+  overdueCount: number;
+  overdueAmount: number;
+  /** Median days from submission to decision (settled claims only). */
+  medianDaysToPay?: number;
+  /** Share of decided claims settled within the payer's own window. */
+  onTimeRate?: number;
+  /** Share of settled claims paid below billed. */
+  shortfallRate?: number;
+  /** Share of decided claims denied. */
+  denialRate?: number;
+  /** A–D behavior grade derived from on-time + shortfall performance. */
+  grade: "A" | "B" | "C" | "D";
+}
+
+// One bucket of the collections forecast: pesos expected in a coming window,
+// projected from each payer's OBSERVED behavior (median days-to-pay), falling
+// back to the cited rulebook window when history is thin.
+export interface CashflowBucket {
+  /** Bucket start, ISO date (inclusive). */
+  from: string;
+  /** Bucket end, ISO date (inclusive); omitted on the open-ended tail. */
+  to?: string;
+  label: string;
+  expectedAmount: number;
+  claimCount: number;
+}
+
+// The full proposal the Receivables agent returns for one ledger snapshot.
+export interface ReceivablesProposal {
+  findings: ReceivableFinding[];
+  scorecards: PayerScorecard[];
+  forecast: CashflowBucket[];
+  /** Cited follow-up draft covering every overdue claim. */
+  followUpDraft: string;
+  totalOutstanding: number;
+  overdueAmount: number;
+  overdueCount: number;
+  claimCount: number;
 }

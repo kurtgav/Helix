@@ -1,9 +1,9 @@
 ---
 name: helix-brain-index
 type: moc
-updated: 2026-07-12
+updated: 2026-07-15
 model: claude-fable-5
-run: iteration-6
+run: iteration-10
 confidence: high
 source: loop-maintained map of content
 ---
@@ -23,6 +23,7 @@ This vault is the company's persistent memory. Every decision, assumption, and l
 - [[business-model]] — how Helix makes money (ROI, not "AI")
 - [[product-os-thesis]] — the researched case for Helix as the best product OS for this wedge
 - [[competitive-landscape]] — who's credible globally + the unoccupied PH clinic-side seam
+- [[receivables-and-scale]] — the payer-accountability thesis (teammate #3) + how Helix scales
 - [[risks-and-kill-criteria]] — what would make us stop or pivot
 
 ## 🏗️ Architecture

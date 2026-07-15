@@ -63,3 +63,19 @@ export {
   type RevenueCycleResolution,
   type RevenueCycleContext,
 } from "./revenueCycle";
+
+// --- Receivables agent (catalog #3 — payer-accountability ledger) ---
+export {
+  runReceivables,
+  resolveReceivables,
+  scoreLedgerConfidence,
+  assessReceivables,
+  buildScorecards,
+  forecastCashflow,
+  ledgerAsOf,
+  draftFollowUp,
+  RECEIVABLES_ACTION_KIND,
+  RECEIVABLES_POLICY_SOURCE,
+  type ReceivablesResolution,
+  type ReceivablesContext,
+} from "./receivables";
