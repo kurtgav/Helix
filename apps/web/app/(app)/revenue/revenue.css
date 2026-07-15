@@ -237,6 +237,36 @@
   color: var(--c-ok);
 }
 
+/* Recovery-window cell: days-left headline + the governing date beneath.
+   Urgency tiers mirror the rulebook: open/soon/critical/expired. */
+.rev-deadline {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.rev-deadline__date {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  color: var(--c-faint);
+}
+.rev-deadline--open {
+  color: var(--c-ok);
+}
+.rev-deadline--soon {
+  color: var(--c-warn);
+}
+.rev-deadline--critical,
+.rev-deadline--expired {
+  color: var(--c-danger);
+}
+.rev-deadline--none {
+  color: var(--c-faint);
+  font-weight: var(--fw-regular);
+}
+
 /* --- Draft + resolve grid --- */
 .rev-grid {
   display: grid;

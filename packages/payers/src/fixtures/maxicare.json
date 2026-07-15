@@ -8,7 +8,10 @@
       "planName": "Maxicare Prima",
       "status": "active",
       "validFrom": "2026-01-01",
-      "validTo": "2026-12-31"
+      "validTo": "2026-12-31",
+      "policyType": "corporate_group",
+      "effectiveDate": "2026-01-01",
+      "usedBenefitPhp": 24000
     },
     {
       "memberId": "MX-0044-7781",
@@ -16,7 +19,62 @@
       "planName": "Maxicare Prima",
       "status": "inactive",
       "validFrom": "2025-01-01",
-      "validTo": "2025-12-31"
+      "validTo": "2025-12-31",
+      "policyType": "corporate_group",
+      "effectiveDate": "2025-01-01"
+    },
+    {
+      "memberId": "MX-0031-9954",
+      "fullName": "Ramon Aquino",
+      "planName": "Maxicare Prima",
+      "status": "active",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-12-31",
+      "policyType": "corporate_group",
+      "effectiveDate": "2026-01-01",
+      "usedBenefitPhp": 150000
+    },
+    {
+      "memberId": "MX-7719-0042",
+      "fullName": "Isabella Reyes",
+      "planName": "Maxicare Prima Individual",
+      "status": "active",
+      "validFrom": "2026-06-01",
+      "validTo": "2027-05-31",
+      "policyType": "individual_family",
+      "effectiveDate": "2026-06-01",
+      "usedBenefitPhp": 0
+    },
+    {
+      "memberId": "MX-7719-0058",
+      "fullName": "Paolo Mendoza",
+      "planName": "Maxicare Prima Individual",
+      "status": "active",
+      "validFrom": "2026-07-01",
+      "validTo": "2027-06-30",
+      "policyType": "individual_family",
+      "effectiveDate": "2026-07-01",
+      "usedBenefitPhp": 0
+    }
+  ],
+  "planPolicies": [
+    {
+      "planName": "Maxicare Prima",
+      "policyType": "corporate_group",
+      "pecCovered": true,
+      "mblPhp": 150000,
+      "loaValidityDays": 30,
+      "section": "#corporate-terms"
+    },
+    {
+      "planName": "Maxicare Prima Individual",
+      "policyType": "individual_family",
+      "waitingPeriodDays": 30,
+      "pecExclusionMonths": 12,
+      "pecCovered": false,
+      "mblPhp": 100000,
+      "loaValidityDays": 30,
+      "section": "#individual-terms"
     }
   ],
   "rules": [

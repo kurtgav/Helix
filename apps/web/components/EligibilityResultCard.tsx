@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Requirement, Evidence } from "@helix/shared";
+import type { PolicyCheck, Requirement, Evidence } from "@helix/shared";
 import type {
   VerifyProposalView,
   ApiResponse,
@@ -135,6 +135,8 @@ export function EligibilityResultCard({ proposal, locale }: Props) {
             </ul>
           </section>
         ) : null}
+
+        <PolicyChecksSection checks={eligibility.policyChecks ?? []} t={t} />
 
         <RequirementsSection requirements={eligibility.requirements} t={t} />
 
@@ -270,6 +272,53 @@ export function EligibilityResultCard({ proposal, locale }: Props) {
         )}
       </footer>
     </article>
+  );
+}
+
+// Visual state per policy-check status: chip label + icon + row accent.
+function policyFlag(t: ResultDict, status: PolicyCheck["status"]): string {
+  if (status === "pass") return t.policyPass;
+  if (status === "fail") return t.policyFail;
+  if (status === "attention") return t.policyAttention;
+  return t.policyUnknown;
+}
+
+function PolicyChecksSection({
+  checks,
+  t,
+}: {
+  checks: PolicyCheck[];
+  t: ResultDict;
+}) {
+  if (checks.length === 0) return null;
+  return (
+    <section className="erc__sec">
+      <h3 className="erc__sec-title">{t.policyTitle}</h3>
+      <ul className="erc__policy">
+        {checks.map((check, i) => (
+          <li
+            key={`${check.kind}-${i}`}
+            className={`erc__pol erc__pol--${check.status}`}
+          >
+            <span className="erc__pol-ic" aria-hidden="true">
+              {check.status === "pass" ? (
+                <Icon name="check" size={13} />
+              ) : check.status === "unknown" ? (
+                <span className="erc__req-dash" />
+              ) : (
+                <Icon name="alert" size={13} />
+              )}
+            </span>
+            <span className="erc__pol-body">
+              <span className="erc__pol-label">{check.label}</span>
+              <span className="erc__pol-detail">{check.detail}</span>
+            </span>
+            <span className="erc__pol-flag">{policyFlag(t, check.status)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="erc__pol-note">{t.policyNote}</p>
+    </section>
   );
 }
 

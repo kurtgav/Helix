@@ -8,13 +8,27 @@
       "planName": "PhilHealth Konsulta",
       "status": "active",
       "validFrom": "2026-01-01",
-      "validTo": "2026-12-31"
+      "validTo": "2026-12-31",
+      "policyType": "government"
     },
     {
       "memberId": "PH-99-000000000-0",
       "fullName": "Andres Bonifacio",
       "planName": "PhilHealth Formal Economy",
-      "status": "inactive"
+      "status": "inactive",
+      "policyType": "government"
+    }
+  ],
+  "planPolicies": [
+    {
+      "planName": "PhilHealth Konsulta",
+      "policyType": "government",
+      "section": "#konsulta"
+    },
+    {
+      "planName": "PhilHealth Formal Economy",
+      "policyType": "government",
+      "section": "#formal-economy"
     }
   ],
   "rules": [

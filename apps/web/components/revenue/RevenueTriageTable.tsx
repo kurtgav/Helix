@@ -3,7 +3,12 @@ import { Icon } from "@/components/Icon";
 import { formatPesos } from "@/lib/format";
 import type { RevenueTriageRow } from "@/lib/revenue";
 import type { Dict } from "@/lib/i18n";
-import type { DenialReason, RecoveryAction, RevenueRisk } from "@helix/shared";
+import type {
+  DeadlineAssessment,
+  DenialReason,
+  RecoveryAction,
+  RevenueRisk,
+} from "@helix/shared";
 
 // Presentational only — pure function of `rows` + the locale dict slice. No
 // state, no data access. The server page joins findings to cases and hands the
@@ -72,6 +77,36 @@ function riskLabel(t: RevenueDict, risk: RevenueRisk): string {
   }
 }
 
+// The governing recovery window, rendered as deadline date + urgency chip.
+// No window → an explicit "not time-bound" so silence never reads as safety.
+function DeadlineCell({
+  deadline,
+  t,
+}: {
+  deadline?: DeadlineAssessment;
+  t: RevenueDict;
+}) {
+  if (!deadline) {
+    return <span className="rev-deadline rev-deadline--none">{t.deadlineNone}</span>;
+  }
+  if (deadline.daysRemaining < 0) {
+    return (
+      <span className="rev-deadline rev-deadline--expired">
+        {t.deadlineClosed}
+        <span className="rev-deadline__date mono">{deadline.deadline}</span>
+      </span>
+    );
+  }
+  return (
+    <span className={`rev-deadline rev-deadline--${deadline.urgency}`}>
+      {t.deadlineDaysLeft(deadline.daysRemaining)}
+      <span className="rev-deadline__date mono">
+        {t.deadlineBy(deadline.deadline)}
+      </span>
+    </span>
+  );
+}
+
 // Display names for the known payer keys; unknown keys fall back to the raw key.
 const PAYER_LABEL: Record<string, string> = {
   maxicare: "Maxicare",
@@ -98,6 +133,7 @@ export function RevenueTriageTable({ rows, t }: Props) {
             <th scope="col">{t.colClaim}</th>
             <th scope="col">{t.colReason}</th>
             <th scope="col">{t.colAction}</th>
+            <th scope="col">{t.colDeadline}</th>
             <th scope="col" className="rev-table__center">
               {t.colRecoverable}
             </th>
@@ -129,6 +165,9 @@ export function RevenueTriageTable({ rows, t }: Props) {
                     {row.requiredFixes.join(" · ")}
                   </span>
                 ) : null}
+              </td>
+              <td>
+                <DeadlineCell deadline={row.deadline} t={t} />
               </td>
               <td className="rev-table__center">
                 {row.recoverable ? (

@@ -16,6 +16,7 @@ import {
   type EligibilityStatus,
   type LOAStatus,
   type PayerId,
+  type PolicyProfile,
 } from "@helix/shared";
 
 // --- Boundary I/O schemas: validate before we trust any caller input. ---
@@ -68,6 +69,13 @@ export interface PayerAdapter {
 
   /** What docs / approvals does this service+plan require? Cites the rule. */
   getRequirements(service: Service, plan: string): Promise<Result<Requirement[]>>;
+
+  /**
+   * Policy-relevant facts for one member (policy type, coverage window,
+   * waiting period, PEC terms, benefit limits) — retrieved and cited, never
+   * inferred. `null` when the member is unknown to this payer.
+   */
+  getPolicyProfile(memberId: string): Promise<Result<PolicyProfile | null>>;
 
   /** Submit (mock) an LOA draft; returns an external reference + status. */
   submitLOA(draft: LOADraft): Promise<Result<LOASubmission>>;

@@ -5,6 +5,18 @@
 > [`brain/loop/decisions.md`](./brain/loop/decisions.md) — both readable
 > in-product at `/brain` (staff+).
 
+## Iteration 9 — PH payer rulebook + policy intelligence layer (2026-07-15)
+
+| Slice | Status | Evidence |
+|---|---|---|
+| A — Deep research: PH denial dates + eligibility rules, primary sources (3 passes). Corrections captured: PhilHealth MR = **15d** (PC 03 s.2008), filing 60d is statutory (RA 7875 §35 as amended), RTH refile 60d, LOA validity payer-specific (Maxicare 30d / PhilCare 3d official), PEC capped at 1yr by IC CL 2018-65; group-vs-individual policy matrix documented | ✅ | `brain/strategy/ph-denial-and-eligibility-rules.md` (cited, confidence-graded) · ADR-011 |
+| B — Knowledge module `@helix/payers/knowledge/phRules.ts`: rules carry authority/ref/confidence/`verifyBeforeLive`; pure `assessDeadline` date math; conservative contractual defaults for HMOs | ✅ | 35 payers unit tests (rulebook suite incl. urgency tiers, timestamp normalization) |
+| C — Policy engine + adapter capability: `getPolicyProfile` (fixture member+plan join) → cited PolicyChecks (coverage window, waiting period, PEC attention-only, benefit limit, filing window); one-way status escalation; failures → blocking gaps; LOA drafts carry validity note | ✅ | engine suite + 6 eligibility-agent integration specs (waiting-period block, PEC review, MBL exhaustion, unknown member) — agents 112 green |
+| D — Revenue agent deadline intelligence: payer-kind windows replace flat age gates (PhilHealth 15d MR / 60d RTH; HMO 30d default), findings carry `DeadlineAssessment`, rationales + evidence cite `reg:*` rules | ✅ | triage suite rewritten payer-aware; demo batch outcomes unchanged (₱29,050 recoverable) |
+| E — Surfaces + persistence: /verify "Policy checks" section, /revenue "Recovery window" column (days-left/closed/not-time-bound), EN+FIL parity, `eligibility_checks.policy_checks` jsonb (additive; applied to live Supabase) | ✅ | e2e extended (verify policy section, revenue deadline column); migration 0002 + live ALTER verified |
+
+**Gates (all green):** typecheck 8/8 · lint 8/8 · unit 361 (shared 3, llm 29, core 52, payers 35, agents 112, scripts 9, db 15, web 106) · e2e 69 (67 + 2 new) desktop+mobile · `next build` ✓.
+
 ## Iteration 8 — full-screen product shell + scroll-driven landing (2026-07-15)
 
 | Slice | Status | Evidence |

@@ -25,6 +25,7 @@ import type {
   Evidence,
 } from "@helix/shared";
 import { assertCan } from "@helix/core";
+import { appealRule, ruleEvidence } from "@helix/payers";
 import { citationsOnly } from "../evidence";
 import { triageDenials, REVENUE_POLICY_SOURCE, formatPesos } from "./triage";
 import { draftResubmission } from "./draft";
@@ -118,6 +119,16 @@ function buildEvidence(cases: readonly DenialCase[]): Evidence[] {
       ref: "#appeals",
       snippet: `${denialCase.payerId} appeals & resubmission reference.`,
     });
+  }
+
+  // One PH-rulebook citation per payer KIND in the batch — the reconsideration
+  // window that governs deadline-gated recoverability above.
+  const seenKinds = new Set<string>();
+  for (const denialCase of cases) {
+    const kind = denialCase.payerId === "philhealth" ? "philhealth" : "hmo";
+    if (seenKinds.has(kind)) continue;
+    seenKinds.add(kind);
+    evidence.push(ruleEvidence(appealRule(kind)));
   }
 
   return evidence;

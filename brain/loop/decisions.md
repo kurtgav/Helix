@@ -3,7 +3,7 @@ name: decisions
 type: loop
 updated: 2026-07-15
 model: claude-fable-5
-run: iteration-7
+run: iteration-9
 confidence: high
 source: backfilled from [[journal]] iterations 0–6; kept current from iteration 7 onward
 ---
@@ -72,3 +72,9 @@ source: backfilled from [[journal]] iterations 0–6; kept current from iteratio
 - **Context:** Clinic front-desk staff (the daily users) work in Taglish; buyers read English. Translating strategy documents adds no user value and doubles maintenance.
 - **Decision:** Externalize all (app)-surface copy into typed EN + FIL dictionaries with a cookie-persisted locale switcher (EN default). Marketing landing and brain note content remain English in v1.
 - **Consequence:** Every new app-surface string must land in the dictionary (no hardcoded copy); e2e asserts both locales render.
+
+## ADR-011 · PH payer rulebook as a cited knowledge module + deterministic policy engine
+- **When:** 2026-07-15 · iteration 9
+- **Context:** The product asserted eligibility without knowing the actual PH clocks: when a claim must be filed, how long a denial stays contestable, what group-vs-individual policy terms (waiting periods, PEC, MBL) do to a walk-in. Three primary-source research passes settled the facts — and corrected folklore (PhilHealth MR = **15 days**, not 60; "LOA valid 30 days" is Maxicare-specific; PhilCare's is 3) — see [[ph-denial-and-eligibility-rules]].
+- **Decision:** Encode the researched rules as `@helix/payers` **knowledge**: every rule carries authority, document ref, confidence (`verified`/`reported`/`assumed`) and a `verifyBeforeLive` flag; contractual HMO windows ship as conservative operating defaults. On top: a **pure policy engine** (`services/agents/src/policy/engine.ts`) that turns a member's retrieved `PolicyProfile` (new adapter capability, fixture-driven) into cited `PolicyCheck`s — coverage window, waiting period, PEC (flag-only: the condition question is clinical and stays human), benefit limit, filing window — with one-way status escalation (fail ⇒ ineligible, attention ⇒ needs_review; never downgrades). The Revenue Cycle agent's age gates now derive from the same rulebook (payer-kind-aware appeal/refile windows) and every finding carries a `DeadlineAssessment`.
+- **Consequence:** Both agents now cite the regulation or contract term behind every time-window claim, and the UI shows the clock (policy checks on /verify, recovery-window column on /revenue). `assumed`/`reported` rules remain hard-gated from live use (ADR-004 unchanged); replacing a default with a clinic's real contract term is a fixture/knowledge edit, not a code change.

@@ -187,3 +187,59 @@ describe("MockPayerAdapter.submitLOA / getStatus", () => {
     expect(result.error.code).toBe("invalid_input");
   });
 });
+
+describe("MockPayerAdapter — getPolicyProfile", () => {
+  it("joins the member row to its plan policy terms, cited", async () => {
+    const adapter = createMaxicareAdapter();
+
+    const result = await adapter.getPolicyProfile("MX-7719-0042");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const profile = result.data;
+    expect(profile).not.toBeNull();
+    expect(profile!.policyType).toBe("individual_family");
+    expect(profile!.planName).toBe("Maxicare Prima Individual");
+    expect(profile!.waitingPeriodDays).toBe(30);
+    expect(profile!.pecExclusionMonths).toBe(12);
+    expect(profile!.pecCovered).toBe(false);
+    expect(profile!.mblPhp).toBe(100000);
+    expect(profile!.loaValidityDays).toBe(30);
+    expect(profile!.effectiveDate).toBe("2026-06-01");
+    // Cited: member row + the plan policy section.
+    expect(profile!.evidence.some((e) => e.source === "payer:maxicare/members")).toBe(true);
+    expect(profile!.evidence.some((e) => e.ref === "#individual-terms")).toBe(true);
+  });
+
+  it("marks corporate members with the group waiver terms", async () => {
+    const adapter = createMaxicareAdapter();
+
+    const result = await adapter.getPolicyProfile("MX-0098-2231");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data!.policyType).toBe("corporate_group");
+    expect(result.data!.pecCovered).toBe(true);
+    expect(result.data!.usedBenefitPhp).toBe(24000);
+  });
+
+  it("returns null (not an error) for an unknown member", async () => {
+    const adapter = createMaxicareAdapter();
+
+    const result = await adapter.getPolicyProfile("MX-NOPE-0000");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toBeNull();
+  });
+
+  it("rejects an empty member id", async () => {
+    const adapter = createMaxicareAdapter();
+
+    const result = await adapter.getPolicyProfile("  ");
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("invalid_input");
+  });
+});

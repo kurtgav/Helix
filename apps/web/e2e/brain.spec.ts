@@ -32,10 +32,12 @@ test.describe("Brain explorer (staff — default role)", () => {
     await expect(page.getByRole("heading", { name: /decision log/i })).toBeVisible();
 
     // Provenance header shows the model + run + confidence from frontmatter.
+    // The run number moves whenever the decision log gains an ADR — assert the
+    // shape, not a pinned iteration.
     const provenance = page.locator(".prov");
     await expect(provenance).toBeVisible();
     await expect(provenance).toContainText("claude-fable-5");
-    await expect(provenance).toContainText("iteration-7");
+    await expect(provenance).toContainText(/iteration-\d+/);
 
     // Backlinks: the index links to decisions, so "Linked from" is non-empty.
     const backlinks = page.locator(".conn__group", { hasText: "Linked from" });

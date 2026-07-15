@@ -36,6 +36,14 @@ test.describe("Verify → approve (staff)", () => {
     await expect(decision.getByText(/drafted letter of authorization/i)).toBeVisible();
     await expect(decision.getByRole("meter", { name: /model confidence/i })).toBeVisible();
 
+    // Policy intelligence: deterministic, cited checks against the member's
+    // policy terms — incl. the forward-looking claim-filing window.
+    await expect(
+      decision.getByRole("heading", { name: /policy checks/i }),
+    ).toBeVisible();
+    await expect(decision.getByText(/claim filing window/i)).toBeVisible();
+    await expect(decision.getByText(/coverage window/i)).toBeVisible();
+
     // Human-in-the-loop: approve, then assert the recorded/logged outcome.
     await activate(decision.getByRole("button", { name: /^approve$/i }));
 

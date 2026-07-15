@@ -16,6 +16,7 @@ import "server-only";
 
 import type {
   PayerId,
+  DeadlineAssessment,
   DenialCase,
   DenialReason,
   RecoveryAction,
@@ -83,6 +84,8 @@ export interface RevenueTriageRow {
   recoverable: boolean;
   risk: RevenueRisk;
   requiredFixes: readonly string[];
+  /** The governing recovery window (appeal/refile), when one applies. */
+  deadline?: DeadlineAssessment;
 }
 
 /**
@@ -109,6 +112,7 @@ export function buildTriageRows(
       recoverable: finding.recoverable,
       risk: finding.risk,
       requiredFixes: finding.requiredFixes,
+      ...(finding.deadline !== undefined ? { deadline: finding.deadline } : {}),
     };
   });
 }

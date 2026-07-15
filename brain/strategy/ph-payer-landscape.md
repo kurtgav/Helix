@@ -12,6 +12,8 @@ source: public payer docs + desk research; channel details unverified
 # PH Payer Landscape (the actual friction)
 
 > ⚠️ This encodes working assumptions about PH payer processes. Each `⚠️` must be confirmed against current payer documentation and real clinic staff before it drives a real (non-mock) adapter. Do **not** ship real payer automation on unconfirmed rules.
+>
+> **Iteration 9:** the deadline/eligibility subset of these assumptions is now *researched with primary sources* — filing windows, denial/appeal clocks, LOA validity, and group-vs-individual policy terms live in [[ph-denial-and-eligibility-rules]] and are encoded (cited, confidence-graded) in `@helix/payers`.
 
 ## Two payer worlds a PH clinic deals with
 

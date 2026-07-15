@@ -29,6 +29,21 @@ test.describe("Revenue Cycle triage", () => {
     expect(await page.getByRole("row").count()).toBeGreaterThan(1);
   });
 
+  test("shows the governing recovery window per claim", async ({ page }) => {
+    await page.goto("/revenue");
+
+    // The deadline column headlines the payer's reconsideration/refile window.
+    await expect(
+      page.getByRole("columnheader", { name: /recovery window/i }),
+    ).toBeVisible();
+    // Open windows show a days-left countdown with the governing date…
+    expect(await page.getByText(/\dd left/).count()).toBeGreaterThan(0);
+    // …clock-independent reasons say so explicitly (never silent)…
+    expect(await page.getByText(/not time-bound/i).count()).toBeGreaterThan(0);
+    // …and at least one demo claim has an already-closed window.
+    await expect(page.getByText(/window closed/i).first()).toBeVisible();
+  });
+
   test("staff can resolve — the controls are enabled", async ({ page }) => {
     // Default identity is staff (no cookie), which holds revenue.resolve.
     await page.goto("/revenue");

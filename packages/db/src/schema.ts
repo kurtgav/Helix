@@ -7,6 +7,7 @@ import type {
   Requirement,
   Gap,
   Evidence,
+  PolicyCheck,
 } from "@helix/shared";
 import { sql } from "drizzle-orm";
 import {
@@ -204,6 +205,10 @@ export const eligibilityChecks = pgTable(
     // cannot time themselves) stay honest — the ROI aggregator substitutes its
     // documented default instead of us inventing a number.
     durationMs: integer("duration_ms"),
+    // Deterministic policy-intelligence checks (coverage window, waiting
+    // period, PEC, benefit limit, filing window). Nullable: rows written
+    // before the policy layer shipped simply have none.
+    policyChecks: jsonb("policy_checks").$type<PolicyCheck[]>(),
     checkedAt: timestamp("checked_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

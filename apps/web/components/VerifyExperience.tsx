@@ -78,15 +78,17 @@ export function VerifyExperience({ payers, services, locale }: Props) {
   }
 
   // Effortless demo: drop in a valid synthetic walk-in (Maxicare · MRI, matching
-  // the landing thesis). Client-only — this never touches the API contract.
+  // the landing thesis). The member id matches the mock payer directory, so the
+  // demo shows the full policy-check pass path. Client-only — never touches the
+  // API contract.
   function loadSample() {
     setForm({
       fullName: "Juan Dela Cruz",
       birthDate: "1990-04-12",
       sex: "M",
       payerId: payers[0]?.id ?? "",
-      memberId: "MX-0244163",
-      planName: "Prima Gold",
+      memberId: "MX-0098-2231",
+      planName: "Maxicare Prima",
       serviceCode: services[0]?.code ?? "",
     });
     setErrors({});

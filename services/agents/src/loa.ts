@@ -25,6 +25,8 @@ export interface DraftLOAInput {
   requirements: readonly Requirement[];
   gaps: readonly Gap[];
   createdAt: string;
+  /** Days the issued LOA stays valid (payer policy / rulebook default). */
+  loaValidityDays?: number;
 }
 
 /** Human-readable list of the documents this LOA requires. */
@@ -64,6 +66,15 @@ function composeBody(input: DraftLOAInput, missing: readonly string[]): string {
       ``,
       `Outstanding documents to be collected before submission:`,
       ...missing.map((label) => `  - ${label}`),
+    );
+  }
+
+  if (input.loaValidityDays !== undefined) {
+    lines.push(
+      ``,
+      `Note: once issued, this authorization is typically valid for ` +
+        `${input.loaValidityDays} days per payer policy — schedule the service ` +
+        `within that window.`,
     );
   }
 

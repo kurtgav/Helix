@@ -13,6 +13,7 @@ import {
   type EligibilityStatus,
   type LOAStatus,
   type PayerId,
+  type PolicyProfile,
 } from "@helix/shared";
 import {
   eligibilityQuerySchema,
@@ -27,6 +28,7 @@ import {
   payerFixtureSchema,
   type PayerFixture,
   type FixturePlanRule,
+  type FixturePlanPolicy,
 } from "../fixtures/schema";
 
 /** djb2 — tiny stable string hash for deterministic mock references. */
@@ -105,6 +107,71 @@ export class MockPayerAdapter implements PayerAdapter {
     if (rule) evidence.push(this.ruleEvidence(rule));
 
     return ok({ status, benefit: rule?.benefit, evidence });
+  }
+
+  async getPolicyProfile(
+    memberId: string,
+  ): Promise<Result<PolicyProfile | null>> {
+    if (typeof memberId !== "string" || memberId.trim().length === 0) {
+      return err({
+        code: "invalid_input",
+        message: "A non-empty member id is required",
+      });
+    }
+
+    const member = this.fixture.members.find((m) => m.memberId === memberId);
+    if (!member) return ok(null);
+
+    const planPolicy: FixturePlanPolicy | undefined =
+      this.fixture.planPolicies?.find((p) => p.planName === member.planName);
+
+    const evidence: Evidence[] = [
+      {
+        source: `payer:${this.fixture.payerId}/members`,
+        ref: `#${member.memberId}`,
+        snippet: `${member.planName} — ${member.status}${
+          member.validFrom ? ` — valid ${member.validFrom}..${member.validTo ?? "open"}` : ""
+        }`,
+      },
+    ];
+    if (planPolicy) {
+      evidence.push({
+        source: `payer:${this.fixture.payerId}/policy`,
+        ref: planPolicy.section,
+        snippet: `${planPolicy.planName} (${planPolicy.policyType}) policy terms.`,
+      });
+    }
+
+    return ok({
+      // Member-level type wins; else the plan's declared type; else group —
+      // the dominant PH walk-in reality (employer-sponsored HMO).
+      policyType:
+        member.policyType ?? planPolicy?.policyType ?? "corporate_group",
+      planName: member.planName,
+      status: member.status,
+      ...(member.validFrom !== undefined ? { validFrom: member.validFrom } : {}),
+      ...(member.validTo !== undefined ? { validTo: member.validTo } : {}),
+      ...(member.effectiveDate !== undefined
+        ? { effectiveDate: member.effectiveDate }
+        : {}),
+      ...(planPolicy?.waitingPeriodDays !== undefined
+        ? { waitingPeriodDays: planPolicy.waitingPeriodDays }
+        : {}),
+      ...(planPolicy?.pecExclusionMonths !== undefined
+        ? { pecExclusionMonths: planPolicy.pecExclusionMonths }
+        : {}),
+      ...(planPolicy?.pecCovered !== undefined
+        ? { pecCovered: planPolicy.pecCovered }
+        : {}),
+      ...(planPolicy?.mblPhp !== undefined ? { mblPhp: planPolicy.mblPhp } : {}),
+      ...(member.usedBenefitPhp !== undefined
+        ? { usedBenefitPhp: member.usedBenefitPhp }
+        : {}),
+      ...(planPolicy?.loaValidityDays !== undefined
+        ? { loaValidityDays: planPolicy.loaValidityDays }
+        : {}),
+      evidence,
+    });
   }
 
   async getRequirements(

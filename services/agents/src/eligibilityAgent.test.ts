@@ -202,6 +202,115 @@ describe("runEligibility — LLM PHI minimization", () => {
   });
 });
 
+describe("runEligibility — policy intelligence", () => {
+  it("attaches cited policy checks (incl. the claim-filing window) on a clean member", async () => {
+    const action = await runEligibility(intake(), makeCtx(eligibleLLM()));
+
+    const checks = action.proposal.eligibility.policyChecks ?? [];
+    expect(checks.length).toBeGreaterThanOrEqual(4);
+    const kinds = checks.map((c) => c.kind);
+    expect(kinds).toContain("coverage_window");
+    expect(kinds).toContain("pre_existing");
+    expect(kinds).toContain("benefit_limit");
+    expect(kinds).toContain("filing_window");
+    // Every check is cited.
+    for (const check of checks) expect(check.evidence.length).toBeGreaterThan(0);
+    // The clean corporate member passes everything except informational rows.
+    expect(checks.every((c) => c.status === "pass")).toBe(true);
+    expect(action.proposal.eligibility.status).toBe("eligible");
+  });
+
+  it("escalates to ineligible while an individual plan's waiting period is active", async () => {
+    // MX-7719-0058 took effect 2026-07-01; FIXED_NOW is day 11 of a 30-day wait.
+    const action = await runEligibility(
+      intake({
+        coverage: {
+          payerId: "maxicare",
+          memberId: "MX-7719-0058",
+          planName: "Maxicare Prima Individual",
+        },
+      }),
+      makeCtx(eligibleLLM()),
+    );
+
+    const { eligibility } = action.proposal;
+    expect(eligibility.status).toBe("ineligible");
+    const waiting = eligibility.policyChecks?.find(
+      (c) => c.kind === "waiting_period",
+    );
+    expect(waiting?.status).toBe("fail");
+    expect(waiting?.detail).toContain("2026-07-31");
+    // The failure surfaces as a blocking gap for the UI.
+    expect(
+      eligibility.gaps.some(
+        (g) => g.blocking && g.message.includes("waiting period"),
+      ),
+    ).toBe(true);
+  });
+
+  it("flags needs_review inside an individual PEC exclusion window (never decides the condition)", async () => {
+    // MX-7719-0042 served its waiting period but is inside the 12-month PEC window.
+    const action = await runEligibility(
+      intake({
+        coverage: {
+          payerId: "maxicare",
+          memberId: "MX-7719-0042",
+          planName: "Maxicare Prima Individual",
+        },
+      }),
+      makeCtx(eligibleLLM()),
+    );
+
+    const { eligibility } = action.proposal;
+    expect(eligibility.status).toBe("needs_review");
+    const pec = eligibility.policyChecks?.find((c) => c.kind === "pre_existing");
+    expect(pec?.status).toBe("attention");
+    expect(pec?.detail).toMatch(/human must confirm/i);
+  });
+
+  it("escalates to ineligible when the member's benefit limit is exhausted", async () => {
+    const action = await runEligibility(
+      intake({
+        coverage: {
+          payerId: "maxicare",
+          memberId: "MX-0031-9954",
+          planName: "Maxicare Prima",
+        },
+      }),
+      makeCtx(eligibleLLM()),
+    );
+
+    const { eligibility } = action.proposal;
+    expect(eligibility.status).toBe("ineligible");
+    const mbl = eligibility.policyChecks?.find((c) => c.kind === "benefit_limit");
+    expect(mbl?.status).toBe("fail");
+    expect(mbl?.detail).toMatch(/exhausted/);
+  });
+
+  it("emits a single unknown policy check for an unknown member", async () => {
+    const action = await runEligibility(
+      intake({
+        coverage: {
+          payerId: "maxicare",
+          memberId: "MX-UNKNOWN-1",
+          planName: "Maxicare Prima",
+        },
+      }),
+      makeCtx(new MockProvider()),
+    );
+
+    const checks = action.proposal.eligibility.policyChecks ?? [];
+    expect(checks).toHaveLength(1);
+    expect(checks[0]?.status).toBe("unknown");
+    expect(action.proposal.eligibility.status).toBe("needs_review");
+  });
+
+  it("notes the payer's LOA validity window in the drafted letter", async () => {
+    const action = await runEligibility(intake(), makeCtx(eligibleLLM()));
+    expect(action.proposal.loa.body).toContain("valid for 30 days");
+  });
+});
+
 describe("scoreConfidence", () => {
   it("is high when a decided adapter answer agrees with the LLM and evidence exists", () => {
     expect(

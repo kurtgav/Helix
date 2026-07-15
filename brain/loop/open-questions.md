@@ -26,7 +26,8 @@ source: accumulated unknowns; each is a validation target
 
 ## Blocking real (non-mock) payer integration
 - [ ] PhilHealth eligibility/eClaims interface available to a small diagnostic center; accreditation
-- [ ] Per-HMO verification + LOA channel (portal/API/call/email), LOA validity windows, covered-vs-approval service lists
+- [ ] Per-HMO verification + LOA channel (portal/API/call/email), covered-vs-approval service lists
+  - ✅ *Researched (iteration 9):* statutory/circular deadlines + published LOA validity windows now cited in [[ph-denial-and-eligibility-rules]] and encoded in `@helix/payers` knowledge (PhilHealth 60d filing / 15d MR / 60d RTH verified; Maxicare LOA 30d + PhilCare 3d official). Still open: per-contract provider filing windows and each HMO's reconsideration window (`verifyBeforeLive` flags in code).
 - [ ] Data-sharing/consent language required by each payer
 
 ## Compliance / data

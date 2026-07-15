@@ -99,12 +99,86 @@ export interface Evidence {
   snippet?: string;
 }
 
+// --- Policy intelligence (deterministic, cited — never invented) ---
+// How the member holds the coverage. PH reality: corporate/group HMO plans
+// (employer-sponsored) and individual/family plans carry materially different
+// eligibility rules (waiting periods, pre-existing-condition exclusions,
+// benefit limits); PhilHealth is government social insurance.
+export type PolicyType = "corporate_group" | "individual_family" | "government";
+
+// One deterministic policy check the engine ran. `fail` = administratively
+// certain from cited policy data; `attention` = a human must review (e.g. a
+// pre-existing-condition exclusion exists on the plan — Helix flags the RULE,
+// it never judges the condition); `unknown` = the data to decide is missing.
+export type PolicyCheckStatus = "pass" | "fail" | "attention" | "unknown";
+
+export type PolicyCheckKind =
+  | "coverage_window"
+  | "waiting_period"
+  | "pre_existing"
+  | "benefit_limit"
+  | "filing_window";
+
+export interface PolicyCheck {
+  kind: PolicyCheckKind;
+  status: PolicyCheckStatus;
+  label: string;
+  detail: string;
+  evidence: Evidence[];
+}
+
+// Time-bound windows (claim filing, denial appeal, LOA validity) assessed
+// against a concrete date. `daysRemaining` < 0 means the window already closed.
+export type DeadlineUrgency = "expired" | "critical" | "soon" | "open";
+
+export type DeadlineKind = "claim_filing" | "appeal" | "refile" | "loa_validity";
+
+export interface DeadlineAssessment {
+  kind: DeadlineKind;
+  /** ISO date the window is measured from (service date, denial date, issue date). */
+  basis: string;
+  /** ISO date the window closes (inclusive). */
+  deadline: string;
+  daysRemaining: number;
+  urgency: DeadlineUrgency;
+  /** Stable reference to the rule that sets the window, e.g. "reg:philhealth/circular-2018-0014". */
+  ruleRef: string;
+}
+
+// The policy-relevant facts a payer adapter can retrieve for one member —
+// the raw material the deterministic policy engine reasons over. Every field
+// is retrieved (fixture/live), never inferred.
+export interface PolicyProfile {
+  policyType: PolicyType;
+  planName: string;
+  status: CoverageStatus;
+  validFrom?: string;
+  validTo?: string;
+  /** When the policy took effect (drives waiting-period math). */
+  effectiveDate?: string;
+  /** Days after effectiveDate before non-emergency availment is covered. */
+  waitingPeriodDays?: number;
+  /** Months pre-existing conditions stay excluded (individual plans). */
+  pecExclusionMonths?: number;
+  /** True when the plan covers pre-existing conditions (typical group waiver). */
+  pecCovered?: boolean;
+  /** Maximum benefit limit per illness/year, in PHP. */
+  mblPhp?: number;
+  /** Benefit already consumed against the MBL, in PHP. */
+  usedBenefitPhp?: number;
+  /** Days an issued LOA stays valid for this payer/plan. */
+  loaValidityDays?: number;
+  evidence: Evidence[];
+}
+
 export interface EligibilityResult {
   status: EligibilityStatus;
   benefit?: string;
   requirements: Requirement[];
   gaps: Gap[];
   evidence: Evidence[];
+  /** Deterministic, cited policy checks (coverage window, waiting period, …). */
+  policyChecks?: PolicyCheck[];
   checkedAt: string;
 }
 
@@ -231,6 +305,8 @@ export interface DenialCase {
   reason: DenialReason;
   deniedAt: string; // ISO
   ageDays: number;
+  /** ISO date the service was rendered — anchors the claim-filing window. */
+  serviceDate?: string;
 }
 
 // The agent's per-case determination — recoverable? which action? what fixes?
@@ -243,6 +319,8 @@ export interface RevenueCycleFinding {
   requiredFixes: string[];
   risk: RevenueRisk;
   rationale: string;
+  /** The governing recovery window (appeal / filing), assessed and cited. */
+  deadline?: DeadlineAssessment;
 }
 
 // The full proposal the agent returns for one batch of cases.

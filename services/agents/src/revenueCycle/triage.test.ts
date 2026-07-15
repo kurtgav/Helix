@@ -141,8 +141,8 @@ describe("triageDenials — reason classification", () => {
   });
 });
 
-describe("triageDenials — recoverability age gates", () => {
-  it("eligibility_lapsed flips to write_off past the 30-day window", () => {
+describe("triageDenials — payer-aware recovery windows", () => {
+  it("HMO eligibility_lapsed flips to write_off past the 30-day contractual window", () => {
     const recoverable = triageOne({ reason: "eligibility_lapsed", ageDays: 30 });
     const lapsed = triageOne({ reason: "eligibility_lapsed", ageDays: 31 });
 
@@ -155,9 +155,9 @@ describe("triageDenials — recoverability age gates", () => {
     expect(lapsed.recommendedAction).toBe("write_off");
   });
 
-  it("late_filing flips to write_off past the 60-day window", () => {
-    const recoverable = triageOne({ reason: "late_filing", ageDays: 60, amount: 100 });
-    const lapsed = triageOne({ reason: "late_filing", ageDays: 61, amount: 100 });
+  it("HMO late_filing flips to write_off past the 30-day contractual window", () => {
+    const recoverable = triageOne({ reason: "late_filing", ageDays: 30, amount: 100 });
+    const lapsed = triageOne({ reason: "late_filing", ageDays: 31, amount: 100 });
 
     expect(recoverable.recoverable).toBe(true);
     expect(recoverable.recommendedAction).toBe("appeal");
@@ -166,13 +166,85 @@ describe("triageDenials — recoverability age gates", () => {
     expect(lapsed.recommendedAction).toBe("write_off");
   });
 
-  it("fixed-recoverability reasons ignore age entirely", () => {
+  it("PhilHealth denials get the verified 15-day motion-for-reconsideration window", () => {
+    const philhealth = { payerId: "philhealth" as PayerId };
+    const recoverable = triageOne({ ...philhealth, reason: "late_filing", ageDays: 15, amount: 100 });
+    const lapsed = triageOne({ ...philhealth, reason: "late_filing", ageDays: 16, amount: 100 });
+
+    expect(recoverable.recoverable).toBe(true);
+    expect(recoverable.recommendedAction).toBe("appeal");
+    expect(recoverable.deadline!.ruleRef).toBe("reg:philhealth/philhealth-appeal");
+
+    expect(lapsed.recoverable).toBe(false);
+    expect(lapsed.recommendedAction).toBe("write_off");
+  });
+
+  it("PhilHealth correctable claims ride the verified 60-day RTH refile window", () => {
+    const philhealth = { payerId: "philhealth" as PayerId };
+    const within = triageOne({ ...philhealth, reason: "missing_document", ageDays: 60 });
+    const past = triageOne({ ...philhealth, reason: "coding_mismatch", ageDays: 61 });
+
+    expect(within.recoverable).toBe(true);
+    expect(within.recommendedAction).toBe("correct_and_resubmit");
+    expect(within.deadline!.kind).toBe("refile");
+    expect(within.deadline!.ruleRef).toBe("reg:philhealth/philhealth-rth-refile");
+
+    expect(past.recoverable).toBe(false);
+    expect(past.recommendedAction).toBe("write_off");
+  });
+
+  it("HMO fixed-recoverability reasons ignore age entirely (no published refile window)", () => {
     const young = triageOne({ reason: "missing_loa", ageDays: 1 });
     const old = triageOne({ reason: "missing_loa", ageDays: 999 });
+    const oldDoc = triageOne({ reason: "missing_document", ageDays: 999 });
 
     expect(young.recoverable).toBe(true);
     expect(old.recoverable).toBe(true);
     expect(old.recommendedAction).toBe("correct_and_resubmit");
+    expect(oldDoc.recoverable).toBe(true);
+    expect(oldDoc.deadline).toBeUndefined();
+  });
+});
+
+describe("triageDenials — deadline assessments", () => {
+  it("attaches the reconsideration deadline to governed reasons", () => {
+    const finding = triageOne({
+      reason: "eligibility_lapsed",
+      deniedAt: "2026-07-01T00:00:00.000Z",
+      ageDays: 10,
+    });
+
+    expect(finding.deadline).toBeDefined();
+    expect(finding.deadline!.kind).toBe("appeal");
+    expect(finding.deadline!.basis).toBe("2026-07-01");
+    expect(finding.deadline!.deadline).toBe("2026-07-31"); // +30d (HMO default)
+    expect(finding.deadline!.daysRemaining).toBe(20);
+    expect(finding.deadline!.urgency).toBe("open");
+    expect(finding.rationale).toContain("2026-07-31");
+  });
+
+  it("marks urgency tiers from days remaining", () => {
+    const critical = triageOne({ reason: "late_filing", ageDays: 25 }); // 5d left
+    const soon = triageOne({ reason: "late_filing", ageDays: 18 }); // 12d left
+    const expired = triageOne({ reason: "late_filing", ageDays: 40 }); // -10d
+
+    expect(critical.deadline!.urgency).toBe("critical");
+    expect(soon.deadline!.urgency).toBe("soon");
+    expect(expired.deadline!.urgency).toBe("expired");
+  });
+
+  it("attaches an informational deadline to service_not_covered without gating", () => {
+    const finding = triageOne({ reason: "service_not_covered", ageDays: 5 });
+
+    expect(finding.deadline).toBeDefined();
+    expect(finding.recoverable).toBe(false);
+    expect(finding.recommendedAction).toBe("appeal");
+  });
+
+  it("leaves clock-independent reasons without a deadline", () => {
+    expect(triageOne({ reason: "missing_loa" }).deadline).toBeUndefined();
+    expect(triageOne({ reason: "duplicate_claim" }).deadline).toBeUndefined();
+    expect(triageOne({ reason: "other" }).deadline).toBeUndefined();
   });
 });
 

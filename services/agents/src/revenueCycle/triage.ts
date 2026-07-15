@@ -14,24 +14,96 @@
 // human approval; this module just encodes the policy.
 
 import type {
+  DeadlineAssessment,
   DenialCase,
   DenialReason,
+  PayerKind,
   RecoveryAction,
   RevenueRisk,
   RevenueCycleFinding,
 } from "@helix/shared";
+import {
+  appealRule,
+  assessDeadline,
+  refileRule,
+  toUtcDay,
+  type RegulatoryRule,
+} from "@helix/payers";
 
 // Source label for the Helix-local administrative denial-triage policy. This is
 // a Helix operating policy — NOT a specific payer's coverage rule. Every finding
 // and the drafted appeal cite it so a reviewer can trace the reasoning.
 export const REVENUE_POLICY_SOURCE = "policy:helix/revenue-cycle";
 
-// --- Age gates -----------------------------------------------------------
-// Recoverability for time-sensitive denials depends on how long the claim has
-// aged. Past these windows the administrative recovery path is exhausted and the
-// deterministic recommendation flips to write-off. Thresholds are inclusive.
-const ELIGIBILITY_RECOVERABLE_MAX_AGE_DAYS = 30;
-const LATE_FILING_RECOVERABLE_MAX_AGE_DAYS = 60;
+// --- Recovery windows ------------------------------------------------------
+// Recoverability for time-sensitive denials is governed by the payer's actual
+// window from the PH rulebook (@helix/payers knowledge):
+//   - PhilHealth: motion for reconsideration within 15 calendar days of the
+//     denial notice (PC 03 s.2008, verified); returned/RTH claims re-filed
+//     within 60 days of the notice (PC 2018-0014 §V.F, verified).
+//   - PH HMOs: reconsideration windows are CONTRACTUAL — Helix operating
+//     default 30 days, confirm per contract before live use. No published
+//     HMO refile window → HMO document/coding fixes stay clock-independent.
+// Once the governing window closes the administrative recovery path is
+// exhausted and the recommendation flips to write-off. Thresholds inclusive.
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function payerKindOf(payerId: string): PayerKind {
+  return payerId === "philhealth" ? "philhealth" : "hmo";
+}
+
+/** The rulebook window governing one (payer, reason) pair, if any. */
+interface GoverningWindow {
+  readonly rule: RegulatoryRule;
+  /** True → recoverability is gated by the window; false → guidance only. */
+  readonly gates: boolean;
+}
+
+function governingWindow(
+  payerKind: PayerKind,
+  reason: DenialReason,
+): GoverningWindow | undefined {
+  switch (reason) {
+    // The reconsideration window decides whether the money is still reachable.
+    case "eligibility_lapsed":
+    case "late_filing":
+      return { rule: appealRule(payerKind), gates: true };
+    // Correctable deficiencies ride the payer's refile window where one is
+    // published (PhilHealth RTH 60d); HMOs have none → clock-independent.
+    case "missing_document":
+    case "coding_mismatch": {
+      const rule = refileRule(payerKind);
+      return rule ? { rule, gates: true } : undefined;
+    }
+    // Benefit exclusions aren't recoverable, but the appeal-by date is the
+    // only lever a reviewer has — attach it as guidance.
+    case "service_not_covered":
+      return { rule: appealRule(payerKind), gates: false };
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Assess the governing recovery window for one denial. Deterministic with no
+ * wall clock: "today" is reconstructed from the claim's own
+ * `deniedAt + ageDays`, so the same case always yields the same assessment.
+ * Returns undefined for clock-independent (payer, reason) pairs.
+ */
+export function recoveryDeadlineFor(
+  denialCase: DenialCase,
+): DeadlineAssessment | undefined {
+  const window = governingWindow(
+    payerKindOf(denialCase.payerId),
+    denialCase.reason,
+  );
+  if (!window) return undefined;
+  const todayIso = new Date(
+    toUtcDay(denialCase.deniedAt) + denialCase.ageDays * DAY_MS,
+  ).toISOString();
+  return assessDeadline(window.rule, denialCase.deniedAt, todayIso);
+}
 
 // --- Risk tiers ----------------------------------------------------------
 // Risk escalates on either dimension: pesos at stake OR age (older claims are
@@ -42,17 +114,15 @@ const RISK_MEDIUM_AMOUNT = 3_000;
 const RISK_MEDIUM_AGE_DAYS = 20;
 
 /**
- * The deterministic policy for one denial reason.
- *
- * `recoverableWithinDays` encodes the age gate: `null` means recoverability is
- * fixed (age-independent); a number means the claim is recoverable only while
- * `ageDays <= recoverableWithinDays`, after which the action becomes write_off.
+ * The deterministic policy for one denial reason. Reasons listed in
+ * `DEADLINE_GOVERNED` are recoverable only while the payer's reconsideration
+ * window (PH rulebook, payer-kind aware) is still open — past it the action
+ * becomes write_off. All other reasons keep their fixed recoverability.
  */
 interface DenialPolicy {
   readonly action: RecoveryAction;
   readonly recoverable: boolean;
   readonly fixes: readonly string[];
-  readonly recoverableWithinDays: number | null;
 }
 
 // Fixed corrective-action lists, one per reason. Named + frozen so the policy is
@@ -94,26 +164,23 @@ const FIXES_OTHER: readonly string[] = Object.freeze(["manual review with payer"
  * `noUncheckedIndexedAccess`. Frozen for immutability.
  */
 const DENIAL_POLICY = Object.freeze({
-  // Coverage lapsed at service time. Recoverable while the appeal window is open;
-  // beyond it the administrative path is exhausted → write-off.
+  // Coverage lapsed at service time. Recoverable while the payer's
+  // reconsideration window is open; beyond it → write-off (deadline-governed).
   eligibility_lapsed: {
     action: "contact_payer",
     recoverable: true,
-    recoverableWithinDays: ELIGIBILITY_RECOVERABLE_MAX_AGE_DAYS,
     fixes: FIXES_ELIGIBILITY_LAPSED,
   },
   // Missing letter of authorization / pre-auth — obtain it, then resubmit.
   missing_loa: {
     action: "correct_and_resubmit",
     recoverable: true,
-    recoverableWithinDays: null,
     fixes: FIXES_MISSING_LOA,
   },
   // Missing supporting document (referral / doctor's request) — attach + resubmit.
   missing_document: {
     action: "correct_and_resubmit",
     recoverable: true,
-    recoverableWithinDays: null,
     fixes: FIXES_MISSING_DOCUMENT,
   },
   // Benefit exclusion. Usually not recoverable; the only lever is an appeal that
@@ -121,36 +188,31 @@ const DENIAL_POLICY = Object.freeze({
   service_not_covered: {
     action: "appeal",
     recoverable: false,
-    recoverableWithinDays: null,
     fixes: FIXES_SERVICE_NOT_COVERED,
   },
   // Service/diagnosis coding error — correct the codes and resubmit.
   coding_mismatch: {
     action: "correct_and_resubmit",
     recoverable: true,
-    recoverableWithinDays: null,
     fixes: FIXES_CODING_MISMATCH,
   },
-  // Filed past the deadline. Recoverable via a timeliness appeal within a wider
-  // window; beyond it → write-off.
+  // Filed past the deadline. Recoverable via a timeliness appeal while the
+  // payer's reconsideration window is open; beyond it → write-off.
   late_filing: {
     action: "appeal",
     recoverable: true,
-    recoverableWithinDays: LATE_FILING_RECOVERABLE_MAX_AGE_DAYS,
     fixes: FIXES_LATE_FILING,
   },
   // Duplicate of an already-submitted claim — not new money; void the duplicate.
   duplicate_claim: {
     action: "resubmit",
     recoverable: false,
-    recoverableWithinDays: null,
     fixes: FIXES_DUPLICATE_CLAIM,
   },
   // Unclassified — the catch-all. Route to a human for manual payer review.
   other: {
     action: "contact_payer",
     recoverable: false,
-    recoverableWithinDays: null,
     fixes: FIXES_OTHER,
   },
 } satisfies Record<DenialReason, DenialPolicy>);
@@ -181,15 +243,22 @@ function buildFindingRationale(
   action: RecoveryAction,
   recoverable: boolean,
   risk: RevenueRisk,
+  deadline?: DeadlineAssessment,
 ): string {
   const recoverText = recoverable
     ? "administratively recoverable"
     : "low recovery likelihood";
+  const deadlineText = deadline
+    ? deadline.daysRemaining >= 0
+      ? ` Recovery window closes ${deadline.deadline} ` +
+        `(${deadline.daysRemaining}d left) per ${deadline.ruleRef}.`
+      : ` Recovery window closed ${deadline.deadline} per ${deadline.ruleRef}.`
+    : "";
   return (
     `Denial '${denialCase.reason}' on ${denialCase.serviceName} ` +
     `(${denialCase.serviceCode}): ${recoverText}; recommend '${action}'. ` +
     `Revenue risk: ${risk} (₱${formatPesos(denialCase.amount)}, aged ` +
-    `${denialCase.ageDays}d). Administrative determination per ` +
+    `${denialCase.ageDays}d).${deadlineText} Administrative determination per ` +
     `${REVENUE_POLICY_SOURCE}; no payer rule invented.`
   );
 }
@@ -198,24 +267,31 @@ function buildFindingRationale(
  * Triage a batch of denied / at-risk claims into per-claim findings. Pure and
  * deterministic — the same input always yields the same findings, in input order.
  *
- * For age-gated reasons (`eligibility_lapsed`, `late_filing`) recoverability is
- * decided by the claim's age against the policy window; once the window closes
- * the recommendation flips to `write_off`. All other reasons use their fixed
- * recoverability. `amountAtRisk` is the claim's full amount.
+ * Recoverability for deadline-governed (payer, reason) pairs is decided by the
+ * PH rulebook window (PhilHealth: 15d motion for reconsideration, 60d RTH
+ * refile; HMO: 30d contractual default for reconsideration): once the window
+ * closes the recommendation flips to `write_off`. All other reasons keep their
+ * fixed recoverability. `amountAtRisk` is the claim's full amount.
  */
 export function triageDenials(
   cases: readonly DenialCase[],
 ): RevenueCycleFinding[] {
   return cases.map((denialCase) => {
     const policy = DENIAL_POLICY[denialCase.reason];
-    const threshold = policy.recoverableWithinDays;
+    const window = governingWindow(
+      payerKindOf(denialCase.payerId),
+      denialCase.reason,
+    );
+    const deadline = window ? recoveryDeadlineFor(denialCase) : undefined;
+    const governed = window?.gates === true;
 
-    // Age gate: within the window it stays recoverable with the policy action;
-    // past the window it is a write-off. Fixed reasons ignore age entirely.
-    const recoverable =
-      threshold !== null ? denialCase.ageDays <= threshold : policy.recoverable;
+    // Deadline gate: within the payer window it stays recoverable with the
+    // policy action; past the window it is a write-off. Fixed reasons ignore
+    // the clock entirely.
+    const windowOpen = deadline === undefined || deadline.daysRemaining >= 0;
+    const recoverable = governed ? policy.recoverable && windowOpen : policy.recoverable;
     const recommendedAction: RecoveryAction =
-      threshold !== null && !recoverable ? "write_off" : policy.action;
+      governed && !windowOpen ? "write_off" : policy.action;
 
     const risk = assessRisk(denialCase.amount, denialCase.ageDays);
 
@@ -234,7 +310,9 @@ export function triageDenials(
         recommendedAction,
         recoverable,
         risk,
+        deadline,
       ),
+      ...(deadline !== undefined ? { deadline } : {}),
     };
   });
 }

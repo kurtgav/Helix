@@ -12,6 +12,7 @@ import type {
   LOARequest,
   LOAStatus,
   PayerKind,
+  PolicyCheck,
   ProposedAction,
   Requirement,
   ServiceCategory,
@@ -145,6 +146,7 @@ export async function saveEligibilityCheck(
     evidence: e.evidence,
     // Whole milliseconds; sub-ms noise adds nothing to an ROI average.
     durationMs: durationMs === undefined ? null : Math.max(0, Math.round(durationMs)),
+    policyChecks: e.policyChecks ?? null,
     checkedAt: new Date(e.checkedAt),
   });
 }
@@ -199,6 +201,7 @@ export async function loadProposalByEncounter(
     requirements: (check.requirements ?? []) as Requirement[],
     gaps: (check.gaps ?? []) as Gap[],
     evidence: (check.evidence ?? []) as Evidence[],
+    ...(check.policyChecks ? { policyChecks: check.policyChecks as PolicyCheck[] } : {}),
     checkedAt: check.checkedAt.toISOString(),
   };
   const loa: LOARequest = {

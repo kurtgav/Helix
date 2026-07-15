@@ -68,11 +68,42 @@ export const evidenceSchema = z.object({
   snippet: z.string().optional(),
 });
 
+// Policy intelligence — deterministic, cited checks + deadline assessments.
+export const policyTypeSchema = z.enum([
+  "corporate_group",
+  "individual_family",
+  "government",
+]);
+
+export const policyCheckSchema = z.object({
+  kind: z.enum([
+    "coverage_window",
+    "waiting_period",
+    "pre_existing",
+    "benefit_limit",
+    "filing_window",
+  ]),
+  status: z.enum(["pass", "fail", "attention", "unknown"]),
+  label: z.string(),
+  detail: z.string(),
+  evidence: z.array(evidenceSchema),
+});
+
+export const deadlineAssessmentSchema = z.object({
+  kind: z.enum(["claim_filing", "appeal", "refile", "loa_validity"]),
+  basis: z.string(),
+  deadline: z.string(),
+  daysRemaining: z.number().int(),
+  urgency: z.enum(["expired", "critical", "soon", "open"]),
+  ruleRef: z.string(),
+});
+
 export const eligibilityResultSchema = z.object({
   status: z.enum(["eligible", "ineligible", "needs_review"]),
   benefit: z.string().optional(),
   requirements: z.array(requirementSchema),
   gaps: z.array(gapSchema),
   evidence: z.array(evidenceSchema),
+  policyChecks: z.array(policyCheckSchema).optional(),
   checkedAt: z.string(),
 });
