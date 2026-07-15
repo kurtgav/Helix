@@ -125,6 +125,12 @@ interface Props {
 }
 
 export function RevenueTriageTable({ rows, t }: Props) {
+  // Defensive fallback in lib/revenue.ts can hand back zero findings — an
+  // explicit empty card beats a header-only table.
+  if (rows.length === 0) {
+    return <p className="rev-table__empty">{t.triageEmpty}</p>;
+  }
+
   return (
     <div className="rev-table__scroll">
       <table className="rev-table">

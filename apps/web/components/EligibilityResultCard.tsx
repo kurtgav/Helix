@@ -11,21 +11,6 @@ import { DICTS, type Dict, type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/Icon";
 
-// Signal glyph for newly-added sprite symbols (peso/clock/quote/…), mirroring
-// <Icon/> without touching its typed name union.
-function Sig({ id, size = 15 }: { id: string; size?: number }) {
-  return (
-    <svg
-      className="ico"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <use href={`#i-${id}`} />
-    </svg>
-  );
-}
-
 type ResultDict = Dict["result"];
 
 const STATUS_ICON: Record<string, IconName> = {
@@ -162,7 +147,7 @@ export function EligibilityResultCard({ proposal, locale }: Props) {
                 <span className="erc__req-tag">{t.loaRequired}</span>
               ) : null}
               <span className="erc__doc-edit">
-                <Sig id="pencil" size={12} />
+                <Icon name="pencil" size={12} />
                 {loaEdited ? t.loaEdited : t.loaEditable}
               </span>
             </div>
@@ -416,7 +401,7 @@ function EvidenceSection({
   return (
     <section className="erc__sec">
       <h3 className="erc__sec-title">
-        <Sig id="link" size={14} /> {t.evidenceTitle}
+        <Icon name="link" size={14} /> {t.evidenceTitle}
       </h3>
       {rationale ? <p className="erc__rationale">{rationale}</p> : null}
       {evidence.length > 0 ? (

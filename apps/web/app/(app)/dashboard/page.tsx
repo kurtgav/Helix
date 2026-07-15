@@ -114,9 +114,7 @@ export default async function DashboardPage() {
 
           <Card>
             <CardBody>
-              <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-                {t.disclaimer}
-              </p>
+              <p className="muted text-sm">{t.disclaimer}</p>
             </CardBody>
           </Card>
         </aside>

@@ -72,7 +72,13 @@ test.describe("Brain explorer (staff — default role)", () => {
 
   test("unknown note slugs 404", async ({ page }) => {
     const response = await page.goto("/brain/not-a-real-note");
+    // A REAL 404 status (why /brain ships no loading.tsx: a streaming shell
+    // would flush 200 before notFound() runs)…
     expect(response?.status()).toBe(404);
+    // …rendered IN the app shell, with routes back into the product.
+    await expect(page.getByRole("heading", { name: /page not found/i })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: /product/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /browse the brain/i })).toBeVisible();
   });
 });
 

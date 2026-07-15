@@ -11,22 +11,6 @@ import { TextField, SelectField } from "@/components/ui/Field";
 import { Icon } from "@/components/Icon";
 import { EligibilityResultCard } from "@/components/EligibilityResultCard";
 
-// Signal glyph — references a sprite symbol by id (mirrors <Icon/> but not bound
-// to its typed name union, so newly-added sprite symbols like "spark" work here
-// without editing the shared Icon component).
-function Sig({ id, size = 16 }: { id: string; size?: number }) {
-  return (
-    <svg
-      className="ico"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <use href={`#i-${id}`} />
-    </svg>
-  );
-}
-
 interface Props {
   payers: readonly PayerOption[];
   services: readonly ServiceOption[];
@@ -167,7 +151,7 @@ export function VerifyExperience({ payers, services, locale }: Props) {
                   <p className="vx-form__sub">{t.formSub}</p>
                 </div>
                 <button type="button" className="vx-sample" onClick={loadSample}>
-                  <Sig id="spark" size={14} /> {t.sample}
+                  <Icon name="spark" size={14} /> {t.sample}
                 </button>
               </div>
 

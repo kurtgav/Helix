@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Icon } from "@/components/Icon";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { formatPesos } from "@/lib/format";
 import { actorCan } from "@/lib/auth";
 import { getDict, getLocale } from "@/lib/i18n/server";
@@ -90,10 +91,17 @@ export default async function RevenuePage() {
               <p className="eyebrow">{t.draftEyebrow}</p>
               <h2 className="rev-draft__title">{t.draftTitle}</h2>
             </div>
-            <span className="rev-tag">
-              <Icon name="doc" size={12} />
-              {t.draftTag}
-            </span>
+            <div className="rev-draft__tools">
+              <CopyButton
+                text={draftMessage}
+                label={t.copyDraft}
+                copiedLabel={t.copiedDraft}
+              />
+              <span className="rev-tag">
+                <Icon name="doc" size={12} />
+                {t.draftTag}
+              </span>
+            </div>
           </div>
           <pre className="rev-draft__body">{draftMessage}</pre>
         </section>
@@ -116,17 +124,21 @@ export default async function RevenuePage() {
 
           <div className="rev-cites">
             <h3 className="section-title">{t.citedSources}</h3>
-            <ul className="evidence">
-              {action.evidence.map((ev) => (
-                <li key={`${ev.source}${ev.ref}`}>
-                  {ev.snippet ?? ev.ref}
-                  <span className="evidence__src">
-                    {ev.source}
-                    {ev.ref}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {action.evidence.length > 0 ? (
+              <ul className="evidence">
+                {action.evidence.map((ev) => (
+                  <li key={`${ev.source}${ev.ref}`}>
+                    {ev.snippet ?? ev.ref}
+                    <span className="evidence__src">
+                      {ev.source}
+                      {ev.ref}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">{t.noCitations}</p>
+            )}
           </div>
 
           <ResolveBar
@@ -141,9 +153,7 @@ export default async function RevenuePage() {
 
       <Card>
         <CardBody>
-          <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-            {t.disclaimer}
-          </p>
+          <p className="muted text-sm">{t.disclaimer}</p>
         </CardBody>
       </Card>
     </>
